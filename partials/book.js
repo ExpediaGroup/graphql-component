@@ -22,7 +22,7 @@ const rootTypes = `
 
 const resolvers = {
   Query: {
-    book(_, { id }, { act }) {
+    book(_, { id }) {
       throw new Error('Book not implemented');
     }
   },

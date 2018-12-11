@@ -21,7 +21,7 @@ const rootTypes = `
 
 const resolvers = {
   Query: {
-    author(_, { id, version }, { act }) {
+    author(_, { id, version }) {
       throw new Error('Author not implemented');
     }
   }
@@ -29,7 +29,7 @@ const resolvers = {
 
 const fixtures = {
   Query: {
-    author() {
+    async author() {
       return { id: 'an id', name: 'Test Author' };
     }
   }
