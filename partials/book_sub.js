@@ -5,6 +5,7 @@ const Partial = require('../lib/partial');
 const types = `
     # This is a book.
     extend type Book {
+        # Attribute extended from base type
         subTitle: String
     }
 `;

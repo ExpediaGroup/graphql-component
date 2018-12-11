@@ -1,5 +1,5 @@
 {
-  "name": "gateway",
+  "name": "graphql-component",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Trevor Livingston <tlivings@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "apollo-server": "^2.0.7",
     "graphql": "^0.13.2",
