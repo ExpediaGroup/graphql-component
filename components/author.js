@@ -1,5 +1,5 @@
 
-const Partial = require('../lib/partial');
+const GraphQLComponent = require('../lib/component');
 
 const types = `
     # An author.
@@ -35,4 +35,4 @@ const fixtures = {
   }
 };
 
-module.exports = new Partial({ types, rootTypes, resolvers, fixtures });
+module.exports = new GraphQLComponent({ types, rootTypes, resolvers, fixtures });

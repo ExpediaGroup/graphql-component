@@ -1,6 +1,6 @@
 
 const Book = require('./book');
-const Partial = require('../lib/partial');
+const GraphQLComponent = require('../lib/component');
 
 const types = `
     # This is a book.
@@ -26,4 +26,4 @@ const fixtures = {
   }
 };
 
-module.exports = new Partial({ types, resolvers, imports: [Book], fixtures });
+module.exports = new GraphQLComponent({ types, resolvers, imports: [Book], fixtures });

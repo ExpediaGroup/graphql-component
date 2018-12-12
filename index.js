@@ -1,8 +1,8 @@
 
 const { ApolloServer } = require('apollo-server');
-const { mergePartialsSchemas } = require('./lib/merge_partials');
+const { mergeComponentSchemas } = require('./lib/merge_components');
 
-const { schema } = mergePartialsSchemas([require('./partials/author'), require('./partials/book_sub')]);
+const { schema } = mergeComponentSchemas([require('./components/author'), require('./components/book_sub')]);
 
 const server = new ApolloServer({
     schema,

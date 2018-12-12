@@ -10,7 +10,7 @@ Also provides experimental resolver caching for a request to reduce calls.
 ### Usage
 
 ```javascript
-new Partial({ 
+new GraphQLComponent({ 
   // A string or array of strings representing typeDefs
   types,
   // A string or array of strings reprenting rootTypes
@@ -19,19 +19,19 @@ new Partial({
   resolvers, 
   // An optional object containing resolver dev/test fixtures
   fixtures,
-  // An optional array of imported partials
+  // An optional array of imported components
   imports
 });
 ```
 
-This will create an instance object of a partial containing the following functions:
+This will create an instance object of a component containing the following functions:
 
 - `types` - getter that returns an array of typeDefs.
 - `rootTypes` - getter that returns an array of rootTypes.
 - `importedTypes` - getter that returns an array of imported types.
 - `resolvers` - getter that returns resolvers.
 - `schema` - getter that returns an executable schema.
-- `bindings` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported partials resolvers.
+- `bindings` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components resolvers.
 - `fixtures` - getter that returns fixtures.
 
 ### Activating fixtures
