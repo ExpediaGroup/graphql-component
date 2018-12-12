@@ -1,6 +1,6 @@
 # GraphQL schema stitching and components
 
-Introduces the concept of a partial similar to that discussed [here](https://medium.com/homeaway-tech-blog/distributed-graphql-schema-development-npm-modules-d734a3cb6f12).
+Reference implementation around the concept of a partial schema / component similar to that discussed [here](https://medium.com/homeaway-tech-blog/distributed-graphql-schema-development-npm-modules-d734a3cb6f12).
 
 This example takes advantage of existing graphql stitching capabilities from Apollo, but creates a convention 
 for how these schemas can be composed through imports and bindings.
