@@ -49,3 +49,7 @@ To intercept resolvers with fixtures execute your app with `GRAPHQL_DEBUG=1` ena
 
 Currently, this example is experimenting with intercepting resolvers and executing a 
 memoized version of the resolver within the scope of a particular request's `context`.
+
+### Debugging
+
+Enable debug logging with `DEBUG=graphql:*`
