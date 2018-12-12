@@ -7,6 +7,13 @@ for how these schemas can be composed through imports and bindings.
 
 Also provides experimental resolver caching for a request to reduce calls.
 
+### List of potential problems / todo
+
+- Using require to declare import dependency is handy but could create circular dependencies. May be best
+to come in on context after all.
+- No opportunity currently for factory or construction. Solvable by wrapping the component instance.
+- Memoization of resolvers needs to be tested more.
+
 ### Usage
 
 ```javascript
