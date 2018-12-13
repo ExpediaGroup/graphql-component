@@ -14,7 +14,7 @@ const types = `
 const resolvers = {
   Book: {
     author(book, args, context, info) {
-      return Author.bindings.query.author({ id: book.authorId }, info, { context });
+      return Author.Query.author({ id: book.authorId }, info, { context });
     }
   }
 };

@@ -1,6 +1,6 @@
 
-const { isObject } = require('util');
-const memoize = require('lodash.memoize');
+const Util = require('util');
+const Memoize = require('lodash.memoize');
 const debug = require('debug')('graphql:resolver');
 
 const debugFixture = function (fixtures, name, resolverName) {
@@ -14,7 +14,7 @@ const wrapResolvers = function (resolvers = {}, fixtures = {}) {
   const wrapped = {};
 
   for (const [name, value] of Object.entries(resolvers)) {
-    if (isObject(value)) {
+    if (Util.isObject(value)) {
       wrapped[name] = {};
 
       for (const [resolverName, func] of Object.entries(value)) {
@@ -33,7 +33,7 @@ const wrapResolvers = function (resolvers = {}, fixtures = {}) {
             context.memoized[name] = {};
           }
 
-          const memoizedResolver = memoize(resolver);
+          const memoizedResolver = Memoize(resolver);
 
           context.memoized[name][resolverName] = memoizedResolver;
 

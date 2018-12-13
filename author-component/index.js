@@ -29,7 +29,7 @@ const resolvers = {
 
 const fixtures = {
   Query: {
-    async author() {
+    author() {
       return { id: 'an id', name: 'Test Author' };
     }
   }
