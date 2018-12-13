@@ -46,4 +46,28 @@ const wrapResolvers = function (resolvers = {}, fixtures = {}) {
   return wrapped;
 };
 
-module.exports = { wrapResolvers };
+const createDelegates = function (resolvers, imports) {
+
+  for (const imp of imports) {
+    for (const root of ['Query', 'Mutation', 'Subscription']) {
+      if (!imp.resolvers[root]) {
+        continue;
+      }
+
+      for (const [name, value] of Object.entries(imp.resolvers[root])) {
+        if (!resolvers[root]) {
+          resolvers[root] = {};
+        }
+        resolvers[root][name] = function (...args) {
+          debug(`delegating to import's ${root}.${name}`);
+          return value(...args);
+        };
+      }
+      resolvers[root]
+    }
+  }
+
+  return resolvers;
+};
+
+module.exports = { wrapResolvers, createDelegates };

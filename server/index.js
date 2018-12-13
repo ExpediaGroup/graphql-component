@@ -1,11 +1,9 @@
 
 const { ApolloServer } = require('apollo-server');
-const { mergeComponentSchemas } = require('./lib/merge_components');
-
-const { schema } = mergeComponentSchemas([require('../author-component'), require('./custom/book')]);
+const GraphQLComponent = require('../graphql-component');
 
 const server = new ApolloServer({
-    schema,
+    schema: GraphQLComponent.mergeAll([require('../author-component'), require('./custom/book')]),
     context: async (request) => {
         return { request };
     }

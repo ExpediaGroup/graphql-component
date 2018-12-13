@@ -1,7 +1,7 @@
 
 const { Binding } = require('graphql-binding');
 const { makeExecutableSchema, mergeSchemas } = require('graphql-tools');
-const { wrapResolvers } = require('./lib/wrap_resolvers');
+const { wrapResolvers, createDelegates } = require('./lib/wrap_resolvers');
 
 //TODO: remote binding
 class GraphQLComponent {
@@ -25,10 +25,25 @@ class GraphQLComponent {
     //Merge imported partials with this partial's schemas and resolvers
     this._schema = mergeSchemas({
       schemas: [...imports.map((i) => i.schema), schema],
-      resolvers: this._resolvers
+      // Because an imported query will only return the unextended type, ensure we provide a direct resolver that delegates
+      resolvers: createDelegates(this._resolvers, imports)
     });
 
     this._bindings = new Binding({ schema: this._schema });
+  }
+
+  static mergeAll(components) {
+    const schemas = [];
+
+    for (const component of components) {
+        schemas.push(component.schema);
+    }
+
+    const mergedSchema = mergeSchemas({
+        schemas
+    });
+    
+    return mergedSchema;
   }
 
   get types() {
