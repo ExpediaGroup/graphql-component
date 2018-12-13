@@ -11,13 +11,6 @@ const types = `
     }
 `;
 
-const rootTypes = `
-  type Query {
-    # Search for a book by id.
-    bookWithAuthor(id: ID!) : Book
-  }
-`;
-
 const resolvers = {
   Book: {
     author(book, args, context, info) {
@@ -26,4 +19,4 @@ const resolvers = {
   }
 };
 
-module.exports = new GraphQLComponent({ types, rootTypes, resolvers, imports: [Book, Author] });
+module.exports = new GraphQLComponent({ types, resolvers, imports: [Book, Author] });
