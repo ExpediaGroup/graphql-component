@@ -9,8 +9,7 @@ Also provides experimental resolver caching for a request to reduce calls.
 
 ### List of potential problems / todo
 
-- Using require to declare import dependency is handy but could create circular dependencies. May be best
-to come in on context after all.
+- Using require to declare import dependency is handy but could create circular dependencies. 
 - No opportunity currently for factory or construction. Solvable by wrapping the component instance.
 - Memoization of resolvers needs to be tested more.
 
@@ -43,15 +42,24 @@ This will create an instance object of a component containing the following func
 - `Subscription` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components subscription resolvers.
 - `fixtures` - getter that returns fixtures.
 
-### Activating fixtures
-
-To intercept resolvers with fixtures execute your app with `GRAPHQL_DEBUG=1` enabled.
-
 ### Resolver caching
 
-Currently, this example is experimenting with intercepting resolvers and executing a 
-memoized version of the resolver within the scope of a particular request's `context`.
+Schemas in graphql components will support the `@memoize` directive. This will allow resolvers to be memoized within the 
+scope of a particular request context to reduce the number of times a resolver must run for the same data.
+
+Example:
+
+```graphql
+type Query {
+    # Seach for an author by id.
+    author(id: ID!, version: String) : Author @memoize
+}
+```
 
 ### Debugging
 
 Enable debug logging with `DEBUG=graphql:*`
+
+### Activating fixtures
+
+To intercept resolvers with fixtures execute your app with `GRAPHQL_DEBUG=1` enabled.
