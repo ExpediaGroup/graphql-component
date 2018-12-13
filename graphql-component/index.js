@@ -2,6 +2,7 @@
 const { Binding } = require('graphql-binding');
 const GraphQLTools = require('graphql-tools');
 const Resolvers = require('./lib/resolvers');
+const { MemoizeDirective } = require('./lib/directives');
 
 //TODO: remote binding
 //TODO: break imports into imported types and imported resolvers so that you don't create delegates for things you don't need.
@@ -10,7 +11,7 @@ class GraphQLComponent {
 
     this._types = Array.isArray(types) ? types : [types];
     this._fixtures = fixtures;
-    this._resolvers = Resolvers.wrapResolvers(resolvers, this._fixtures);
+    this._resolvers = Resolvers.debugWrap(resolvers, this._fixtures);
 
     this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
 
@@ -27,7 +28,10 @@ class GraphQLComponent {
     this._schema = GraphQLTools.mergeSchemas({
       schemas: [...imports.map((i) => i.schema), schema],
       // Because an imported query will only return the unextended type, ensure we provide a direct resolver that delegates
-      resolvers: Resolvers.createDelegates(this._resolvers, imports)
+      resolvers: Resolvers.createDelegates(this._resolvers, imports),
+      schemaDirectives: {
+        memoize: MemoizeDirective
+      }
     });
 
     this._bindings = new Binding({ schema: this._schema });

@@ -15,7 +15,7 @@ const types = `
 const rootTypes = `
     type Query {
         # Seach for an author by id.
-        author(id: ID!, version: String) : Author
+        author(id: ID!, version: String) : Author @memoize
     }
 `;
 
