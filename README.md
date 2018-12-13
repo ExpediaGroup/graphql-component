@@ -38,7 +38,9 @@ This will create an instance object of a component containing the following func
 - `importedTypes` - getter that returns an array of imported types.
 - `resolvers` - getter that returns resolvers.
 - `schema` - getter that returns an executable schema.
-- `bindings` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components resolvers.
+- `Query` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components query resolvers.
+- `Mutation` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components mutation resolvers.
+- `Subscription` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components subscription resolvers.
 - `fixtures` - getter that returns fixtures.
 
 ### Activating fixtures
