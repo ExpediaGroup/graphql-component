@@ -7,6 +7,10 @@ for how these schemas can be composed through imports and bindings.
 
 Also provides experimental resolver caching for a request to reduce calls.
 
+### The future
+
+The intent of this work is to be published as a module at some point.
+
 ### List of potential problems / todo
 
 - Using require to declare import dependency is handy but could create circular dependencies. 
@@ -25,7 +29,7 @@ new GraphQLComponent({
   resolvers, 
   // An optional object containing resolver dev/test fixtures
   fixtures,
-  // An optional array of imported components
+  // An optional array of imported components for the schema to be merged with
   imports
 });
 ```
@@ -41,6 +45,36 @@ This will create an instance object of a component containing the following func
 - `Mutation` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components mutation resolvers.
 - `Subscription` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components subscription resolvers.
 - `fixtures` - getter that returns fixtures.
+
+### Using bindings
+
+As seen in [book.js](server/custom/book.js):
+
+```javascript
+const Book = require('../../book-component');
+const Author = require('../../author-component');
+const GraphQLComponent = require('../../graphql-component');
+
+const types = `
+    # This is a book.
+    extend type Book {
+      # The book's author.
+      author: Author
+    }
+`;
+
+const resolvers = {
+  Book: {
+    author(book, args, context, info) {
+      return Author.Query.author({ id: book.authorId }, info, { context });
+    }
+  }
+};
+
+module.exports = new GraphQLComponent({ types, resolvers, imports: [Book, Author] });
+```
+
+By simply requiring the `Author` component, it becomes possible to execute the resolver `author` as a graphql call to resolve that type.
 
 ### Resolver caching
 
