@@ -1,22 +1,17 @@
 
 const { Binding } = require('graphql-binding');
 const { makeExecutableSchema, mergeSchemas } = require('graphql-tools');
-const { wrapResolvers } = require('./wrap_resolvers');
+const { wrapResolvers } = require('./lib/wrap_resolvers');
 
 //TODO: remote binding
 class GraphQLComponent {
-  constructor({ types, rootTypes, resolvers = {}, imports = [], fixtures = {} }) {
+  constructor({ types = [], rootTypes = [], resolvers = {}, imports = [], fixtures = {} }) {
 
     this._types = Array.isArray(types) ? types : [types];
     this._fixtures = fixtures;
     this._resolvers = wrapResolvers(resolvers, this._fixtures);
 
-    if (rootTypes) {
-      this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
-    }
-    else {
-      this._rootTypes = [];
-    }
+    this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
 
     //Flatten imported types tree
     this._importedTypes = [].concat.apply([], imports.map(({ importedTypes, types }) => [...importedTypes, ...types]));

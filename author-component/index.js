@@ -1,12 +1,12 @@
 
-const GraphQLComponent = require('../lib/component');
+const GraphQLComponent = require('../graphql-component');
 
 const types = `
     # An author.
     type Author {
         id: ID!
         # The author name.
-        name: String,
+        name: String
         # The author email.
         email: String
     }
