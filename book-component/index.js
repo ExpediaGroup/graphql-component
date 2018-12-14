@@ -13,7 +13,7 @@ const types = `
 const rootTypes = `
     type Query {
         # Search for a book by id.
-        book(id: ID!) : Book @memoize
+        book(id: ID!) : Book
     }
 `;
 

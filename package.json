@@ -14,8 +14,7 @@
     "debug": "^4.1.0",
     "graphql": "^0.13.2",
     "graphql-binding": "^2.3.0",
-    "graphql-tools": "^4.0.3",
-    "lodash.memoize": "^4.1.2"
+    "graphql-tools": "^4.0.3"
   },
   "devDependencies": {
     "tape": "^4.9.1"

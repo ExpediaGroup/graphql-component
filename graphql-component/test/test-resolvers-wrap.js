@@ -1,6 +1,6 @@
 
 const Test = require('tape');
-const Fixtures = require('../lib/fixtures');
+const Resolvers = require('../lib/resolvers');
 
 Test('fixture wrapping', (t) => {
 
@@ -24,7 +24,7 @@ Test('fixture wrapping', (t) => {
 
     t.plan(1);
 
-    const wrapped = Fixtures.wrapFixtures(resolvers, fixtures);
+    const wrapped = Resolvers.wrapResolvers(resolvers, fixtures);
 
     try {
       await wrapped.Query.test()
@@ -44,7 +44,7 @@ Test('fixture wrapping', (t) => {
       process.env.GRAPHQL_DEBUG = undefined;
     });
 
-    const wrapped = Fixtures.wrapFixtures(resolvers, fixtures);
+    const wrapped = Resolvers.wrapResolvers(resolvers, fixtures);
 
     try {
       await wrapped.Query.test();

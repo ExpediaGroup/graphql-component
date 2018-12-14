@@ -1,7 +1,7 @@
 
 const { Binding } = require('graphql-binding');
 const GraphQLTools = require('graphql-tools');
-const Fixtures = require('./lib/fixtures');
+const Resolvers = require('./lib/resolvers');
 const Delegates = require('./lib/delegates');
 const { MemoizeDirective } = require('./lib/directives');
 
@@ -12,7 +12,7 @@ class GraphQLComponent {
 
     this._types = Array.isArray(types) ? types : [types];
     this._fixtures = fixtures;
-    this._resolvers = Fixtures.wrapFixtures(resolvers, this._fixtures);
+    this._resolvers = Resolvers.wrapResolvers(resolvers, this._fixtures);
 
     this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
 
