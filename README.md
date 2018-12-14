@@ -18,12 +18,6 @@ The intent of this work is to be published as a module at some point.
 - `book-component` - a component instance.
 - `server` - the "application" which includes a composition of `Author` and `Book`.
 
-### List of potential problems / todo
-
-- Using require to declare import dependency is handy but could create circular dependencies. 
-- No opportunity currently for factory or construction. Solvable by wrapping the component instance.
-- Memoization of resolvers needs to be tested more.
-
 ### Running
 
 Can be run with `node server/index.js`
