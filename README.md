@@ -11,11 +11,30 @@ Also provides experimental resolver caching for a request to reduce calls.
 
 The intent of this work is to be published as a module at some point.
 
+### Repository structure
+
+- `graphql-component` - the GraphQLComponent and supporting code.
+- `author-component` - a component instance.
+- `book-component` - a component instance.
+- `server` - the "application" which includes a composition of `Author` and `Book`.
+
 ### List of potential problems / todo
 
 - Using require to declare import dependency is handy but could create circular dependencies. 
 - No opportunity currently for factory or construction. Solvable by wrapping the component instance.
 - Memoization of resolvers needs to be tested more.
+
+### Running
+
+Can be run with `node server/index.js`
+
+### Debugging
+
+Enable debug logging with `DEBUG=graphql:*`
+
+### Activating fixtures
+
+To intercept resolvers with mock fixtures execute your app with `GRAPHQL_DEBUG=1` enabled.
 
 ### Usage
 
@@ -89,11 +108,3 @@ type Query {
     author(id: ID!, version: String) : Author @memoize
 }
 ```
-
-### Debugging
-
-Enable debug logging with `DEBUG=graphql:*`
-
-### Activating fixtures
-
-To intercept resolvers with fixtures execute your app with `GRAPHQL_DEBUG=1` enabled.
