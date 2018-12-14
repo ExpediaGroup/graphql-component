@@ -1,0 +1,3 @@
+{
+  "query": "query { author(id:1) { name }, book(id:2) { name, author { name } } }"
+}

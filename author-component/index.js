@@ -1,5 +1,6 @@
 
 const GraphQLComponent = require('../graphql-component');
+const Crypto = require('crypto');
 
 const types = `
     # An author.
@@ -30,7 +31,12 @@ const resolvers = {
 const fixtures = {
   Query: {
     author() {
-      return { id: 'an id', name: 'Test Author' };
+      // Expensive call
+      const buffer = new Buffer(25);
+      
+      Crypto.randomFillSync(buffer);
+
+      return { id: 'an id', name: 'Test Author', random: buffer };
     }
   }
 };
