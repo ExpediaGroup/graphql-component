@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "test": "tape graphql-component/test/test-*.js",
+    "start": "node server/index.js"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
   "license": "MIT",

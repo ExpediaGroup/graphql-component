@@ -14,14 +14,15 @@ Test('directives', (t) => {
       resolve() {}
     };
 
+    const cache = new WeakMap();
+
+    cache.set(field.resolve, true);
+
+    t.ok(cache.has(field.resolve), 'resolve unchanged.');
+
     directive.visitFieldDefinition(field);
 
-    const context = {};
-
-    field.resolve({}, {}, context, { parentType: 'Query' });
-
-    t.ok(context.memoized && context.memoized.Query && context.memoized.Query.test, 'memoized structure on context');
-    t.equal(typeof context.memoized.Query.test, 'function', 'is function');
+    t.ok(!cache.has(field.resolve), 'resolve change.');
   });
 
 });
