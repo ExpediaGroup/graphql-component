@@ -4,8 +4,6 @@ const Delegates = require('../lib/delegates');
 
 Test('adding delegates', (t) => {
 
-  const resolvers = {};
-
   const imports = [{
     resolvers: {
       Query: {
@@ -20,7 +18,7 @@ Test('adding delegates', (t) => {
 
     t.plan(1);
 
-    const delegate = Delegates.createDelegates(resolvers, imports);
+    const delegate = Delegates.createDelegates(imports);
 
     try {
       t.ok(await delegate.Query.test(), 'received delegate result');

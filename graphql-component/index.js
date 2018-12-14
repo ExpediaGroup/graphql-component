@@ -12,9 +12,8 @@ class GraphQLComponent {
 
     this._types = Array.isArray(types) ? types : [types];
     this._fixtures = fixtures;
-    this._resolvers = Resolvers.wrapResolvers(resolvers, this._fixtures);
-
     this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
+    this._resolvers = Resolvers.wrapResolvers(resolvers, this._fixtures);
 
     //Flatten imported types tree
     this._importedTypes = [].concat.apply([], imports.map(({ importedTypes, types }) => [...importedTypes, ...types]));
@@ -28,8 +27,8 @@ class GraphQLComponent {
     //Merge imported partials with this partial's schemas and resolvers
     this._schema = GraphQLTools.mergeSchemas({
       schemas: [...imports.map((i) => i.schema), schema],
-      // Because an imported query will only return the unextended type, ensure we provide a direct resolver that delegates
-      resolvers: Delegates.createDelegates(this._resolvers, imports),
+      //Merge in rootType delegates
+      resolvers: Object.assign({}, this._resolvers, Delegates.createDelegates(imports)),
       schemaDirectives: {
         memoize: MemoizeDirective
       }

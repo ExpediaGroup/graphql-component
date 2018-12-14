@@ -1,7 +1,8 @@
 
 const debug = require('debug')('graphql:resolver');
 
-const createDelegates = function (resolvers, imports) {
+const createDelegates = function (imports) {
+  const delegates = {};
 
   for (const imp of imports) {
     for (const parentType of ['Query', 'Mutation', 'Subscription']) {
@@ -10,19 +11,18 @@ const createDelegates = function (resolvers, imports) {
       }
 
       for (const [name, value] of Object.entries(imp.resolvers[parentType])) {
-        if (!resolvers[parentType]) {
-          resolvers[parentType] = {};
+        if (!delegates[parentType]) {
+          delegates[parentType] = {};
         }
-        resolvers[parentType][name] = function (...args) {
+        delegates[parentType][name] = function (...args) {
           debug(`delegating to import's ${parentType}.${name}`);
           return value(...args);
         };
       }
-      resolvers[parentType]
     }
   }
 
-  return resolvers;
+  return delegates;
 };
 
 module.exports = { createDelegates };

@@ -32,7 +32,7 @@ const fixtures = {
   Query: {
     author() {
       // Expensive call
-      const buffer = new Buffer(25);
+      const buffer = Buffer.alloc(25);
       
       Crypto.randomFillSync(buffer);
 
