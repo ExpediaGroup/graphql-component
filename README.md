@@ -89,7 +89,7 @@ module.exports = new GraphQLComponent({ types, resolvers, imports: [Book, Author
 
 By simply requiring the `Author` component, it becomes possible to execute the resolver `author` as a graphql call to resolve that type.
 
-### Resolver caching
+### Resolver memoization
 
 Schemas in graphql components will support the `@memoize` directive. This will allow resolvers to be memoized within the 
 scope of a particular request context to reduce the number of times a resolver must run for the same data.
