@@ -4,51 +4,65 @@ const GraphQLTools = require('graphql-tools');
 const Resolvers = require('./lib/resolvers');
 const Delegates = require('./lib/delegates');
 const { MemoizeDirective } = require('./lib/directives');
+const Merge = require('./lib/merge');
 
-//TODO: remote binding
-//TODO: break imports into imported types and imported resolvers so that you don't create delegates for things you don't need.
+const flatten = function (obj, mapFunc) {
+  return Array.prototype.concat.apply([], obj.map(mapFunc));
+};
+
 class GraphQLComponent {
-  constructor({ types = [], rootTypes = [], resolvers = {}, imports = [], fixtures = {} }) {
+  constructor({ types = [], rootTypes = [], resolvers = {}, imports = [], fixtures = {}, directives = {} }) {
 
-    this._types = Array.isArray(types) ? types : [types];
-    this._fixtures = fixtures;
-    this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
-    this._resolvers = Resolvers.wrapResolvers(resolvers, this._fixtures);
+      this._types = Array.isArray(types) ? types : [types];
+      this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
+      this._resolvers = Resolvers.wrapResolvers(resolvers, fixtures);
+      this._imports = imports;
+      this._imported = {
+        types: flatten(imports, ({ types, imported }) => [...types, ...imported.types]),
+        rootTypes: flatten(imports, ({ rootTypes }) => rootTypes)
+      };
+      this._delegates = Delegates.createDelegates(this._imports);
+      this._directives = Object.assign({ memoize: MemoizeDirective }, directives);
 
-    //Flatten imported types tree
-    this._importedTypes = [].concat.apply([], imports.map(({ importedTypes, types }) => [...importedTypes, ...types]));
+      const schema = GraphQLTools.makeExecutableSchema({
+        typeDefs: [ ...this._imported.types, ...this._rootTypes, ...this._types],
+        resolvers: this._resolvers,
+        directives: this._directives
+      });
 
-    //Build schema with this partial's types, rootTypes, as well as the typeDefs from the imported partials.
-    const schema = GraphQLTools.makeExecutableSchema({
-      typeDefs: [...this._importedTypes, ...this._rootTypes, ...this._types],
-      resolvers: this._resolvers
-    });
-
-    //Merge imported partials with this partial's schemas and resolvers
-    this._schema = GraphQLTools.mergeSchemas({
-      schemas: [...imports.map((i) => i.schema), schema],
-      //Merge in rootType delegates
-      resolvers: Object.assign({}, this._resolvers, Delegates.createDelegates(imports)),
-      schemaDirectives: {
-        memoize: MemoizeDirective
-      }
-    });
-
-    this._bindings = new Binding({ schema: this._schema });
+      this._schema = GraphQLTools.mergeSchemas({
+        schemas: [...this._imports.map(({ schema }) => schema), schema],
+        resolvers: Merge.mergeResolvers(this._resolvers, this._delegates),
+        directives: this._directives
+      });
+  
+      this._bindings = new Binding({ schema });
   }
 
   static mergeAll(components) {
-    const schemas = [];
+    const merged = {
+      schemas: [],
+      types: [],
+      rootTypes: [],
+      resolvers: {},
+      directives: {}
+    };
 
     for (const component of components) {
-        schemas.push(component.schema);
+      merged.schemas.push(component.schema),
+      merged.types.push(...component.types, ...component.imported.types);
+      merged.rootTypes.push(...component.rootTypes, ...component.imported.rootTypes);
+      merged.resolvers = Merge.mergeResolvers(merged.resolvers, component.resolvers);
+      merged.directives = Object.assign(merged.directives, component.directives);
     }
-
-    const mergedSchema = GraphQLTools.mergeSchemas({
-        schemas
-    });
     
-    return mergedSchema;
+    const schema = GraphQLTools.mergeSchemas({
+      schemas: [...merged.schemas, ...merged.rootTypes, ...merged.types],
+      resolvers: merged.resolvers,
+      directives: merged.directives
+    });
+
+    return schema;
   }
 
   get types() {
@@ -59,20 +73,20 @@ class GraphQLComponent {
     return this._rootTypes;
   }
 
-  get importedTypes() {
-    return this._importedTypes;
+  get imported() {
+    return this._imported;
   }
 
   get resolvers() {
     return this._resolvers;
   }
 
-  get schema() {
-    return this._schema;
+  get delegates() {
+    return this._delegates;
   }
 
-  get fixtures() {
-    return this._fixtures;
+  get schema() {
+    return this._schema;
   }
 
   get Query() {
