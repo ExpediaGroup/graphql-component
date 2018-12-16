@@ -33,4 +33,4 @@ const fixtures = {
   }
 };
 
-module.exports = new GraphQLComponent({ types, rootTypes, resolvers, fixtures });
+module.exports = new GraphQLComponent({ name: 'BookComponent', types, rootTypes, resolvers, fixtures });

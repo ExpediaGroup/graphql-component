@@ -41,4 +41,4 @@ const fixtures = {
   }
 };
 
-module.exports = new GraphQLComponent({ types, rootTypes, resolvers, fixtures });
+module.exports = new GraphQLComponent({ name: 'AuthorComponent', types, rootTypes, resolvers, fixtures });

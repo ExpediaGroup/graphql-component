@@ -19,4 +19,4 @@ const resolvers = {
   }
 };
 
-module.exports = new GraphQLComponent({ types, resolvers, imports: [Book, Author] });
+module.exports = new GraphQLComponent({ name: 'BookWithAuthorComponent', types, resolvers, imports: [Book, Author] });

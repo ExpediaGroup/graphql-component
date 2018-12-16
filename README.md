@@ -49,6 +49,7 @@ new GraphQLComponent({
 
 This will create an instance object of a component containing the following functions:
 
+- `name` - options name for the component.
 - `types` - getter that returns an array of typeDefs.
 - `rootTypes` - getter that returns an array of rootTypes.
 - `importedTypes` - getter that returns an array of imported types.

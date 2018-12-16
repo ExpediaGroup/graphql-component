@@ -7,6 +7,7 @@ const createDelegates = function (imports) {
   const delegates = {};
 
   for (const imp of imports) {
+    const importName = imp.name || 'import'  ;
     const allResolvers = Merge.mergeResolvers(imp.resolvers, imp.delegates);
 
     for (const [parentType, resolvers] of Object.entries(allResolvers)) {
@@ -16,7 +17,7 @@ const createDelegates = function (imports) {
 
       for (const [name, value] of Object.entries(resolvers)) {
         delegates[parentType][name] = function (...args) {
-          debug(`delegating to import's ${parentType}.${name}`);
+          debug(`delegating to ${importName}'s ${parentType}.${name}`);
           return value(...args);
         };
       }

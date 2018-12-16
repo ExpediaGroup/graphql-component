@@ -26,4 +26,4 @@ const fixtures = {
   }
 };
 
-module.exports = new GraphQLComponent({ types, resolvers, fixtures, imports: [Book] });
+module.exports = new GraphQLComponent({ name: 'BookWithSubtitle', types, resolvers, fixtures, imports: [Book] });
