@@ -19,7 +19,7 @@ class GraphQLComponent {
     this._resolvers = Resolvers.wrapResolvers(resolvers, fixtures);
     this._imports = imports;
     this._imported = {
-      types: flatten(imports, ({ types, imported }) => [...types, ...imported.types]),
+      types: flatten(imports, ({ types, _imported }) => [...types, ..._imported.types]),
       rootTypes: flatten(imports, ({ rootTypes }) => rootTypes)
     };
     this._delegates = Delegates.createDelegates(this._imports);
@@ -50,23 +50,7 @@ class GraphQLComponent {
   }
 
   get types() {
-    return this._types;
-  }
-
-  get rootTypes() {
-    return this._rootTypes;
-  }
-
-  get imported() {
-    return this._imported;
-  }
-
-  get resolvers() {
-    return this._resolvers;
-  }
-
-  get delegates() {
-    return this._delegates;
+    return [...this._imported.types, ...this._types];
   }
 
   get schema() {

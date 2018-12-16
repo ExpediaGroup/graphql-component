@@ -34,6 +34,8 @@ To intercept resolvers with mock fixtures execute your app with `GRAPHQL_DEBUG=1
 
 ```javascript
 new GraphQLComponent({ 
+  // An optional name for this component
+  name,
   // A string or array of strings representing typeDefs
   types,
   // A string or array of strings reprenting rootTypes
@@ -51,11 +53,8 @@ new GraphQLComponent({
 
 This will create an instance object of a component containing the following functions:
 
-- `name` - options name for the component.
+- `name` - getter for component name, if any.
 - `types` - getter that returns an array of typeDefs.
-- `rootTypes` - getter that returns an array of rootTypes.
-- `importedTypes` - getter that returns an array of imported types.
-- `resolvers` - getter that returns resolvers.
 - `schema` - getter that returns an executable schema.
 - `Query` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components query resolvers.
 - `Mutation` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components mutation resolvers.

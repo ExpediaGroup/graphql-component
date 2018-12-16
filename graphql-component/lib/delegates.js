@@ -8,7 +8,7 @@ const createDelegates = function (imports) {
 
   for (const imp of imports) {
     const importName = imp.name || 'import'  ;
-    const allResolvers = Merge.mergeResolvers(imp.resolvers, imp.delegates);
+    const allResolvers = Merge.mergeResolvers(imp._resolvers, imp._delegates);
 
     for (const [parentType, resolvers] of Object.entries(allResolvers)) {
       if (!delegates[parentType]) {
