@@ -1,5 +1,6 @@
 
-const Util = require('util');
+
+const Merge = require('./merge');
 const debug = require('debug')('graphql:resolver');
 
 const wrapFixture = function (name, resolverName, func) {
@@ -34,4 +35,24 @@ const wrapResolvers = function (resolvers = {}, fixtures = {}) {
   return wrapped;
 };
 
-module.exports = { wrapResolvers };
+const getImportedResolvers = function (imports) {
+  const importedResolvers = {};
+
+  for (const imp of imports) {
+    const allResolvers = Merge.mergeResolvers(imp._resolvers, imp._imported.resolvers);
+
+    for (const [parentType, resolvers] of Object.entries(allResolvers)) {
+      if (!importedResolvers[parentType]) {
+        importedResolvers[parentType] = {};
+      }
+
+      for (const [name, value] of Object.entries(resolvers)) {
+        importedResolvers[parentType][name] = value.bind(imp);
+      }
+    }
+  }
+
+  return importedResolvers;
+};
+
+module.exports = { wrapResolvers, getImportedResolvers };

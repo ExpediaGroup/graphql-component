@@ -2,7 +2,6 @@
 const { Binding } = require('graphql-binding');
 const GraphQLTools = require('graphql-tools');
 const Resolvers = require('./lib/resolvers');
-const Delegates = require('./lib/delegates');
 const { MemoizeDirective } = require('./lib/directives');
 const Merge = require('./lib/merge');
 
@@ -20,9 +19,10 @@ class GraphQLComponent {
     this._imports = imports;
     this._imported = {
       types: flatten(imports, ({ types, _imported }) => [...types, ..._imported.types]),
-      rootTypes: flatten(imports, ({ rootTypes }) => rootTypes)
+      rootTypes: flatten(imports, ({ rootTypes }) => rootTypes),
+      resolvers: Resolvers.getImportedResolvers(this._imports)
     };
-    this._delegates = Delegates.createDelegates(this._imports);
+    
     this._directives = Object.assign({ memoize: MemoizeDirective }, directives);
 
     const schema = GraphQLTools.makeExecutableSchema({
@@ -34,7 +34,7 @@ class GraphQLComponent {
     if (this._imports.length > 0) {
       this._schema = GraphQLTools.mergeSchemas({
         schemas: [...this._imports.map(({ schema }) => schema), schema],
-        resolvers: Merge.mergeResolvers(this._resolvers, this._delegates),
+        resolvers: Merge.mergeResolvers(this._resolvers, this._imported.resolvers),
         schemaDirectives: this._directives
       });
     }
