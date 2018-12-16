@@ -59,6 +59,24 @@ This will create an instance object of a component containing the following func
 - `Subscription` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components subscription resolvers.
 - `fixtures` - getter that returns fixtures.
 
+### Aggregation 
+
+Example to merge multiple components:
+
+```javascript
+const schema = new GraphQLComponent({
+  imports: [
+    Author,
+    Book,
+    BookExtension
+  ]
+}).schema;
+
+const server = new ApolloServer({
+    schema
+});
+```
+
 ### Using bindings
 
 As seen in [book.js](server/custom/book.js):
