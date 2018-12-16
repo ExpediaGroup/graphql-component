@@ -44,6 +44,8 @@ new GraphQLComponent({
   fixtures,
   // An optional array of imported components for the schema to be merged with
   imports
+  // An optional object containing custom schema directives
+  directives
 });
 ```
 
@@ -78,22 +80,33 @@ const server = new ApolloServer({
 });
 ```
 
-### Using bindings
+This isn't necessary if you don't intend to expose another component's schema directly. You can also simply include 
+another component's types in your type definitions.
 
-As seen in [book.js](server/custom/book.js):
+For example:
 
 ```javascript
-const Book = require('../../book-component');
-const Author = require('../../author-component');
-const GraphQLComponent = require('../../graphql-component');
-
-const types = `
-    # This is a book.
+const types = [`
     extend type Book {
-      # The book's author.
       author: Author
     }
-`;
+`, ...Book.types, ...Author.types];
+
+module.exports = new GraphQLComponent({ name: 'BookWithAuthorComponent', types, resolvers });
+```
+
+This doesn't require using `imports`.
+
+### Using bindings
+
+Binding provide a way to delegate to another schema using [graphql-binding](https://github.com/graphql-binding/graphql-binding):
+
+```javascript
+const types = [`
+    extend type Book {
+      author: Author
+    }
+`, ...Book.types, ...Author.types];
 
 const resolvers = {
   Book: {
@@ -103,10 +116,12 @@ const resolvers = {
   }
 };
 
-module.exports = new GraphQLComponent({ types, resolvers, imports: [Book, Author] });
+module.exports = new GraphQLComponent({ name: 'BookWithAuthorComponent', types, resolvers });
 ```
 
 By simply requiring the `Author` component, it becomes possible to execute the resolver `author` as a graphql call to resolve that type.
+
+This also doesn't requiring using `import`.
 
 ### Resolver memoization
 
