@@ -96,6 +96,8 @@ module.exports = new GraphQLComponent({ name: 'BookWithAuthorComponent', types, 
 
 This doesn't require using `imports`.
 
+NOTE: This may not be safe always and can result in type conflicts.
+
 ### Using bindings
 
 Binding provide a way to delegate to another schema using [graphql-binding](https://github.com/graphql-binding/graphql-binding):
