@@ -31,11 +31,16 @@ class GraphQLComponent {
       schemaDirectives: this._directives
     });
 
-    this._schema = GraphQLTools.mergeSchemas({
-      schemas: [...this._imports.map(({ schema }) => schema), schema],
-      resolvers: Merge.mergeResolvers(this._resolvers, this._delegates),
-      schemaDirectives: this._directives
-    });
+    if (this._imports.length > 0) {
+      this._schema = GraphQLTools.mergeSchemas({
+        schemas: [...this._imports.map(({ schema }) => schema), schema],
+        resolvers: Merge.mergeResolvers(this._resolvers, this._delegates),
+        schemaDirectives: this._directives
+      });
+    }
+    else {
+      this._schema = schema;
+    }
 
     this._bindings = new Binding({ schema });
   }
