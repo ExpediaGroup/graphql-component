@@ -14,30 +14,33 @@ class MemoizeDirective extends SchemaDirectiveVisitor {
 
     const memoize = function (resolve) {
       return function (_, args, context, info) {
+        const key = JSON.stringify(args);
         const { parentType } = info;
         
-        const cached = _cache.get(context);
+        let cached = _cache.get(context);
 
-        if (cached && cached[parentType][field.name]) {
+        if (cached && cached[parentType][field.name] && cached[parentType][field.name][key]) {
           debug(`return cached result of memoized ${parentType}.${field.name}`);
-          return cached[parentType][field.name];
+          return cached[parentType][field.name][key];
         }
     
         debug(`executing and caching memoized ${parentType}.${field.name}`);
+
+        if (!cached) {
+          cached = {};
+        }
+        if (!cached[parentType]) {
+          cached[parentType] = {};
+        }
+        if (!cached[parentType][field.name]) {
+          cached[parentType][field.name] = {};
+        }
     
         const result = resolve(_, args, context, info);
-    
-        if (cached) {
-          if (!cached[parentType]) {
-            cached[parentType] = {};
-          }
-          cached[parentType][field.name] = result;
 
-          _cache.set(context, cached);
-        }
-        else {
-          _cache.set(context, { [parentType] : { [field.name] : result }});
-        }
+        cached[parentType][field.name][key] = result;
+
+        _cache.set(context, cached);
     
         return result;
       };
