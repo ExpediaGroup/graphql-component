@@ -1,13 +1,9 @@
 
 const { ApolloServer } = require('apollo-server');
-const GraphQLComponent = require('../graphql-component');
-const Author = require('../author-component');
-const Book = require('./custom-book');
-
-const { schema } = new GraphQLComponent({ imports: [ Author, Book ] });
+const Listing = require('../listing-component');
 
 const server = new ApolloServer({
-    schema,
+    schema: Listing.schema,
     context: async (request) => {
         return { request };
     } 

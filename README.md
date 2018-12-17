@@ -14,9 +14,10 @@ The intent of this work is to be published as a module at some point.
 ### Repository structure
 
 - `graphql-component` - the GraphQLComponent and supporting code.
-- `author-component` - a component instance.
-- `book-component` - a component instance.
-- `server` - the "application" which includes a composition of `Author` and `Book`.
+- `property-component` - a component instance.
+- `reviews-component` - a component instance.
+- `listing-component` - a component instance composing `Property` and `Reviews`.
+- `server` - the "application".
 
 ### Running
 
@@ -29,6 +30,8 @@ Enable debug logging with `DEBUG=graphql:*`
 ### Activating fixtures
 
 To intercept resolvers with mock fixtures execute your app with `GRAPHQL_DEBUG=1` enabled.
+
+In this example it must be done since no actual resolvers is implemented.
 
 ### Usage
 

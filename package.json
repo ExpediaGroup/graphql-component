@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "tape graphql-component/test/test-*.js",
-    "start": "node server/index.js"
+    "start": "GRAPHQL_DEBUG=1 node server/index.js"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
   "license": "MIT",
