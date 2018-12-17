@@ -39,10 +39,13 @@ const fixtures = {
         Property.Query.property({ id }, `{ geo }`, { context }),
         Reviews.Query.reviewsByPropertyId({ propertyId: id }, `{ content }`, { context })
       ]);
-      return { property, reviews };
+      return { id, property, reviews };
     }
   },
   Listing: {
+    id(_) {
+      return _.id;
+    },
     geo(_) {
       return _.property.geo;
     },
