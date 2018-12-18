@@ -17,7 +17,7 @@ const wrap = function (name, resolverName, func) {
   }
 };
 
-const wrapResolvers = function (resolvers = {}, fixtures = {}) {
+const wrapResolvers = function (resolvers = {}, fixtures = {}, bind) {
   const wrapped = {};
 
   for (const [name, value] of Object.entries(resolvers)) {
@@ -28,7 +28,7 @@ const wrapResolvers = function (resolvers = {}, fixtures = {}) {
     for (const [resolverName, func] of Object.entries(value)) {
       const debugWrap = !!(process.env.GRAPHQL_DEBUG && fixtures[name] && fixtures[name][resolverName]);
 
-      wrapped[name][resolverName] = debugWrap ? wrapFixture(name, resolverName, fixtures[name][resolverName]) : wrap(name, resolverName, func);
+      wrapped[name][resolverName] = debugWrap ? wrapFixture(name, resolverName, fixtures[name][resolverName].bind(bind)) : wrap(name, resolverName, func.bind(bind));
     }
   }
 

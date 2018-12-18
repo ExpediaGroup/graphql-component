@@ -48,9 +48,11 @@ new GraphQLComponent({
   // An optional object containing resolver dev/test fixtures
   fixtures,
   // An optional array of imported components for the schema to be merged with
-  imports
+  imports,
   // An optional object containing custom schema directives
-  directives
+  directives,
+  // An optional object { namespace, factory } for contributing to context
+  context
 });
 ```
 
@@ -139,4 +141,17 @@ type Query {
     # Seach for an author by id.
     author(id: ID!, version: String) : Author @memoize
 }
+```
+
+### Adding to context
+
+Example context argument:
+
+```javascript
+const context = {
+  namespace: 'myNamespace',
+  factory: function (request) {
+    return 'my value';
+  }
+};
 ```

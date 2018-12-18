@@ -1,13 +1,9 @@
 
 const { ApolloServer } = require('apollo-server');
-const Listing = require('../listing-component');
 
-const server = new ApolloServer({
-    schema: Listing.schema,
-    context: async (request) => {
-        return { request };
-    } 
-});
+const { schema, context} = require('../listing-component');
+
+const server = new ApolloServer({ schema, context });
 
 server.listen().then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`)
