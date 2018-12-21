@@ -12,12 +12,12 @@ const flatten = function (obj, mapFunc) {
 };
 
 class GraphQLComponent {
-  constructor({ types = [], rootTypes = [], resolvers = {}, imports = [], fixtures = {}, directives = {}, context = {} }) {
+  constructor({ types = [], rootTypes = [], resolvers = {}, imports = [], fixtures = {}, directives = {}, context = {}, useFixtures = false }) {
     debug(`creating component schema`);
 
     this._types = Array.isArray(types) ? types : [types];
     this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
-    this._resolvers = Resolvers.wrapResolvers(resolvers, fixtures, this);
+    this._resolvers = Resolvers.wrapResolvers(resolvers, fixtures, this, useFixtures);
     this._imports = imports;
     this._imported = {
       types: flatten(imports, ({ _types, _imported }) => [..._types, ..._imported.types]),
@@ -47,7 +47,13 @@ class GraphQLComponent {
       this._schema = schema;
     }
 
-    this._bindings = new Binding({ schema });
+    this._bindings = new WeakMap();
+
+    imports.forEach((component) => {
+      this._bindings.set(component.constructor, component._binding);
+    });
+
+    this._binding = new Binding({ schema });
     
     debug(`created bindings`);
 
@@ -73,16 +79,12 @@ class GraphQLComponent {
     return this._schema;
   }
 
-  get Query() {
-    return this._bindings.query;
-  }
-
-  get Mutation() {
-    return this._bindings.mutation;
-  }
-
-  get Subscription() {
-    return this._bindings.subscription;
+  get importBindings() {
+    return {
+      get: (key) => {
+        return this._bindings.get(key);
+      }
+    };
   }
 }
 

@@ -3,56 +3,49 @@ const GraphQLComponent = require('../graphql-component');
 const Property = require('../property-component');
 const Reviews = require('../reviews-component');
 
-const types = `
-    # A listing
-    type Listing {
-      id: ID!
-      geo: [String]
-      reviews: [Review]
-    }
-`;
+class ListingComponent extends GraphQLComponent {
+  constructor({ useFixtures }) {
+    const types = `
+      # A listing
+      type Listing {
+        id: ID!
+        geo: [String]
+        reviews: [Review]
+      }
+    `;
 
-const rootTypes = `
-    type Query {
-      # Listing by id
-      listing(id: ID!) : Listing @memoize
-    }
-`;
+    const rootTypes = `
+      type Query {
+        # Listing by id
+        listing(id: ID!) : Listing @memoize
+      }
+    `;
 
-const resolvers = {
-  Query: {
-    listing(_, { id }) {
-      throw new Error('Query.listing not implemented');
-    }
-  },
-  Listing: {
-    geo(_) {
-      throw new Error('Listing.geo not implemented');
-    }
+    const resolvers = {
+      Query: {
+        async listing(_, { id }, context) {
+          const [property, reviews] = await Promise.all([
+            this.importBindings.get(Property).query.property({ id }, `{ geo }`, { context }),
+            this.importBindings.get(Reviews).query.reviewsByPropertyId({ propertyId: id }, `{ content }`, { context })
+          ]);
+          return { id, property, reviews };
+        }
+      },
+      Listing: {
+        id(_) {
+          return _.id;
+        },
+        geo(_) {
+          return _.property.geo;
+        },
+        reviews(_) {
+          return _.reviews;
+        }
+      }
+    };
+
+    super ({ types, rootTypes, resolvers, imports: [new Property({ useFixtures }), new Reviews({ useFixtures })] });
   }
-};
+}
 
-const fixtures = {
-  Query: {
-    async listing(_, { id }, context, info) {
-      const [property, reviews] = await Promise.all([
-        Property.Query.property({ id }, `{ geo }`, { context }),
-        Reviews.Query.reviewsByPropertyId({ propertyId: id }, `{ content }`, { context })
-      ]);
-      return { id, property, reviews };
-    }
-  },
-  Listing: {
-    id(_) {
-      return _.id;
-    },
-    geo(_) {
-      return _.property.geo;
-    },
-    reviews(_) {
-      return _.reviews;
-    }
-  }
-};
-
-module.exports = new GraphQLComponent({ types, rootTypes, resolvers, fixtures, imports: [Property, Reviews] });
+module.exports = ListingComponent;
