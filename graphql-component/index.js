@@ -13,6 +13,7 @@ const flatten = function (obj, mapFunc) {
 
 class GraphQLComponent {
   constructor({ types = [], rootTypes = [], resolvers = {}, imports = [], fixtures = {}, directives = {}, context = {} }) {
+    debug(`creating component schema`);
 
     this._types = Array.isArray(types) ? types : [types];
     this._rootTypes = Array.isArray(rootTypes) ? rootTypes : [rootTypes];
@@ -20,7 +21,6 @@ class GraphQLComponent {
     this._imports = imports;
     this._imported = {
       types: flatten(imports, ({ _types, _imported }) => [..._types, ..._imported.types]),
-      rootTypes: flatten(imports, ({ _rootTypes }) => _rootTypes),
       resolvers: Resolvers.getImportedResolvers(this._imports)
     };
     
@@ -63,6 +63,10 @@ class GraphQLComponent {
         ...context
       };
     };
+  }
+
+  get resolvers() {
+    return this._resolvers;
   }
 
   get schema() {

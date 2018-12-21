@@ -25,7 +25,7 @@ Can be run with `node server/index.js`
 
 ### Debugging
 
-Enable debug logging with `DEBUG=graphql:*`
+Enable debug logging with `DEBUG=graphql-components:*`
 
 ### Activating fixtures
 

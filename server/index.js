@@ -1,7 +1,8 @@
 
 const { ApolloServer } = require('apollo-server');
+const ListingComponent = require('../listing-component');
 
-const { schema, context} = require('../listing-component');
+const { schema, context} = ListingComponent;
 
 const server = new ApolloServer({ schema, context });
 
