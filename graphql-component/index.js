@@ -5,6 +5,7 @@ const Resolvers = require('./lib/resolvers');
 const { MemoizeDirective } = require('./lib/directives');
 const Merge = require('./lib/merge');
 const Context = require('./lib/context');
+const debug = require('debug')('graphql-components:schema');
 
 const flatten = function (obj, mapFunc) {
   return Array.prototype.concat.apply([], obj.map(mapFunc));
@@ -18,8 +19,8 @@ class GraphQLComponent {
     this._resolvers = Resolvers.wrapResolvers(resolvers, fixtures, this);
     this._imports = imports;
     this._imported = {
-      types: flatten(imports, ({ types, _imported }) => [...types, ..._imported.types]),
-      rootTypes: flatten(imports, ({ rootTypes }) => rootTypes),
+      types: flatten(imports, ({ _types, _imported }) => [..._types, ..._imported.types]),
+      rootTypes: flatten(imports, ({ _rootTypes }) => _rootTypes),
       resolvers: Resolvers.getImportedResolvers(this._imports)
     };
     
@@ -31,18 +32,24 @@ class GraphQLComponent {
       schemaDirectives: this._directives
     });
 
+    debug(`built schema`);
+
     if (this._imports.length > 0) {
       this._schema = GraphQLTools.mergeSchemas({
         schemas: [...this._imports.map(({ schema }) => schema), schema],
         resolvers: Merge.mergeResolvers(this._resolvers, this._imported.resolvers),
         schemaDirectives: this._directives
       });
+      
+      debug(`merged schema`);
     }
     else {
       this._schema = schema;
     }
 
     this._bindings = new Binding({ schema });
+    
+    debug(`created bindings`);
 
     this._context = Context.builder(this, context);
   }
@@ -56,10 +63,6 @@ class GraphQLComponent {
         ...context
       };
     };
-  }
-
-  get types() {
-    return [...this._imported.types, ...this._types];
   }
 
   get schema() {

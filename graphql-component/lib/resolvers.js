@@ -1,7 +1,7 @@
 
 
 const Merge = require('./merge');
-const debug = require('debug')('graphql:resolver');
+const debug = require('debug')('graphql-components:resolver');
 
 const wrapFixture = function (name, resolverName, func) {
   return function (...args) {

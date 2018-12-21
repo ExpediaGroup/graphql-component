@@ -1,4 +1,6 @@
 
+const debug = require('debug')('graphql-components:context');
+
 const builder = function (component, { namespace, factory }) {
   return async function (request) {
     const ctx = {};
@@ -8,6 +10,7 @@ const builder = function (component, { namespace, factory }) {
     }
 
     if (typeof factory === 'function') {
+      debug(`building ${namespace} context`);
       ctx[namespace] = await factory.call(component, request);
     }
 

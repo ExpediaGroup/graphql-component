@@ -37,8 +37,6 @@ In this example it must be done since no actual resolvers is implemented.
 
 ```javascript
 new GraphQLComponent({ 
-  // An optional name for this component
-  name,
   // A string or array of strings representing typeDefs
   types,
   // A string or array of strings reprenting rootTypes
@@ -58,29 +56,28 @@ new GraphQLComponent({
 
 This will create an instance object of a component containing the following functions:
 
-- `name` - getter for component name, if any.
-- `types` - getter that returns an array of typeDefs.
 - `schema` - getter that returns an executable schema.
 - `Query` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components query resolvers.
 - `Mutation` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components mutation resolvers.
 - `Subscription` - getter that returns [graphql-binding](https://github.com/graphql-binding/graphql-binding) to imported components subscription resolvers.
-- `fixtures` - getter that returns fixtures.
+- `context` - context builder.
 
 ### Aggregation 
 
 Example to merge multiple components:
 
 ```javascript
-const schema = new GraphQLComponent({
+const { schema, context } = new GraphQLComponent({
   imports: [
     Author,
     Book,
     BookExtension
   ]
-}).schema;
+});
 
 const server = new ApolloServer({
-    schema
+    schema,
+    context
 });
 ```
 
