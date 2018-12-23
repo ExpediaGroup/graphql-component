@@ -31,7 +31,11 @@ Enable debug logging with `DEBUG=graphql-components:*`
 
 To intercept resolvers with mock fixtures execute this app with `GRAPHQL_DEBUG=1` enabled.
 
-In this example it must be done since no actual resolvers is implemented.
+In this example it must be done since no actual resolvers is implemented (with the exception of listing).
+
+This works much like Apollo's `addMockFunctionsToSchema` but functions better for this use case 
+because it will continue to use resolver when a fixture isn't present and the fixtures preserve the 
+memoization.
 
 ### Usage
 
