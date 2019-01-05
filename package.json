@@ -1,22 +1,22 @@
 {
-  "name": "graphql-components",
-  "version": "1.0.0",
+  "name": "graphql-component",
+  "version": "0.0.1.alpha-1",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tape graphql-component/test/test-*.js",
-    "start": "GRAPHQL_DEBUG=1 node server/index.js"
+    "test": "tape test/test-*.js",
+    "start": "DEBUG=graphql-component:* GRAPHQL_DEBUG=1 node examples/server/index.js"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "apollo-server": "^2.0.7",
     "debug": "^4.1.0",
     "graphql": "^0.13.2",
     "graphql-binding": "^2.3.0",
     "graphql-tools": "^4.0.3"
   },
   "devDependencies": {
-    "tape": "^4.9.1"
+    "tape": "^4.9.1",
+    "apollo-server": "^2.0.7"
   }
 }

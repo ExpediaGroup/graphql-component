@@ -1,5 +1,5 @@
 
-const GraphQLComponent = require('../graphql-component');
+const GraphQLComponent = require('../../index');
 const Property = require('../property-component');
 const Reviews = require('../reviews-component');
 

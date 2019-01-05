@@ -1,5 +1,5 @@
 
-const GraphQLComponent = require('../graphql-component');
+const GraphQLComponent = require('../../index');
 
 class ReviewsComponent extends GraphQLComponent {
   constructor({ useFixtures }) {

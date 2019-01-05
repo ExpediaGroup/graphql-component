@@ -9,23 +9,22 @@ Also provides experimental resolver caching for a request to reduce calls.
 
 ### The future
 
-The intent of this work is to be published as a module at some point.
+The intent of this work is to be published as a module at some point. For now it is published as an alpha.
 
 ### Repository structure
 
-- `graphql-component` - the GraphQLComponent and supporting code.
-- `property-component` - a component implementation.
-- `reviews-component` - a component implementation.
-- `listing-component` - a component implementation composing `Property` and `Reviews`.
-- `server` - the "application".
+- `examples/property-component` - a component implementation.
+- `examples/reviews-component` - a component implementation.
+- `examples/listing-component` - a component implementation composing `Property` and `Reviews`.
+- `examples/server` - the "application".
 
 ### Running
 
-Can be run with `node server/index.js`
+Can be run with `node examples/server/index.js`
 
 ### Debugging
 
-Enable debug logging with `DEBUG=graphql-components:*`
+Enable debug logging with `DEBUG=graphql-component:*`
 
 ### Activating fixtures
 
