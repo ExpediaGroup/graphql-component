@@ -38,13 +38,7 @@ Test('fixture wrapping', (t) => {
 
     t.plan(1);
 
-    process.env.GRAPHQL_DEBUG = 1;
-
-    t.on('end', () => {
-      process.env.GRAPHQL_DEBUG = undefined;
-    });
-
-    const wrapped = Resolvers.wrapResolvers(resolvers, fixtures);
+    const wrapped = Resolvers.wrapResolvers(resolvers, fixtures, undefined, true);
 
     try {
       await wrapped.Query.test();
