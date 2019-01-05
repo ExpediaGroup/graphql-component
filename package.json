@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "0.0.1-alpha",
+  "version": "0.0.1-alpha.1",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -8,6 +8,7 @@
     "start": "DEBUG=graphql-component:* GRAPHQL_DEBUG=1 node examples/server/index.js"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
+  "repository": "https://github.com/tlivings/graphql-component",
   "license": "MIT",
   "dependencies": {
     "debug": "^4.1.0",
