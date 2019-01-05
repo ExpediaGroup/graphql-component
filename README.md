@@ -5,14 +5,15 @@ Reference implementation around the concept of a partial schema / component simi
 This example takes advantage of existing graphql stitching capabilities from Apollo, but creates a convention 
 for how these schemas can be composed through imports and bindings.
 
-Also provides experimental resolver caching for a request to reduce calls.
+This is very similar to the excellent `graphql-modules` project — but closer to our own internal paradigm already in use for over a year and a half. 
 
 ### The future
 
-The intent of this work is to be published as a module at some point. For now it is published as an alpha.
+For now it is alpha, but may become an official project.
 
 ### Repository structure
 
+- `lib` - the graphql-component code.
 - `examples/property-component` - a component implementation.
 - `examples/reviews-component` - a component implementation.
 - `examples/listing-component` - a component implementation composing `Property` and `Reviews`.
@@ -20,7 +21,7 @@ The intent of this work is to be published as a module at some point. For now it
 
 ### Running
 
-Can be run with `node examples/server/index.js`
+Can be run with `node examples/server/index.js` or `npm start` which will start with debug flags.
 
 ### Debugging
 
@@ -63,7 +64,7 @@ This will create an instance object of a component containing the following func
 
 - `schema` - getter that returns an executable schema.
 - `context` - context builder.
-- `importBindings` - provides a map to [graphql-binding](https://github.com/graphql-binding/graphql-binding)'s create by `imports`.
+- `bindings` - provides a map to [graphql-binding](https://github.com/graphql-binding/graphql-binding)'s create by `imports`.
 
 ### Aggregation 
 

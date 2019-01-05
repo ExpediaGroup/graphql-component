@@ -25,8 +25,8 @@ class ListingComponent extends GraphQLComponent {
       Query: {
         async listing(_, { id }, context) {
           const [property, reviews] = await Promise.all([
-            this.importBindings.get(Property).query.property({ id }, `{ geo }`, { context }),
-            this.importBindings.get(Reviews).query.reviewsByPropertyId({ propertyId: id }, `{ content }`, { context })
+            this.bindings.get(Property).query.property({ id }, `{ geo }`, { context }),
+            this.bindings.get(Reviews).query.reviewsByPropertyId({ propertyId: id }, `{ content }`, { context })
           ]);
           return { id, property, reviews };
         }
