@@ -10,9 +10,6 @@ class ReviewsComponent extends GraphQLComponent {
         propertyId: ID!
         content: String!
       }
-    `;
-
-    const rootTypes = `
       type Query {
         # Reviews by property id
         reviewsByPropertyId(propertyId: ID!) : [Review] @memoize
@@ -35,7 +32,7 @@ class ReviewsComponent extends GraphQLComponent {
       }
     };
 
-    super({ types, rootTypes, resolvers, fixtures, useFixtures });
+    super({ types, resolvers, fixtures, useFixtures });
   }
 }
 

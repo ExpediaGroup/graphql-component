@@ -12,9 +12,6 @@ class ListingComponent extends GraphQLComponent {
         geo: [String]
         reviews: [Review]
       }
-    `;
-
-    const rootTypes = `
       type Query {
         # Listing by id
         listing(id: ID!) : Listing @memoize
@@ -44,7 +41,7 @@ class ListingComponent extends GraphQLComponent {
       }
     };
 
-    super ({ types, rootTypes, resolvers, imports: [new Property({ useFixtures }), new Reviews({ useFixtures })] });
+    super ({ types, resolvers, imports: [{ component: new Property({ useFixtures }), exclude: ['*'] }, { component: new Reviews({ useFixtures }), exclude: ['*']} ] });
   }
 }
 

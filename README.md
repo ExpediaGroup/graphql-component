@@ -85,32 +85,24 @@ const server = new ApolloServer({
 });
 ```
 
-This isn't necessary if you don't intend to expose another component's schema directly. You can also simply include 
-another component's types in your type definitions.
+### Excluding root fields from imports
 
-For example:
+You can exclude root fields from imported components:
 
 ```javascript
-class BookWithAuthorComponent extends GraphQLComponent {
-  constructor() {
-    const types = [`
-      extend type Book {
-        author: Author
-      }
-    `, ...Book.types, ...Author.types];
-
-    //etc...
-
-    super({ types, resolvers, /*etc*/ });
-  }
-}
-
-module.exports = BookWithAuthorComponent;
+const { schema, context } = new GraphQLComponent({
+  imports: [
+    new Author(),
+    {
+      component: new Book(),
+      exclude: ['Query.*']
+    },
+    new BookExtension()
+  ]
+});
 ```
 
-This doesn't require using `imports`.
-
-NOTE: This may not be safe always and can result in type conflicts.
+This will keep from leaking unintended surface area.
 
 ### Using bindings
 

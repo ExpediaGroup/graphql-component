@@ -9,9 +9,6 @@ class PropertyComponent extends GraphQLComponent {
         id: ID!
         geo: [String]
       }
-    `;
-
-    const rootTypes = `
       type Query {
         # Property by id
         property(id: ID!) : Property @memoize
@@ -34,7 +31,7 @@ class PropertyComponent extends GraphQLComponent {
       }
     };
 
-    super({ types, rootTypes, resolvers, fixtures, useFixtures });
+    super({ types, resolvers, fixtures, useFixtures });
   }
 }
 
