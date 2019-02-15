@@ -9,6 +9,7 @@ class ListingComponent extends GraphQLComponent {
       # A listing
       type Listing {
         id: ID!
+        propertyId: ID!
         geo: [String]
         reviews: [Review]
       }
@@ -22,7 +23,7 @@ class ListingComponent extends GraphQLComponent {
       Query: {
         async listing(_, { id }, context) {
           const [property, reviews] = await Promise.all([
-            this.bindings.get(Property).query.property({ id }, `{ geo }`, { context }),
+            this.bindings.get(Property).query.property({ id }, `{ id, geo }`, { context }),
             this.bindings.get(Reviews).query.reviewsByPropertyId({ propertyId: id }, `{ content }`, { context })
           ]);
           return { id, property, reviews };
@@ -31,6 +32,9 @@ class ListingComponent extends GraphQLComponent {
       Listing: {
         id(_) {
           return _.id;
+        },
+        propertyId(_) {
+          return _.property.id;
         },
         geo(_) {
           return _.property.geo;

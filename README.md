@@ -14,10 +14,10 @@ For now it is alpha, but may become an official project.
 ### Repository structure
 
 - `lib` - the graphql-component code.
-- `examples/property-component` - a component implementation.
-- `examples/reviews-component` - a component implementation.
-- `examples/listing-component` - a component implementation composing `Property` and `Reviews`.
-- `examples/server` - the "application".
+- `examples/example-listing/property-component` - a component implementation for `Property`.
+- `examples/example-listing/reviews-component` - a component implementation for `Reviews`.
+- `examples/example-listing/listing-component` - a component implementation composing `Property` and `Reviews`.
+- `examples/example-listing/server` - the "application".
 
 ### Running
 
@@ -41,10 +41,8 @@ memoization.
 
 ```javascript
 new GraphQLComponent({ 
-  // A string or array of strings representing typeDefs
+  // A string or array of strings representing typeDefs and rootTypes
   types,
-  // A string or array of strings reprenting rootTypes
-  rootTypes,
   // An object containing resolver functions
   resolvers, 
   // An optional object containing resolver dev/test fixtures
