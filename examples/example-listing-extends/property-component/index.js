@@ -1,5 +1,5 @@
 
-const GraphQLComponent = require('../../lib/index');
+const GraphQLComponent = require('../../../lib/index');
 
 class PropertyComponent extends GraphQLComponent {
   constructor({ useFixtures }) {
@@ -7,7 +7,7 @@ class PropertyComponent extends GraphQLComponent {
       # A listing
       type Property {
         id: ID!
-        geo: [String]
+        owner: String
       }
       type Query {
         # Property by id
@@ -26,7 +26,7 @@ class PropertyComponent extends GraphQLComponent {
     const fixtures = {
       Query: {
         property(_, { id }) {
-          return { id: id, geo: ['41.40338', '2.17403'] };
+          return { id: id, owner: 'Floyd' };
         }
       }
     };

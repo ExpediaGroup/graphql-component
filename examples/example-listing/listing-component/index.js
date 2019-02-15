@@ -1,5 +1,5 @@
 
-const GraphQLComponent = require('../../lib/index');
+const GraphQLComponent = require('../../../lib/index');
 const Property = require('../property-component');
 const Reviews = require('../reviews-component');
 
@@ -41,7 +41,20 @@ class ListingComponent extends GraphQLComponent {
       }
     };
 
-    super ({ types, resolvers, imports: [{ component: new Property({ useFixtures }), exclude: ['*'] }, { component: new Reviews({ useFixtures }), exclude: ['*']} ] });
+    super ({ 
+      types, 
+      resolvers, 
+      imports: [
+        { 
+          component: new Property({ useFixtures }), 
+          exclude: ['Query.*'] 
+        }, 
+        { 
+          component: new Reviews({ useFixtures }), 
+          exclude: ['Query.*']
+        } 
+      ] 
+    });
   }
 }
 
