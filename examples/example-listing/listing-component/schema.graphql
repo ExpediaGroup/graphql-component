@@ -1,0 +1,12 @@
+
+# A listing
+type Listing {
+  id: ID!
+  propertyId: ID!
+  geo: [String]
+  reviews: [Review]
+}
+type Query {
+  # Listing by id
+  listing(id: ID!) : Listing @memoize
+}

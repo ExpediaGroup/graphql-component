@@ -1,37 +1,12 @@
 
 const GraphQLComponent = require('../../../lib/index');
+const Resolvers = require('./resolvers');
+const Types = require('./types');
+const Fixtures = require('./fixtures');
 
 class PropertyComponent extends GraphQLComponent {
   constructor({ useFixtures }) {
-    const types = `
-      # A listing
-      type Property {
-        id: ID!
-        geo: [String]
-      }
-      type Query {
-        # Property by id
-        property(id: ID!) : Property @memoize
-      }
-    `;
-
-    const resolvers = {
-      Query: {
-        property(_, { id }) {
-          throw new Error('Query.property not implemented');
-        }
-      }
-    };
-
-    const fixtures = {
-      Query: {
-        property(_, { id }) {
-          return { id: id, geo: ['41.40338', '2.17403'] };
-        }
-      }
-    };
-
-    super({ types, resolvers, fixtures, useFixtures });
+    super({ types: Types, resolvers: Resolvers, fixtures: Fixtures, useFixtures });
   }
 }
 
