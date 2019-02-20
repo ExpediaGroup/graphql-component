@@ -2,7 +2,12 @@
 const resolvers = {
   Query: {
     reviewsByPropertyId(_, { propertyId }) {
-      throw new Error('Query.reviewsByPropertyId not implemented');
+      return [{
+        id: 1, 
+        propertyId: 1, 
+        content: 'content for review'
+      }];
+      //throw new Error('Query.reviewsByPropertyId not implemented');
     }
   }
 };

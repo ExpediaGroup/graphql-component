@@ -2,11 +2,11 @@
 const GraphQLComponent = require('../../../lib/index');
 const Resolvers = require('./resolvers');
 const Types = require('./types');
-const Fixtures = require('./fixtures');
+const Mocks = require('./mocks');
 
 class PropertyComponent extends GraphQLComponent {
-  constructor({ useFixtures }) {
-    super({ types: Types, resolvers: Resolvers, fixtures: Fixtures, useFixtures });
+  constructor({ useMocks, preserveTypeResolvers }) {
+    super({ types: Types, resolvers: Resolvers, mocks: Mocks, useMocks, preserveTypeResolvers });
   }
 }
 
