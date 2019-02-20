@@ -46,15 +46,17 @@ new GraphQLComponent({
   // An object containing resolver functions
   resolvers, 
   // An optional object containing resolver dev/test fixtures
-  fixtures,
+  mocks,
   // An optional array of imported components for the schema to be merged with
   imports,
   // An optional object containing custom schema directives
   directives,
   // An optional object { namespace, factory } for contributing to context
   context,
-  // Enable fixtures
-  useFixtures
+  // Enable mocks
+  useMocks,
+  // Preserve type resolvers in mock mode
+  preserveMockResolvers
 });
 ```
 
