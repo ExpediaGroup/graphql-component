@@ -11,10 +11,7 @@ class ListingComponent extends GraphQLComponent {
       types: Types, 
       resolvers: Resolvers, 
       imports: [
-        { 
-          component: new Property({ useMocks, preserveTypeResolvers }), 
-          exclude: ['Query.*'] 
-        }, 
+        new Property({ useMocks, preserveTypeResolvers }),
         { 
           component: new Reviews({ useMocks, preserveTypeResolvers }), 
           exclude: ['Query.*']
