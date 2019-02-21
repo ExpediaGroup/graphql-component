@@ -1,8 +1,10 @@
 
+const Casual = require('casual');
+
 const mocks = {
   Property: () => ({
     id: 1,
-    geo: ['41.40338', '2.17403']
+    geo: [`${Casual.latitude}`, `${Casual.longitude}`]
   })
 };
 

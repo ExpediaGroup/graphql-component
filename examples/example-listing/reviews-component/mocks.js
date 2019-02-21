@@ -1,9 +1,11 @@
 
+const Casual = require('casual');
+
 const mocks = {
   Review: () => ({
     id: 1, 
     propertyId: 1, 
-    content: 'content for review'
+    content: Casual.description
   })
 };
 
