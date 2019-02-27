@@ -4,7 +4,7 @@ const Property = require('../property-component');
 const Reviews = require('../reviews-component');
 
 class ListingComponent extends GraphQLComponent {
-  constructor({ useFixtures }) {
+  constructor() {
     const types = `
       extend type Property {
         geo: [String]
@@ -41,10 +41,7 @@ class ListingComponent extends GraphQLComponent {
         reviews(_) {
           return _.reviews;
         }
-      }
-    };
-
-    const fixtures = {
+      },
       Property: {
         geo() {
           return ['41.40338', '2.17403'];
@@ -55,18 +52,16 @@ class ListingComponent extends GraphQLComponent {
     super ({ 
       types, 
       resolvers, 
-      fixtures,
       imports: [
         { 
-          component: new Property({ useFixtures }), 
+          component: new Property(), 
           exclude: ['Query.*'] 
         }, 
         { 
-          component: new Reviews({ useFixtures }), 
+          component: new Reviews(), 
           exclude: ['Query.*']
         } 
-      ],
-      useFixtures
+      ]
     });
   }
 }

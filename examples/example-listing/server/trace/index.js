@@ -2,6 +2,8 @@
 const { GraphQLExtension } = require('graphql-extensions');
 const debug = require('debug')('graphql-component:tracer');
 
+const queries = new WeakMap();
+
 const logResolverTimings = function (tracing) {
   if (!tracing) {
     return;
@@ -14,6 +16,13 @@ const logResolverTimings = function (tracing) {
     const start = startTime + (resolver.startOffset * 1000000);
     const end = start - (resolver.duration);
   });
+};
+
+const logResolverErrors = function (qs, errors) {
+  if (!errors) {
+    return;
+  }
+  console.log(errors);
 }
 
 class TraceExtension extends GraphQLExtension {
@@ -21,9 +30,15 @@ class TraceExtension extends GraphQLExtension {
     super();
   }
 
+  requestDidStart({ context, queryString }) {
+    queries.set(context, queryString);
+  }
+
   willSendResponse({ context, graphqlResponse: { errors, extensions: { tracing } = {} } }) {
-    logResolverTimings(tracing);
-    //logResolverErrors(errors);
+    const qs = queries.get(context);
+
+    //logResolverTimings(tracing);
+    logResolverErrors(qs, errors);
     debug('sending response');
   }
 }

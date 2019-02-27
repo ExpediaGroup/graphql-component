@@ -12,10 +12,7 @@ class ListingComponent extends GraphQLComponent {
       resolvers: Resolvers, 
       imports: [
         new Property({ useMocks, preserveTypeResolvers }),
-        { 
-          component: new Reviews({ useMocks, preserveTypeResolvers }), 
-          exclude: ['Query.*']
-        } 
+        new Reviews({ useMocks, preserveTypeResolvers })
       ] 
     });
   }
