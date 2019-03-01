@@ -18,7 +18,7 @@ Test('wrapping', (t) => {
 
     const wrapped = Resolvers.wrapResolvers({ id: 1 }, resolvers);
 
-    const value = wrapped.Query.test({}, {}, {});
+    const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query' });
     
     t.equal(value, 1, 'resolver was bound');
   });
@@ -41,12 +41,13 @@ Test('wrapping', (t) => {
     const wrapped = Resolvers.wrapResolvers(undefined, resolvers);
 
     const ctx = {};
+    const info = { parentType: 'Query' };
       
-    let value = wrapped.Query.test({}, {}, ctx);
+    let value = wrapped.Query.test({}, {}, ctx, info);
     
     t.equal(value, 1, 'expected value');
 
-    value = wrapped.Query.test({}, {}, ctx);
+    value = wrapped.Query.test({}, {}, ctx, info);
     
     t.equal(value, 1, 'same value, only ran resolver once');
   });
@@ -64,15 +65,16 @@ Test('memoize resolver', (t) => {
     return ran;
   };
 
-  const wrapped = Resolvers.memoize('Query', 'test', resolver);
+  const wrapped = Resolvers.memoize('test', resolver);
 
   const ctx = {};
+  const info = { parentType: 'Query' };
   
-  let value = wrapped({}, {}, ctx);
+  let value = wrapped({}, {}, ctx, info);
   
   t.equal(value, 1, 'expected value');
 
-  value = wrapped({}, {}, ctx);
+  value = wrapped({}, {}, ctx, info);
   
   t.equal(value, 1, 'same value, only ran resolver once');
 });

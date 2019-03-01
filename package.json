@@ -5,7 +5,9 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "tape test/test-*.js",
-    "start": "DEBUG=graphql-component:* GRAPHQL_DEBUG=1 node --trace-event-categories graphql examples/example-listing/server/index.js"
+    "start": "DEBUG=graphql-component:* GRAPHQL_DEBUG=1 node --trace-event-categories graphql examples/example-listing/server/index.js",
+    "lint": "eslint lib",
+    "cover": "nyc npm test"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
   "repository": "https://github.com/tlivings/graphql-component",
@@ -20,6 +22,8 @@
   "devDependencies": {
     "apollo-server": "^2.0.7",
     "casual": "^1.6.0",
+    "eslint": "^5.14.1",
+    "nyc": "^13.3.0",
     "tape": "^4.9.1"
   }
 }
