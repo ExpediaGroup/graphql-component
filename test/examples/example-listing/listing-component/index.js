@@ -1,5 +1,5 @@
 
-const GraphQLComponent = require('../../../lib/index');
+const GraphQLComponent = require('../../../../lib/index');
 const Resolvers = require('./resolvers');
 const Types = require('./types');
 const Property = require('../property-component');

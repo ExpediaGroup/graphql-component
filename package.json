@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "tape test/test-*.js",
-    "start": "DEBUG=graphql-component:* GRAPHQL_DEBUG=1 node --trace-event-categories graphql examples/example-listing/server/index.js",
+    "start": "DEBUG=graphql-component:* GRAPHQL_DEBUG=1 node --trace-event-categories graphql test/examples/example-listing/server/index.js",
     "lint": "eslint lib",
     "cover": "nyc npm test"
   },

@@ -1,5 +1,5 @@
 
-const GraphQLComponent = require('../../../lib/index');
+const GraphQLComponent = require('../../../../lib/index');
 
 class ReviewsComponent extends GraphQLComponent {
   constructor() {
