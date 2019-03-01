@@ -13,8 +13,7 @@ const resolvers = {
   },
   Listing: {
     id(_) {
-      throw new Error('bad id');
-      //return _.id;
+      return _.id;
     },
     propertyId(_) {
       return _.property.id;
