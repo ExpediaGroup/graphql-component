@@ -54,31 +54,6 @@ Test('wrapping', (t) => {
 
 });
 
-Test('memoize resolver', (t) => {
-
-  t.plan(2);
-
-  let ran = 0;
-
-  const resolver = function () {
-    ran += 1;
-    return ran;
-  };
-
-  const wrapped = Resolvers.memoize('test', resolver);
-
-  const ctx = {};
-  const info = { parentType: 'Query' };
-  
-  let value = wrapped({}, {}, ctx, info);
-  
-  t.equal(value, 1, 'expected value');
-
-  value = wrapped({}, {}, ctx, info);
-  
-  t.equal(value, 1, 'same value, only ran resolver once');
-});
-
 Test('imports', (t) => {
 
   t.test('get imported resolvers', (t) => {
