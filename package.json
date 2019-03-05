@@ -17,6 +17,8 @@
     "graphql": "^0.13.2",
     "graphql-binding": "^2.3.0",
     "graphql-extensions": "^0.5.2",
+    "graphql-tag": "^2.10.1",
+    "graphql-toolkit": "^0.2.0",
     "graphql-tools": "^4.0.3"
   },
   "devDependencies": {
