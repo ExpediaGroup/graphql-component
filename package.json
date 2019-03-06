@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.1-alpha.5",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -14,12 +14,14 @@
   "license": "MIT",
   "dependencies": {
     "debug": "^4.1.0",
-    "graphql": "^0.13.2",
     "graphql-binding": "^2.3.0",
     "graphql-extensions": "^0.5.2",
     "graphql-tag": "^2.10.1",
     "graphql-toolkit": "^0.2.0",
     "graphql-tools": "^4.0.3"
+  },
+  "peerDependencies": {
+    "graphql": "^0.13.2"
   },
   "devDependencies": {
     "apollo-server": "^2.0.7",

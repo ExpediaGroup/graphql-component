@@ -64,7 +64,6 @@ This will create an instance object of a component containing the following func
 
 - `schema` - getter that returns an executable schema.
 - `context` - context builder.
-- `bindings` - provides a map to [graphql-binding](https://github.com/graphql-binding/graphql-binding)'s create by `imports`.
 
 ### Aggregation 
 
@@ -103,20 +102,6 @@ const { schema, context } = new GraphQLComponent({
 ```
 
 This will keep from leaking unintended surface area.
-
-### Using bindings
-
-Binding provide a way to delegate to another schema using [graphql-binding](https://github.com/graphql-binding/graphql-binding):
-
-```javascript
-const resolvers = {
-  Book: {
-    author(book, args, context, info) {
-      return this.importBindings.get(Author).query.author({ id: book.authorId }, info, { context });
-    }
-  }
-};
-```
 
 By simply importing an `Author` component instance, it becomes possible to execute the resolver `author` as a graphql call to resolve that type.
 
