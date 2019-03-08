@@ -6,5 +6,5 @@ type Property {
 }
 type Query {
   # Property by id
-  property(id: ID!) : Property @memoize
+  property(id: ID!) : Property # @memoize
 }

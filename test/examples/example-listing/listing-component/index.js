@@ -1,4 +1,5 @@
 
+const { Binding } = require('graphql-binding');
 const GraphQLComponent = require('../../../../lib/index');
 const Resolvers = require('./resolvers');
 const Types = require('./types');
@@ -21,6 +22,11 @@ class ListingComponent extends GraphQLComponent {
         }
       ] 
     });
+
+    this.bindings = new WeakMap();
+    this.imports.forEach((imp) => {
+      this.bindings.set(imp.constructor, new Binding({ schema: imp.schema }))
+    })
   }
 }
 

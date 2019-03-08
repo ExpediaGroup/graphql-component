@@ -14,10 +14,10 @@ For now it is alpha, but may become an official project.
 ### Repository structure
 
 - `lib` - the graphql-component code.
-- `examples/example-listing/property-component` - a component implementation for `Property`.
-- `examples/example-listing/reviews-component` - a component implementation for `Reviews`.
-- `examples/example-listing/listing-component` - a component implementation composing `Property` and `Reviews`.
-- `examples/example-listing/server` - the "application".
+- `test/examples/example-listing/property-component` - a component implementation for `Property`.
+- `test/examples/example-listing/reviews-component` - a component implementation for `Reviews`.
+- `test/examples/example-listing/listing-component` - a component implementation composing `Property` and `Reviews`.
+- `test/examples/example-listing/server` - the "application".
 
 ### Running
 
