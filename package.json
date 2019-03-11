@@ -17,9 +17,6 @@
     "graphql-extensions": "^0.5.2",
     "graphql-tools": "^4.0.3"
   },
-  "peerDependencies": {
-    "graphql": "^0.13.2 || ^14.0.0"
-  },
   "devDependencies": {
     "apollo-server": "^2.0.7",
     "casual": "^1.6.0",
