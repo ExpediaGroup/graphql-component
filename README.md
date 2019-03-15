@@ -1,15 +1,12 @@
-# GraphQL schema stitching and components
+# GraphQL schema components
 
 Reference implementation around the concept of a partial schema / component similar to that discussed [here](https://medium.com/homeaway-tech-blog/distributed-graphql-schema-development-npm-modules-d734a3cb6f12).
 
-This example takes advantage of existing graphql stitching capabilities from Apollo, but creates a convention 
-for how these schemas can be composed through imports and bindings.
-
-This is very similar to the excellent `graphql-modules` project — but closer to our own internal paradigm already in use for over a year and a half. 
+This is very similar to the excellent `graphql-modules` project — but closer to our own internal paradigm already in use for over a year and a half and adds some missing features such as `exclude` from `imports`.
 
 ### The future
 
-For now it is alpha, but may become an official project.
+For now it is alpha and experimental.
 
 ### Repository structure
 
@@ -19,7 +16,7 @@ For now it is alpha, but may become an official project.
 - `test/examples/example-listing/listing-component` - a component implementation composing `Property` and `Reviews`.
 - `test/examples/example-listing/server` - the "application".
 
-### Running
+### Running the example
 
 Can be run with `node examples/server/index.js` or `npm start` which will start with debug flags.
 
@@ -27,17 +24,13 @@ Can be run with `node examples/server/index.js` or `npm start` which will start 
 
 Enable debug logging with `DEBUG=graphql-component:*`
 
-### Activating fixtures
+### Activating mocks
 
-To intercept resolvers with mock fixtures execute this app with `GRAPHQL_DEBUG=1` enabled.
+To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enabled.
 
-In this example it must be done since no actual resolvers is implemented (with the exception of listing).
+In this example it must be done since no actual resolvers are implemented (with the exception of listing).
 
-This works much like Apollo's `addMockFunctionsToSchema` but functions better for this use case 
-because it will continue to use resolver when a fixture isn't present and the fixtures preserve the 
-memoization.
-
-### Usage
+# Usage
 
 ```javascript
 new GraphQLComponent({ 
@@ -65,6 +58,27 @@ This will create an instance object of a component containing the following func
 - `schema` - getter that returns an executable schema.
 - `context` - context builder.
 
+### Encapsulating state
+
+Typically the best way to make a re-useable component will be to extend `GraphQLComponent`. 
+
+```javascript
+const GraphQLComponent = require('graphql-component');
+const Resolvers = require('./resolvers');
+const Types = require('./types');
+const Mocks = require('./mocks');
+
+class PropertyComponent extends GraphQLComponent {
+  constructor({ useMocks, preserveTypeResolvers }) {
+    super({ types: Types, resolvers: Resolvers, mocks: Mocks, useMocks, preserveTypeResolvers });
+  }
+}
+
+module.exports = PropertyComponent;
+```
+
+This will allow for configuration (in this example, `useMocks` and `preserveTypeResolvers`) as well as instance data per component (such as data base clients, etc).
+
 ### Aggregation 
 
 Example to merge multiple components:
@@ -72,9 +86,8 @@ Example to merge multiple components:
 ```javascript
 const { schema, context } = new GraphQLComponent({
   imports: [
-    new Author(),
-    new Book(),
-    new BookExtension()
+    new Property(),
+    new Reviews()
   ]
 });
 
@@ -91,19 +104,19 @@ You can exclude root fields from imported components:
 ```javascript
 const { schema, context } = new GraphQLComponent({
   imports: [
-    new Author(),
     {
-      component: new Book(),
-      exclude: ['Query.*']
+      component: new Property(),
+      exclude: ['Mutation.*']
     },
-    new BookExtension()
+    {
+      component: new Reviews(),
+      exclude: ['Mutation.*']
+    }
   ]
 });
 ```
 
 This will keep from leaking unintended surface area.
-
-By simply importing an `Author` component instance, it becomes possible to execute the resolver `author` as a graphql call to resolve that type.
 
 ### Resolver memoization
 
@@ -114,8 +127,8 @@ Example:
 
 ```graphql
 type Query {
-    # Seach for an author by id.
-    author(id: ID!, version: String) : Author @memoize
+  # Seach for an author by id.
+  author(id: ID!, version: String) : Author @memoize
 }
 ```
 
@@ -126,7 +139,7 @@ Example context argument:
 ```javascript
 const context = {
   namespace: 'myNamespace',
-  factory: function (request) {
+  factory: function ({ req }) {
     return 'my value';
   }
 };
