@@ -24,21 +24,36 @@ Test('context builder', async (t) => {
 });
 
 Test('component context', async (t) => {
-  t.plan(3);
+  t.plan(2);
 
-  const { context } = new GraphQLComponent({ context: { namespace: 'test', factory: () => true } });
+  const context = Context.create(() => {});
 
   const result = await context({ default1: true, default2: true });
 
   t.ok(typeof result === 'object', 'returned object');
   t.ok(result.default1 && result.default2, 'default values maintained');
-  t.ok(result.test, 'namespace populated');
 });
 
 Test('context middleware', async (t) => {
   t.plan(3);
 
-  const { context } = new GraphQLComponent();
+  const context = Context.create(() => {});
+
+  context.use('test', () => {
+    return { test: true };
+  });
+
+  const result = await context({ default: true });
+
+  t.ok(typeof result === 'object', 'returned object');
+  t.ok(result.test, 'middleware populated');
+  t.ok(!result.default, 'middleware mutated');
+});
+
+Test('unnamed context middleware', async (t) => {
+  t.plan(3);
+
+  const context = Context.create(() => {});
 
   context.use(() => {
     return { test: true };
