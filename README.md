@@ -131,3 +131,17 @@ const context = {
   }
 };
 ```
+
+### Context middleware
+
+It may be necessary to transform the context before invoking component context.
+
+```javascript
+const { schema, context } = new GraphQLComponent(types, resolvers, context);
+
+context.use('transformRawRequest', ({ request }) => {
+  return { req: request.raw.req };
+});
+```
+
+Using `context` now in `apollo-server-hapi` for example, will transform the context to one similar to default `apollo-server`.

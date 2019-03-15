@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.10",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -15,15 +15,19 @@
   "dependencies": {
     "debug": "^4.1.0",
     "graphql-extensions": "^0.5.2",
+    "graphql-tag": "^2.10.1",
+    "graphql-toolkit": "^0.2.0",
     "graphql-tools": "^4.0.3"
   },
   "peerDependencies": {
     "graphql": "^0.13.2"
   },
   "devDependencies": {
+    "graphql-binding": "^2.3.0",
     "apollo-server": "^2.0.7",
     "casual": "^1.6.0",
     "eslint": "^5.14.1",
+    "graphql": "^0.13.2",
     "nyc": "^13.3.0",
     "tape": "^4.9.1"
   }

@@ -2,11 +2,13 @@
 const GraphQLComponent = require('../../../../lib/index');
 const Property = require('../property-component');
 const Reviews = require('../reviews-component');
+const { Binding } = require('graphql-binding');
 
 class ListingComponent extends GraphQLComponent {
   constructor() {
     const types = `
-      extend type Property {
+      type Property {
+        # Geo added by ListingComponent
         geo: [String]
       }
       # A listing
@@ -49,20 +51,27 @@ class ListingComponent extends GraphQLComponent {
       }
     };
 
+    const propertyComponent = new Property();
+    const reviewsComponent = new Reviews();
+
     super ({ 
-      types, 
+      types,
       resolvers, 
       imports: [
-        { 
-          component: new Property(), 
-          exclude: ['Query.*'] 
-        }, 
-        { 
-          component: new Reviews(), 
+        {
+          component: propertyComponent,
           exclude: ['Query.*']
-        } 
-      ]
+        },
+        {
+          component: reviewsComponent,
+          exclude: ['Query.*']
+        }
+      ] 
     });
+
+    this.bindings = new WeakMap();
+    this.bindings.set(Property, new Binding({ schema: propertyComponent.schema }));
+    this.bindings.set(Reviews, new Binding({ schema: reviewsComponent.schema }));
   }
 }
 
