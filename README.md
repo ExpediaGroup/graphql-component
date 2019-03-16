@@ -145,6 +145,8 @@ const context = {
 };
 ```
 
+After this, resolver `context` will contain `{ ..., myNamespace: 'my value' }`.
+
 ### Context middleware
 
 It may be necessary to transform the context before invoking component context.
