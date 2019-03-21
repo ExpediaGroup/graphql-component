@@ -23,7 +23,9 @@ class ListingComponent extends GraphQLComponent {
           component: reviewsComponent,
           exclude: ['Query.*']
         }
-      ] 
+      ] ,
+      useMocks,
+      preserveTypeResolvers
     });
 
     this.bindings = new WeakMap();
