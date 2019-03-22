@@ -8,8 +8,8 @@ const { Binding } = require('graphql-binding');
 
 class ListingComponent extends GraphQLComponent {
   constructor({ useMocks, preserveTypeResolvers }) {
-    const propertyComponent = new Property({ useMocks, preserveTypeResolvers });
-    const reviewsComponent = new Reviews({ useMocks, preserveTypeResolvers });
+    const propertyComponent = new Property();
+    const reviewsComponent = new Reviews();
 
     super ({ 
       types: Types, 
