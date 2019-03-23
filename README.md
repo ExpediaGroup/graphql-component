@@ -28,8 +28,6 @@ Enable debug logging with `DEBUG=graphql-component:*`
 
 To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enabled.
 
-In this example it must be done since no actual resolvers are implemented (with the exception of listing).
-
 # Usage
 
 ```javascript
@@ -160,3 +158,9 @@ context.use('transformRawRequest', ({ request }) => {
 ```
 
 Using `context` now in `apollo-server-hapi` for example, will transform the context to one similar to default `apollo-server`.
+
+### Mocks
+
+graphql-component accepts mocks in much the same way that Apollo does but with one difference. 
+
+Instead of accepting a mocks object, it accepts `(importedMocks) => mocksObject` argument. This allows components to utilize the mocks from other imported components easily.
