@@ -2,11 +2,13 @@
 
 Reference implementation around the concept of a partial schema / component similar to that discussed [here](https://medium.com/homeaway-tech-blog/distributed-graphql-schema-development-npm-modules-d734a3cb6f12).
 
-This is very similar to the excellent `graphql-modules` project — but closer to our own internal paradigm already in use for over a year and a half and adds some missing features such as `exclude` from `imports`.
+This is very similar to the excellent `graphql-modules` project — but a little closer to our own internal paradigm already in use for over a year and a half and adds some features such as `exclude` root types from `imports` and memoize resolvers.
+
+In fact, this module utilizes the `graphql-toolkit` developed by the `graphql-modules` team to merge types and resolvers.
 
 ### The future
 
-For now it is alpha and experimental.
+Experimental / alpha for now.
 
 ### Repository structure
 
@@ -31,11 +33,11 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enable
 # Usage
 
 ```javascript
-new GraphQLComponent({ 
+new GraphQLComponent({
   // A string or array of strings representing typeDefs and rootTypes
   types,
   // An object containing resolver functions
-  resolvers, 
+  resolvers,
   // An optional object containing resolver dev/test fixtures
   mocks,
   // An optional array of imported components for the schema to be merged with
@@ -58,7 +60,7 @@ This will create an instance object of a component containing the following func
 
 ### Encapsulating state
 
-Typically the best way to make a re-useable component will be to extend `GraphQLComponent`. 
+Typically the best way to make a re-useable component will be to extend `GraphQLComponent`.
 
 ```javascript
 const GraphQLComponent = require('graphql-component');
@@ -77,7 +79,7 @@ module.exports = PropertyComponent;
 
 This will allow for configuration (in this example, `useMocks` and `preserveTypeResolvers`) as well as instance data per component (such as data base clients, etc).
 
-### Aggregation 
+### Aggregation
 
 Example to merge multiple components:
 
@@ -116,20 +118,6 @@ const { schema, context } = new GraphQLComponent({
 
 This will keep from leaking unintended surface area.
 
-### Resolver memoization
-
-Schemas in graphql components will support the `@memoize` directive. This will allow resolvers to be memoized within the 
-scope of a particular request context to reduce the number of times a resolver must run for the same data.
-
-Example:
-
-```graphql
-type Query {
-  # Seach for an author by id.
-  author(id: ID!, version: String) : Author @memoize
-}
-```
-
 ### Adding to context
 
 Example context argument:
@@ -161,6 +149,6 @@ Using `context` now in `apollo-server-hapi` for example, will transform the cont
 
 ### Mocks
 
-graphql-component accepts mocks in much the same way that Apollo does but with one difference. 
+graphql-component accepts mocks in much the same way that Apollo does but with one difference.
 
 Instead of accepting a mocks object, it accepts `(importedMocks) => mocksObject` argument. This allows components to utilize the mocks from other imported components easily.

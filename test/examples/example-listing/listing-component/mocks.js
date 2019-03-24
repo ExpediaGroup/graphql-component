@@ -11,7 +11,7 @@ const mocks = (importedMocks) => {
         importedMocks.Review()
       ]
     })
-  }
+  };
 };
 
 module.exports = mocks;

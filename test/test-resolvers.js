@@ -19,7 +19,7 @@ Test('wrapping', (t) => {
     const wrapped = Resolvers.wrapResolvers({ id: 1 }, resolvers);
 
     const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query' });
-    
+
     t.equal(value, 1, 'resolver was bound');
   });
 
@@ -42,13 +42,13 @@ Test('wrapping', (t) => {
 
     const ctx = {};
     const info = { parentType: 'Query' };
-      
+
     let value = wrapped.Query.test({}, {}, ctx, info);
-    
+
     t.equal(value, 1, 'expected value');
 
     value = wrapped.Query.test({}, {}, ctx, info);
-    
+
     t.equal(value, 1, 'same value, only ran resolver once');
   });
 
@@ -81,6 +81,60 @@ Test('imports', (t) => {
 
     t.ok(imported.Query.test, 'resolver present');
     t.ok(imported.Query.imported, 'transitive resolver present');
+  });
+
+});
+
+Test('memoize resolver', (t) => {
+
+  t.test('memoized', (t) => {
+    t.plan(2);
+
+    let ran = 0;
+
+    const resolver = function () {
+      ran += 1;
+      return ran;
+    };
+
+    const wrapped = Resolvers.memoize('Query', 'test', resolver);
+
+    const ctx = {};
+
+    let value = wrapped({}, {}, ctx);
+
+    t.equal(value, 1, 'expected value');
+
+    value = wrapped({}, {}, ctx);
+
+    t.equal(value, 1, 'same value, only ran resolver once');
+  });
+
+  t.test('miss on different context', (t) => {
+    t.plan(3);
+
+    let ran = 0;
+
+    const resolver = function () {
+      ran += 1;
+      return ran;
+    };
+
+    const wrapped = Resolvers.memoize('Query', 'test', resolver);
+
+    const ctx = {};
+
+    let value = wrapped({}, {}, ctx);
+
+    t.equal(value, 1, 'expected value');
+
+    value = wrapped({}, {}, ctx);
+
+    t.equal(value, 1, 'same value, only ran resolver once');
+
+    value = wrapped({}, {}, {});
+
+    t.equal(value, 2, 'different value, different context');
   });
 
 });

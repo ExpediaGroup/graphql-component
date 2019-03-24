@@ -12,9 +12,9 @@ class ListingComponent extends GraphQLComponent {
     const propertyComponent = new Property();
     const reviewsComponent = new Reviews();
 
-    super ({ 
-      types: Types, 
-      resolvers: Resolvers, 
+    super ({
+      types: Types,
+      resolvers: Resolvers,
       mocks: Mocks,
       imports: [
         {
