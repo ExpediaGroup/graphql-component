@@ -1,14 +1,24 @@
+'use strict';
+
 const Property = require('../property-component');
 const Reviews = require('../reviews-component');
 
 const resolvers = {
   Query: {
     async listing(_, { id }, context) {
-      const [property, reviews] = await Promise.all([
-        this.bindings.get(Property).query.property({ id }, `{ id, geo }`, { context }),
-        this.bindings.get(Reviews).query.reviewsByPropertyId({ propertyId: id }, `{ content }`, { context })
+      const [propertyResult, reviewsResult] = await Promise.all([
+        this.propertyComponent.execute(`query { property(id: ${id}) { id, geo }}`, { context }),
+        this.reviewsComponent.execute(`query { reviewsByPropertyId(propertyId: ${id}) { content }}`, { context })
       ]);
-      return { id, property, reviews };
+
+      if (propertyResult.errors) {
+        throw propertyResult.errors[0];
+      }
+      if (reviewsResult.errors) {
+        throw reviewsResult.errors[0];
+      }
+
+      return { id, property: propertyResult.data.property, reviews: reviewsResult.data.reviewsByPropertyId };
     }
   },
   Listing: {

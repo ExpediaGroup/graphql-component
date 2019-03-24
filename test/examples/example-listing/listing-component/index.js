@@ -1,3 +1,4 @@
+'use strict';
 
 const GraphQLComponent = require('../../../../lib/index');
 const Resolvers = require('./resolvers');
@@ -5,7 +6,6 @@ const Types = require('./types');
 const Mocks = require('./mocks');
 const Property = require('../property-component');
 const Reviews = require('../reviews-component');
-const { Binding } = require('graphql-binding');
 
 class ListingComponent extends GraphQLComponent {
   constructor({ useMocks, preserveTypeResolvers }) {
@@ -30,9 +30,8 @@ class ListingComponent extends GraphQLComponent {
       preserveTypeResolvers
     });
 
-    this.bindings = new WeakMap();
-    this.bindings.set(Property, new Binding({ schema: propertyComponent.schema }));
-    this.bindings.set(Reviews, new Binding({ schema: reviewsComponent.schema }));
+    this.propertyComponent = propertyComponent;
+    this.reviewsComponent = reviewsComponent;
   }
 }
 

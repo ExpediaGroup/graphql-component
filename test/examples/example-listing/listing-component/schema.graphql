@@ -8,5 +8,5 @@ type Listing {
 }
 type Query {
   # Listing by id
-  listing(id: ID!) : Listing @memoize
+  listing(id: ID!) : Listing
 }

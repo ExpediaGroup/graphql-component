@@ -7,5 +7,5 @@ type Review {
 }
 type Query {
   # Reviews by property id
-  reviewsByPropertyId(propertyId: ID!) : [Review] @memoize
+  reviewsByPropertyId(propertyId: ID!) : [Review]
 }

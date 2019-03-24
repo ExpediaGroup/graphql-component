@@ -147,6 +147,16 @@ context.use('transformRawRequest', ({ request }) => {
 
 Using `context` now in `apollo-server-hapi` for example, will transform the context to one similar to default `apollo-server`.
 
+### Directly executing components
+
+Components can be directly executed via the `execute` function. The `execute` function is basically a passthrough to `graphql.execute` and is mostly useful for components calling imported components and the like.
+
+`execute(input, options)` accepts an `input` string and an optional `options` object with the following fields:
+
+- `root` - root object.
+- `context` - context object value.
+- `variables` - key:value mapping of variables for the input.
+
 ### Mocks
 
 graphql-component accepts mocks in much the same way that Apollo does but with one difference.

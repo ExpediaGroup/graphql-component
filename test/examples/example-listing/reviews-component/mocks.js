@@ -1,11 +1,12 @@
+'use strict';
 
 const Casual = require('casual');
 
 const mocks = (importedMocks) => {
   return {
     Review: () => ({
-      id: Casual.uuid, 
-      propertyId: Casual.uuid, 
+      id: Casual.uuid,
+      propertyId: Casual.uuid,
       content: Casual.description
     })
   };
