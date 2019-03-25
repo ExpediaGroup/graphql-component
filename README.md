@@ -38,8 +38,6 @@ new GraphQLComponent({
   types,
   // An object containing resolver functions
   resolvers,
-  // An optional object containing resolver dev/test fixtures
-  mocks,
   // An optional array of imported components for the schema to be merged with
   imports,
   // An optional object containing custom schema directives
@@ -49,7 +47,9 @@ new GraphQLComponent({
   // Enable mocks
   useMocks,
   // Preserve type resolvers in mock mode
-  preserveMockResolvers
+  preserveMockResolvers,
+  // An optional object containing mock types
+  mocks
 });
 ```
 
@@ -60,7 +60,7 @@ This will create an instance object of a component containing the following func
 
 ### Encapsulating state
 
-Typically the best way to make a re-useable component will be to extend `GraphQLComponent`.
+Typically the best way to make a re-useable component with instance data will be to extend `GraphQLComponent`.
 
 ```javascript
 const GraphQLComponent = require('graphql-component');
@@ -150,6 +150,8 @@ Using `context` now in `apollo-server-hapi` for example, will transform the cont
 ### Directly executing components
 
 Components can be directly executed via the `execute` function. The `execute` function is basically a passthrough to `graphql.execute` and is mostly useful for components calling imported components and the like.
+
+For example, this allows one component to invoke another component and still get the benefits of that component's schema type resolvers and validation.
 
 `execute(input, options)` accepts an `input` string and an optional `options` object with the following fields:
 
