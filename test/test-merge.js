@@ -1,3 +1,4 @@
+'use strict';
 
 const Test = require('tape');
 const Merge = require('../lib/merge');
