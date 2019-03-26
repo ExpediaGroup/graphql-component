@@ -159,6 +159,16 @@ For example, this allows one component to invoke another component and still get
 - `context` - context object value.
 - `variables` - key:value mapping of variables for the input.
 
+The `execute` function also adds some helper fragments. For any type you query in a component, a helper fragment will exist to query all fields.
+
+Example:
+
+```javascript
+propertyComponent.execute(`query { property(id: ${id}) { ...AllProperty }}`, { context })
+```
+
+For the `Property` type in the `propertyComponent`, a helper fragment will exist as `AllProperty` that provides all fields.
+
 ### Mocks
 
 graphql-component accepts mocks in much the same way that Apollo does but with one difference.

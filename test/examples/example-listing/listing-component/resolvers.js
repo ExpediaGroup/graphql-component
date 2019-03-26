@@ -7,8 +7,8 @@ const resolvers = {
   Query: {
     async listing(_, { id }, context) {
       const [propertyResult, reviewsResult] = await Promise.all([
-        this.propertyComponent.execute(`query { property(id: ${id}) { id, geo }}`, { context }),
-        this.reviewsComponent.execute(`query { reviewsByPropertyId(propertyId: ${id}) { content }}`, { context })
+        this.propertyComponent.execute(`query { property(id: ${id}) { ...AllProperty }}`, { context }),
+        this.reviewsComponent.execute(`query { reviewsByPropertyId(propertyId: ${id}) { ...AllReview }}`, { context })
       ]);
 
       if (propertyResult.errors) {
