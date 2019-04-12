@@ -1,7 +1,7 @@
 'use strict';
 
 const Test = require('tape');
-var { buildASTSchema } = require('graphql');
+const { buildASTSchema } = require('graphql');
 const Gql = require('graphql-tag')
 const Types = require('../lib/types');
 
