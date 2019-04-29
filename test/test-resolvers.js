@@ -1,7 +1,7 @@
 'use strict';
 
 const Test = require('tape');
-const Resolvers = require('../lib/resolvers');
+const { wrapResolvers, getImportedResolvers, memoize } = require('../lib/resolvers');
 
 Test('wrapping', (t) => {
 
@@ -17,7 +17,7 @@ Test('wrapping', (t) => {
       }
     };
 
-    const wrapped = Resolvers.wrapResolvers({ id: 1 }, resolvers);
+    const wrapped = wrapResolvers({ id: 1 }, resolvers);
 
     const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query' });
 
@@ -39,7 +39,7 @@ Test('wrapping', (t) => {
       }
     };
 
-    const wrapped = Resolvers.wrapResolvers(undefined, resolvers);
+    const wrapped = wrapResolvers(undefined, resolvers);
 
     const ctx = {};
     const info = { parentType: 'Query' };
@@ -62,14 +62,14 @@ Test('imports', (t) => {
     t.plan(2);
 
     const imp = {
-      _resolvers: {
+      resolvers: {
         Query: {
           test() {
             return true;
           }
         }
       },
-      _importedResolvers: {
+      importedResolvers: {
         Query: {
           imported() {
             return true;
@@ -78,7 +78,7 @@ Test('imports', (t) => {
       }
     };
 
-    const imported = Resolvers.getImportedResolvers(imp);
+    const imported = getImportedResolvers(imp);
 
     t.ok(imported.Query.test, 'resolver present');
     t.ok(imported.Query.imported, 'transitive resolver present');
@@ -98,7 +98,7 @@ Test('memoize resolver', (t) => {
       return ran;
     };
 
-    const wrapped = Resolvers.memoize('Query', 'test', resolver);
+    const wrapped = memoize('Query', 'test', resolver);
 
     const ctx = {};
 
@@ -121,7 +121,7 @@ Test('memoize resolver', (t) => {
       return ran;
     };
 
-    const wrapped = Resolvers.memoize('Query', 'test', resolver);
+    const wrapped = memoize('Query', 'test', resolver);
 
     const ctx = {};
 

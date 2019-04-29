@@ -12,8 +12,8 @@ Test('type utilities', (t) => {
     t.plan(2);
 
     const component = {
-      _importedTypes: [],
-      _types: [`
+      importedTypes: [],
+      types: [`
         type A {
           value: String
         }
@@ -36,7 +36,7 @@ Test('type utilities', (t) => {
     t.plan(4);
 
     const component = {
-      _importedTypes: [Gql`
+      importedTypes: [Gql`
         type B {
           value: String
         }
@@ -44,7 +44,7 @@ Test('type utilities', (t) => {
           b: B
         }
       `],
-      _types: [`
+      types: [`
         type A {
           value: String
         }
@@ -69,7 +69,7 @@ Test('type utilities', (t) => {
     t.plan(4);
 
     const component = {
-      _importedTypes: [Gql`
+      importedTypes: [Gql`
         type B {
           value: String
         }
@@ -77,7 +77,7 @@ Test('type utilities', (t) => {
           b: B
         }
       `],
-      _types: [`
+      types: [`
         type A {
           value: String
         }
@@ -102,8 +102,8 @@ Test('type utilities', (t) => {
     t.plan(4);
 
     const component = {
-      _importedTypes: [],
-      _types: [`
+      importedTypes: [],
+      types: [`
         type A {
           value: String
         }
@@ -129,8 +129,8 @@ Test('type utilities', (t) => {
     t.plan(2);
 
     const component = {
-      _importedTypes: [],
-      _types: [`
+      importedTypes: [],
+      types: [`
         type A {
           value: String
         }

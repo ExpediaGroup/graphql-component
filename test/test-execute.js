@@ -6,7 +6,7 @@ const GraphQLComponent = require('../lib/index');
 
 Test('test component execute', (t) => {
 
-  const types = `
+  const types = [`
     type Book {
       id: ID!
       title: String
@@ -14,11 +14,11 @@ Test('test component execute', (t) => {
     type Query {
       book(id: ID!) : Book
     }
-  `;
+  `];
 
   const resolvers = {
     Query: {
-      book(_, { id }, context, info) {
+      book() {
         return {
           id: 1,
           title: 'Some Title'
