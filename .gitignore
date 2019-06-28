@@ -67,6 +67,7 @@ typings/
 .idea
 .settings
 .iml
+*.iml
 *.sublime-workspace
 *.sublime-project
 .vscode/*
