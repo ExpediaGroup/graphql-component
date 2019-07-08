@@ -8,11 +8,11 @@ const Directives = require('../lib/directives');
 
 class TestDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {}
-  visitEnumValue(field) {}
 }
 
 const componentA = new GraphQLComponent({
   types: [`
+      directive @constraint(schema: String!) on FIELD_DEFINITION
       type Book {
         id: ID!
         title: String
@@ -33,6 +33,7 @@ const componentA = new GraphQLComponent({
 
 const componentB = new GraphQLComponent({
   types: [`
+      directive @deprecated(schema: String!) on FIELD_DEFINITION
       type Author {
         id: ID!
         name: String
@@ -68,14 +69,16 @@ Test('test componentA', async (t) => {
   });
 
   t.test('componentA schema', async (t) => {
-    t.plan(2);
+    t.plan(3);
 
     t.ok(componentA.schema._directives, 'has directives');
 
-    const TestDirective = componentA.schema._directives.filter((d) => {
+    const constraintDirective = componentA.schema._directives.filter((d) => {
       return d.name === "constraint";
     });
-    t.ok(TestDirective, 'has constraint directive in schema');
+
+    t.ok(constraintDirective, 'has directives in schema');
+    t.equal(constraintDirective.length, 1, 'has constraint directive in schema');
   });
 
   t.test('componentA execute', async (t) => {
@@ -105,19 +108,22 @@ Test('test componentB', async (t) => {
   });
 
   t.test('componentB schema', async (t) => {
-    t.plan(3);
+    t.plan(5);
 
     t.ok(componentB.schema._directives, 'has directives');
 
     const constraintDirective = componentB.schema._directives.filter((d) => {
       return d.name === "constraint";
     });
+
     t.ok(constraintDirective, 'has constraint directive in schema');
+    t.equal(constraintDirective.length, 1, 'has constraint directive in schema');
 
     const deprecatedDirective = componentB.schema._directives.filter((d) => {
       return d.name === "deprecated";
     });
     t.ok(deprecatedDirective, 'has deprecated directive in schema');
+    t.equal(deprecatedDirective.length, 1, 'has deprecated directive in schema');
   });
 
   t.test('componentB execute', async (t) => {
