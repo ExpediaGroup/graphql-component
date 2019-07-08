@@ -58,7 +58,7 @@ const componentB = new GraphQLComponent({
   directives: {deprecated: TestDirective}
 });
 
-Test('test componentA', (t) => {
+Test('test componentA', async (t) => {
   t.test('componentA construct', async (t) => {
     t.plan(3);
 
@@ -137,7 +137,7 @@ Test('test componentB', async (t) => {
   });
 });
 
-Test('test directives utilities', (t) => {
+Test('test directives utilities', async (t) => {
   t.test('execute mergeDirectives', async (t) => {
     t.plan(1);
     const directives = [{constraint: TestDirective}, {deprecated: TestDirective}];
