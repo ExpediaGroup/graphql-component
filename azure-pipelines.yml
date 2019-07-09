@@ -17,5 +17,6 @@ steps:
 
 - script: |
     npm install
-    npm run cover
-  displayName: 'npm install and coverage'
+    npm run lint
+    npm run build
+  displayName: 'npm install & test'
