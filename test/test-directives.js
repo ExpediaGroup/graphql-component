@@ -1,7 +1,7 @@
 'use strict';
 
 const Test = require('tape');
-const {SchemaDirectiveVisitor} = require('graphql-tools');
+const { SchemaDirectiveVisitor } = require('graphql-tools');
 
 const GraphQLComponent = require('../lib/index');
 const Directives = require('../lib/directives');
@@ -65,7 +65,7 @@ Test('test componentA', async (t) => {
 
     t.deepEquals(componentA.directives, {constraint: TestDirective}, 'has constraint directive in directives');
     t.deepEquals(componentA._importedDirectives, [], 'imported directives are empty');
-    t.deepEquals(componentA.mergedDirectives, {constraint: TestDirective}, 'has constraint directive in merged directives');
+    t.deepEquals(componentA._mergedDirectives, { constraint: TestDirective }, 'has constraint directive in merged directives');
   });
 
   t.test('componentA schema', async (t) => {
@@ -104,7 +104,7 @@ Test('test componentB', async (t) => {
 
     t.deepEquals(componentB.directives, {deprecated: TestDirective}, 'has deprecated directive in directives');
     t.deepEquals(componentB._importedDirectives, [{constraint: TestDirective}], 'has constraint directive in imported directives');
-    t.deepEquals(componentB.mergedDirectives, {constraint: TestDirective, deprecated: TestDirective}, 'has constraint and deprecated directives in merged directives');
+    t.deepEquals(componentB._mergedDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
   });
 
   t.test('componentB schema', async (t) => {
