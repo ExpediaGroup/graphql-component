@@ -1,7 +1,7 @@
 'use strict';
 
 const Test = require('tape');
-const { wrapResolvers, getImportedResolvers, memoize } = require('../lib/resolvers');
+const { wrapResolvers, getImportedResolvers, memoize, transformResolvers } = require('../lib/resolvers');
 
 Test('wrapping', (t) => {
 
@@ -62,14 +62,14 @@ Test('imports', (t) => {
     t.plan(2);
 
     const imp = {
-      resolvers: {
+      _resolvers: {
         Query: {
           test() {
             return true;
           }
         }
       },
-      importedResolvers: {
+      _importedResolvers: {
         Query: {
           imported() {
             return true;
@@ -136,6 +136,29 @@ Test('memoize resolver', (t) => {
     value = wrapped({}, {}, {});
 
     t.equal(value, 2, 'different value, different context');
+  });
+
+});
+
+Test('transform', (t) => {
+
+  t.test('exclude wildcard', (t) => {
+    t.plan(2);
+
+    const resolvers = {
+      Query: {
+        test: () => {}
+      },
+      Mutation: {
+        test: () => {}
+      }
+    };
+
+    const transformed = transformResolvers(resolvers, [['Mutation', '*']]);
+
+    t.ok(transformed.Query && transformed.Query.test, 'query present');
+    t.ok(!transformed.Mutation, 'mutation not present');
+
   });
 
 });
