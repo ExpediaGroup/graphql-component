@@ -6,6 +6,13 @@ const Reviews = require('../reviews-component');
 const resolvers = {
   Query: {
     async listing(_, { id }, context) {
+      // const [propertyResult, reviewsResult] = await Promise.all([
+      //   this.propertyComponent.resolvers.Query.property(_, { id }, context),
+      //   this.reviewsComponent.resolvers.Query.reviewsByPropertyId(_, { propertyId: id }, context)
+      // ]);
+
+      // return { id, property: propertyResult, reviews: reviewsResult };
+
       const [propertyResult, reviewsResult] = await Promise.all([
         this.propertyComponent.execute(`query { property(id: ${id}) { ...AllProperty }}`, { context }),
         this.reviewsComponent.execute(`query { reviewsByPropertyId(propertyId: ${id}) { ...AllReview }}`, { context })

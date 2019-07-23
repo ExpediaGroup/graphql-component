@@ -8,7 +8,6 @@ const resolvers = {
         propertyId: 1,
         content: 'content for review'
       }];
-      //throw new Error('Query.reviewsByPropertyId not implemented');
     }
   }
 };
