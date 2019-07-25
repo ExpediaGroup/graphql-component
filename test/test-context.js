@@ -1,7 +1,7 @@
 'use strict';
 
 const Test = require('tape');
-const { contextBuilder, createContext } = require('../lib/context');
+const { createContext, wrapContext } = require('../lib/context');
 const GraphQLComponent = require('../lib/index');
 
 Test('context builder', async (t) => {
@@ -15,7 +15,7 @@ Test('context builder', async (t) => {
     ]
   });
 
-  const context = contextBuilder(component, { namespace: 'test', factory: () => true });
+  const context = createContext(component, { namespace: 'test', factory: () => true });
 
   const result = await context({});
 
@@ -27,7 +27,7 @@ Test('context builder', async (t) => {
 Test('component context', async (t) => {
   t.plan(2);
 
-  const context = createContext(({}) => {});
+  const context = wrapContext(({}) => {});
 
   const result = await context({ default1: true, default2: true });
 
@@ -38,7 +38,7 @@ Test('component context', async (t) => {
 Test('context middleware', async (t) => {
   t.plan(3);
 
-  const context = createContext(({}) => {});
+  const context = wrapContext(({}) => {});
 
   context.use('test', () => {
     return { test: true };
@@ -54,7 +54,7 @@ Test('context middleware', async (t) => {
 Test('unnamed context middleware', async (t) => {
   t.plan(3);
 
-  const context = createContext(() => {});
+  const context = wrapContext(() => {});
 
   context.use(() => {
     return { test: true };
