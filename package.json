@@ -17,8 +17,8 @@
     "debug": "^4.1.0",
     "graphql-extensions": "^0.5.2",
     "graphql-tag": "^2.10.1",
-    "graphql-toolkit": "^0.2.0",
-    "graphql-tools": "^4.0.3"
+    "graphql-toolkit": "^0.4.1",
+    "graphql-tools": "^4.0.5"
   },
   "peerDependencies": {
     "graphql": "^0.13.2"
@@ -26,9 +26,9 @@
   "devDependencies": {
     "apollo-server": "^2.0.7",
     "casual": "^1.6.0",
-    "eslint": "^5.14.1",
+    "eslint": "^6.1.0",
     "graphql": "^0.13.2",
-    "nyc": "^13.3.0",
+    "nyc": "^14.1.1",
     "tape": "^4.9.1"
   }
 }
