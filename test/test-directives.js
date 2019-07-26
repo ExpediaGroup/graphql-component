@@ -33,7 +33,7 @@ const componentA = new GraphQLComponent({
 
 const componentB = new GraphQLComponent({
   types: [`
-      directive @deprecated(schema: String!) on FIELD_DEFINITION
+      directive @authorization(schema: String!) on FIELD_DEFINITION
       type Author {
         id: ID!
         name: String
@@ -56,16 +56,19 @@ const componentB = new GraphQLComponent({
   imports: [
     componentA
   ],
-  directives: {deprecated: TestDirective}
+  directives: {authorization: TestDirective}
 });
 
 Test('test componentA', async (t) => {
   t.test('componentA construct', async (t) => {
     t.plan(3);
 
-    t.deepEquals(componentA.directives, {constraint: TestDirective}, 'has constraint directive in directives');
+    const directives = {};
+    directives[`constraint_${componentA._id}`] = TestDirective;
+
+    t.deepEquals(componentA.directives, directives, 'has constraint directive in directives');
     t.deepEquals(componentA._importedDirectives, [], 'imported directives are empty');
-    t.deepEquals(componentA._mergedDirectives, { constraint: TestDirective }, 'has constraint directive in merged directives');
+    t.deepEquals(componentA._mergedDirectives, directives, 'has constraint directive in merged directives');
   });
 
   t.test('componentA schema', async (t) => {
@@ -74,7 +77,7 @@ Test('test componentA', async (t) => {
     t.ok(componentA.schema._directives, 'has directives');
 
     const constraintDirective = componentA.schema._directives.filter((d) => {
-      return d.name === "constraint";
+      return d.name.startsWith("constraint");
     });
 
     t.ok(constraintDirective, 'has directives in schema');
@@ -102,9 +105,19 @@ Test('test componentB', async (t) => {
   t.test('componentB construct', async (t) => {
     t.plan(3);
 
-    t.deepEquals(componentB.directives, {deprecated: TestDirective}, 'has deprecated directive in directives');
-    t.deepEquals(componentB._importedDirectives, [{constraint: TestDirective}], 'has constraint directive in imported directives');
-    t.deepEquals(componentB._mergedDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
+    const directives = {};
+    directives[`authorization_${componentB._id}`] = TestDirective;
+
+    const importedDirectives = {};
+    importedDirectives[`constraint_${componentA._id}`] = TestDirective;
+
+    const dynamicMergedDirectives = {};
+    dynamicMergedDirectives[`constraint_${componentA._id}`] = TestDirective;
+    dynamicMergedDirectives[`authorization_${componentB._id}`] = TestDirective;
+
+    t.deepEquals(componentB.directives, directives, 'has authorization directive in directives');
+    t.deepEquals(componentB._importedDirectives, [importedDirectives], 'has constraint directive in imported directives');
+    t.deepEquals(componentB._mergedDirectives, dynamicMergedDirectives, 'has constraint and authorization directives in merged directives');
   });
 
   t.test('componentB schema', async (t) => {
@@ -113,17 +126,17 @@ Test('test componentB', async (t) => {
     t.ok(componentB.schema._directives, 'has directives');
 
     const constraintDirective = componentB.schema._directives.filter((d) => {
-      return d.name === "constraint";
+      return d.name.startsWith("constraint");
     });
 
     t.ok(constraintDirective, 'has constraint directive in schema');
     t.equal(constraintDirective.length, 1, 'has constraint directive in schema');
 
-    const deprecatedDirective = componentB.schema._directives.filter((d) => {
-      return d.name === "deprecated";
+    const authorizationDirective = componentB.schema._directives.filter((d) => {
+      return d.name.startsWith("authorization");
     });
-    t.ok(deprecatedDirective, 'has deprecated directive in schema');
-    t.equal(deprecatedDirective.length, 1, 'has deprecated directive in schema');
+    t.ok(authorizationDirective, 'has authorization directive in schema');
+    t.equal(authorizationDirective.length, 1, 'has authorization directive in schema');
   });
 
   t.test('componentB execute', async (t) => {
@@ -146,24 +159,96 @@ Test('test componentB', async (t) => {
 Test('test directives utilities', async (t) => {
   t.test('execute mergeDirectives', async (t) => {
     t.plan(1);
-    const directives = [{constraint: TestDirective}, {deprecated: TestDirective}];
+    const directives = [{constraint: TestDirective}, {authorization: TestDirective}];
     const merged = Directives.mergeDirectives(directives);
 
-    t.deepEquals(merged, {constraint: TestDirective, deprecated: TestDirective}, 'has constraint and deprecated directives in merged directives');
+    t.deepEquals(merged, {constraint: TestDirective, authorization: TestDirective}, 'has constraint and authorization directives in merged directives');
   });
 
   t.test('execute getImportedDirectives', async (t) => {
     t.plan(1);
     const component = {
       _directives: {auth: TestDirective},
-      _importedDirectives: [{constraint: TestDirective}, {deprecated: TestDirective}]
+      _importedDirectives: [{constraint: TestDirective}, {authorization: TestDirective}]
     };
     const imported = Directives.getImportedDirectives(component);
 
     t.deepEquals(imported, {
       auth: TestDirective,
       constraint: TestDirective,
-      deprecated: TestDirective
-    }, 'has auth, constraint and deprecated directives in imported directives');
+      authorization: TestDirective
+    }, 'has auth, constraint and authorization directives in imported directives');
+  });
+
+  t.test('execute namespaceDirectivesInTypeDefs', async (t) => {
+    t.plan(1);
+
+    const constraintDirectiveWithNoSpaces = 'directive @constraint(schema: String!) on FIELD_DEFINITION';
+    const authorizationDirectiveWithSpaces = 'directive @authorization  (schema: String!) on FIELD_DEFINITION';
+    const restDirectiveNoArg = 'directive @rest on FIELD_DEFINITION';
+    const otherTypes = `
+      type Book {
+        id: ID!
+        title: String
+      }
+      type Query {
+        book(id: ID!) : Book
+      }
+    `;
+
+    const types = [
+    `
+      ${constraintDirectiveWithNoSpaces}
+      ${otherTypes}
+    `,
+    `
+      ${authorizationDirectiveWithSpaces}
+      ${otherTypes}
+    `,
+      `
+      ${restDirectiveNoArg}
+      ${otherTypes}
+    `
+    ];
+    const id = "cjld2cyuq0000t3rmniod1foy";
+    const result = Directives.namespaceDirectivesInTypeDefs(types, id);
+
+    const constraintDirectiveNamespaced = `directive @constraint_${id}(schema: String!) on FIELD_DEFINITION`;
+    const authorizationDirectiveNamespaced = `directive @authorization_${id}  (schema: String!) on FIELD_DEFINITION`;
+    const restDirectiveNamespaced = `directive @rest_${id} on FIELD_DEFINITION`;
+    const typesNamespaced = [
+      `
+      ${constraintDirectiveNamespaced}
+      ${otherTypes}
+    `,
+      `
+      ${authorizationDirectiveNamespaced}
+      ${otherTypes}
+    `,
+      `
+      ${restDirectiveNamespaced}
+      ${otherTypes}
+    `
+    ];
+
+    t.deepEquals(result, typesNamespaced, 'has namespaced directives in type defs');
+  });
+
+  t.test('execute namespaceDirectiveDefs', async (t) => {
+    t.plan(1);
+
+    const directives = {
+      constraint: TestDirective,
+      authorization: TestDirective
+    };
+
+    const id = "cjld2cyuq0000t3rmniod1foy";
+    const result = Directives.namespaceDirectiveDefs(directives, id);
+
+    const directivesNamespaced = {};
+    directivesNamespaced[`constraint_${id}`] = TestDirective;
+    directivesNamespaced[`authorization_${id}`] = TestDirective;
+
+    t.deepEquals(result, directivesNamespaced, 'has namespaced directives in result');
   });
 });
