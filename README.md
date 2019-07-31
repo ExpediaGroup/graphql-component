@@ -34,30 +34,19 @@ Enable debug logging with `DEBUG=graphql-component:*`
 
 To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enabled.
 
-# Usage
+# API
 
-```javascript
-new GraphQLComponent({
-  // A string or array of strings representing typeDefs and rootTypes
-  types,
-  // An object containing resolver functions
-  resolvers,
-  // An optional array of imported components for the schema to be merged with
-  imports,
-  // An optional object containing custom schema directives
-  directives,
-  // An optional object { namespace, factory } for contributing to context
-  context,
-  // Enable mocks
-  useMocks,
-  // Preserve type resolvers in mock mode
-  preserveMockResolvers,
-  // An optional object containing mock types
-  mocks
-});
-```
+- `GraphQLComponent(options)` - the component class, which may also be extended. Its options include:
+  - `types` - A string or array of strings representing typeDefs and rootTypes.
+  - `resolvers` - An object containing resolver functions.
+  - `imports` - An optional array of imported components for the schema to be merged with.
+  - `context` - An optional object { namespace, factory } for contributing to context.
+  - `directives` - An optional object containing custom schema directives.
+  - `useMocks` - Enable mocks.
+  - `preserveMockResolvers` - Preserve type resolvers in mock mode.
+  - `mocks` - An optional object containing mock types.
 
-This will create an instance object of a component containing the following functions:
+A new GraphQLComponent instance has the following API:
 
 - `schema` - getter that returns an executable schema.
 - `context` - context builder.
@@ -66,6 +55,16 @@ This will create an instance object of a component containing the following func
 - `resolvers` - this component's resolvers.
 - `imports` - this component's imports.
 - `execute` - accepts a graphql query.
+
+# General usage
+
+Creating a component using the GraphQLComponent class:
+
+```javascript
+const GraphQLComponent = require('graphql-component');
+
+const { schema, context } = new GraphQLComponent({ types, resolvers });
+```
 
 ### Encapsulating state
 
@@ -125,7 +124,55 @@ const { schema, context } = new GraphQLComponent({
 });
 ```
 
-This will keep from leaking unintended surface area.
+This will keep from leaking unintended surface area. But you can still delegate calls to the component's schema to enable it from the API you do expose.
+
+### Directly executing components
+
+Components can be directly executed via the `execute` function. The `execute` function is basically a passthrough to `graphql.execute` and is mostly useful for components calling imported components and the like.
+
+For example, this allows one component to invoke another component and still get the benefits of that component's schema type resolvers and validation.
+
+`execute(input, options)` accepts an `input` string and an optional `options` object with the following fields:
+
+- `root` - root object.
+- `context` - context object value.
+- `variables` - key:value mapping of variables for the input.
+
+The `execute` function also adds some helper fragments. For any type you query in a component, a helper fragment will exist to query all fields.
+
+Example extending `Property` to include a `reviews` field that delegates to another component:
+
+```javascript
+class PropertyComponentReviews extends GraphQLComponent {
+  constructor({ useMocks, preserveTypeResolvers }) {
+    const propertyComponent = new PropertyComponent();
+    const reviewsComponent = new ReviewsComponent();
+
+    super ({
+      types: [
+        `type Property { reviews: [Review] }`
+      ],
+      resolvers: {
+        Property: {
+          reviews(_, args, context) {
+            //TODO: error handle here of course!
+            return reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context });
+          }
+        }
+      },
+      imports: [
+        propertyComponent,
+        {
+          component: reviewsComponent,
+          exclude: ['*'] //Exclude the imported component's API
+        }
+      ]
+    });
+  }
+}
+```
+
+For the `Review` type in the `reviewsComponent`, a helper fragment will exist as `AllReview` that provides all fields.
 
 ### Adding to context
 
@@ -155,28 +202,6 @@ context.use('transformRawRequest', ({ request }) => {
 ```
 
 Using `context` now in `apollo-server-hapi` for example, will transform the context to one similar to default `apollo-server`.
-
-### Directly executing components
-
-Components can be directly executed via the `execute` function. The `execute` function is basically a passthrough to `graphql.execute` and is mostly useful for components calling imported components and the like.
-
-For example, this allows one component to invoke another component and still get the benefits of that component's schema type resolvers and validation.
-
-`execute(input, options)` accepts an `input` string and an optional `options` object with the following fields:
-
-- `root` - root object.
-- `context` - context object value.
-- `variables` - key:value mapping of variables for the input.
-
-The `execute` function also adds some helper fragments. For any type you query in a component, a helper fragment will exist to query all fields.
-
-Example:
-
-```javascript
-propertyComponent.execute(`query { property(id: ${id}) { ...AllProperty }}`, { context })
-```
-
-For the `Property` type in the `propertyComponent`, a helper fragment will exist as `AllProperty` that provides all fields.
 
 ### Mocks
 
