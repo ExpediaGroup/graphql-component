@@ -61,6 +61,11 @@ This will create an instance object of a component containing the following func
 
 - `schema` - getter that returns an executable schema.
 - `context` - context builder.
+- `schemaDirectives` - schema directives for this component.
+- `types` - this component's types.
+- `resolvers` - this component's resolvers.
+- `imports` - this component's imports.
+- `execute` - accepts a graphql query.
 
 ### Encapsulating state
 
