@@ -1,8 +1,10 @@
 [![Build Status](https://dev.azure.com/tlivings0149/Trevor%20Livingston/_apis/build/status/tlivings.graphql-component?branchName=master)](https://dev.azure.com/tlivings0149/Trevor%20Livingston/_build/latest?definitionId=1&branchName=master)
 
-# GraphQL schema components
+# GraphQL schema components.
 
-Reference implementation around the concept of a partial schema / component similar to that discussed [here](https://medium.com/homeaway-tech-blog/distributed-graphql-schema-development-npm-modules-d734a3cb6f12).
+This project is designed to make module or component based development of graphql schemas easy.
+
+Read more about the idea [here](https://medium.com/@tlivings/graphql-component-architecture-principles-homeaway-ede8a58d6fde): 
 
 This is very similar to the excellent `graphql-modules` project — but a little closer to our own internal paradigm already in use for over a year and a half and adds some features such as `exclude` root types from `imports` and memoize resolvers.
 
