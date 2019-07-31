@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "0.0.1-alpha.22",
+  "version": "1.0.0",
   "description": "Build graphql schema progressively with components",
   "main": "lib/index.js",
   "scripts": {
@@ -18,18 +18,17 @@
     "debug": "^4.1.0",
     "graphql-extensions": "^0.5.2",
     "graphql-tag": "^2.10.1",
-    "graphql-tag-pluck": "^0.8.3",
-    "graphql-toolkit": "^0.4.1",
+    "graphql-toolkit": "^0.5.0",
     "graphql-tools": "^4.0.5"
   },
   "peerDependencies": {
-    "graphql": "^14.4.2"
+    "graphql": "^0.13"
   },
   "devDependencies": {
     "apollo-server": "^2.0.7",
     "casual": "^1.6.0",
     "eslint": "^6.1.0",
-    "graphql": "^14.4.2",
+    "graphql": "^0.13",
     "nyc": "^14.1.1",
     "tape": "^4.9.1"
   }

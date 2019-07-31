@@ -1,6 +1,7 @@
 
 # A listing
 type Property {
+  legacyId: String @deprecated
   id: ID!
   geo: [String]
 }

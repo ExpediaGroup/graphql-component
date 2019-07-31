@@ -3,6 +3,15 @@
 const Test = require('tape');
 const GraphQLComponent = require('../lib');
 
+Test('component API', (t) => {
+
+  t.plan(1);
+
+  const component = new GraphQLComponent();
+
+  t.ok(component._id, '_id populated.');
+});
+
 Test('component isComponent', (t) => {
 
   t.test('isComponent not a subclass', (t) => {

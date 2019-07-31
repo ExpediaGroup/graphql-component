@@ -25,4 +25,5 @@ export declare class GraphQLComponent {
   readonly resolvers: any;
   readonly imports: any[];
   readonly mocks: any;
+  readonly schemaDirectives: any;
 }
