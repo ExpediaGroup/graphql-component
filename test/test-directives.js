@@ -63,7 +63,7 @@ Test('test componentA', async (t) => {
   t.test('componentA construct', async (t) => {
     t.plan(3);
 
-    t.deepEquals(componentA.directives, {constraint: TestDirective}, 'has constraint directive in directives');
+    t.deepEquals(componentA.directives, { constraint : TestDirective }, 'has constraint directive in directives');
     t.deepEquals(componentA._importedDirectives, [], 'imported directives are empty');
     t.deepEquals(componentA._mergedDirectives, { constraint: TestDirective }, 'has constraint directive in merged directives');
   });
@@ -103,8 +103,8 @@ Test('test componentB', async (t) => {
     t.plan(3);
 
     t.deepEquals(componentB.directives, {deprecated: TestDirective}, 'has deprecated directive in directives');
-    t.deepEquals(componentB._importedDirectives, [{constraint: TestDirective}], 'has constraint directive in imported directives');
-    t.deepEquals(componentB._mergedDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
+    t.deepEquals(componentB._importedDirectives, [{[`constraint_${componentA._id}`]: TestDirective}], 'has constraint directive in imported directives');
+    t.deepEquals(componentB._mergedDirectives, { [`constraint_${componentA._id}`]: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
   });
 
   t.test('componentB schema', async (t) => {
@@ -113,14 +113,14 @@ Test('test componentB', async (t) => {
     t.ok(componentB.schema._directives, 'has directives');
 
     const constraintDirective = componentB.schema._directives.filter((d) => {
-      return d.name === "constraint";
+      return d.name === `constraint_${componentA._id}`;
     });
 
     t.ok(constraintDirective, 'has constraint directive in schema');
     t.equal(constraintDirective.length, 1, 'has constraint directive in schema');
 
     const deprecatedDirective = componentB.schema._directives.filter((d) => {
-      return d.name === "deprecated";
+      return d.name === 'deprecated';
     });
     t.ok(deprecatedDirective, 'has deprecated directive in schema');
     t.equal(deprecatedDirective.length, 1, 'has deprecated directive in schema');
@@ -155,13 +155,14 @@ Test('test directives utilities', async (t) => {
   t.test('execute getImportedDirectives', async (t) => {
     t.plan(1);
     const component = {
+      _id: 1,
       _directives: {auth: TestDirective},
       _importedDirectives: [{constraint: TestDirective}, {deprecated: TestDirective}]
     };
     const imported = Directives.getImportedDirectives(component);
 
     t.deepEquals(imported, {
-      auth: TestDirective,
+      auth_1: TestDirective,
       constraint: TestDirective,
       deprecated: TestDirective
     }, 'has auth, constraint and deprecated directives in imported directives');
