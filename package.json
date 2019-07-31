@@ -14,6 +14,7 @@
   "repository": "https://github.com/tlivings/graphql-component",
   "license": "MIT",
   "dependencies": {
+    "cuid": "^2.1.6",
     "debug": "^4.1.0",
     "graphql-extensions": "^0.5.2",
     "graphql-tag": "^2.10.1",

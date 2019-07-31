@@ -56,14 +56,14 @@ const componentB = new GraphQLComponent({
   imports: [
     componentA
   ],
-  directives: {deprecated: TestDirective}
+  directives: { deprecated: TestDirective }
 });
 
 Test('test componentA', async (t) => {
   t.test('componentA construct', async (t) => {
     t.plan(3);
 
-    t.deepEquals(componentA.directives, {constraint: TestDirective}, 'has constraint directive in directives');
+    t.deepEquals(componentA.schemaDirectives, { constraint: TestDirective }, 'has constraint directive in directives');
     t.deepEquals(componentA._importedDirectives, [], 'imported directives are empty');
     t.deepEquals(componentA._mergedDirectives, { constraint: TestDirective }, 'has constraint directive in merged directives');
   });
@@ -101,9 +101,9 @@ Test('test componentA', async (t) => {
 Test('test componentB', async (t) => {
   t.test('componentB construct', async (t) => {
     t.plan(3);
-
-    t.deepEquals(componentB.directives, {deprecated: TestDirective}, 'has deprecated directive in directives');
-    t.deepEquals(componentB._importedDirectives, [{constraint: TestDirective}], 'has constraint directive in imported directives');
+    console.log(componentB.schemaDirectives);
+    t.deepEquals(componentB.schemaDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has deprecated directive in directives');
+    t.deepEquals(componentB._importedDirectives, [{ constraint: TestDirective }], 'has constraint directive in imported directives');
     t.deepEquals(componentB._mergedDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
   });
 
