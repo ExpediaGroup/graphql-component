@@ -41,8 +41,6 @@ typings/
 
 # Optional npm cache directory
 .npm
-# npm ignore file
-.npmignore
 
 # Optional eslint cache
 .eslintcache

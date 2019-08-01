@@ -1,0 +1,7 @@
+test/
+examples/
+.vscode
+coverage/
+.nyc_output/
+azure-pipelines.yml 
+.eslintrc
