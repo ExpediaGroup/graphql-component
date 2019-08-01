@@ -1,7 +1,7 @@
 
 # A listing
 type Property {
-  legacyId: String @legacy
+  legacyId: String
   id: ID!
   geo: [String]
 }
