@@ -7,7 +7,7 @@ const GraphQLComponent = require('../lib/index');
 const Directives = require('../lib/directives');
 
 class TestDirective extends SchemaDirectiveVisitor {
-  visitFieldDefinition(field) {}
+  visitFieldDefinition(field) { }
 }
 
 const componentA = new GraphQLComponent({
@@ -24,11 +24,11 @@ const componentA = new GraphQLComponent({
   resolvers: {
     Query: {
       book() {
-        return {id: 1, title: 'Some Title'}
+        return { id: 1, title: 'Some Title' }
       }
     }
   },
-  directives: {constraint: TestDirective}
+  directives: { constraint: TestDirective }
 });
 
 const componentB = new GraphQLComponent({
@@ -48,7 +48,7 @@ const componentB = new GraphQLComponent({
       author() {
         return {
           id: 1, name: 'Some Author',
-          books: [{id: 1, title: 'Some Title'}]
+          books: [{ id: 1, title: 'Some Title' }]
         };
       }
     }
@@ -101,7 +101,7 @@ Test('test componentA', async (t) => {
 Test('test componentB', async (t) => {
   t.test('componentB construct', async (t) => {
     t.plan(3);
-    console.log(componentB.schemaDirectives);
+
     t.deepEquals(componentB.schemaDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has deprecated directive in directives');
     t.deepEquals(componentB._importedDirectives, [{ constraint: TestDirective }], 'has constraint directive in imported directives');
     t.deepEquals(componentB._mergedDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
@@ -113,14 +113,14 @@ Test('test componentB', async (t) => {
     t.ok(componentB.schema._directives, 'has directives');
 
     const constraintDirective = componentB.schema._directives.filter((d) => {
-      return d.name === "constraint";
+      return d.name === 'constraint';
     });
 
     t.ok(constraintDirective, 'has constraint directive in schema');
     t.equal(constraintDirective.length, 1, 'has constraint directive in schema');
 
     const deprecatedDirective = componentB.schema._directives.filter((d) => {
-      return d.name === "deprecated";
+      return d.name === 'deprecated';
     });
     t.ok(deprecatedDirective, 'has deprecated directive in schema');
     t.equal(deprecatedDirective.length, 1, 'has deprecated directive in schema');
@@ -146,19 +146,20 @@ Test('test componentB', async (t) => {
 Test('test directives utilities', async (t) => {
   t.test('execute mergeDirectives', async (t) => {
     t.plan(1);
-    const directives = [{constraint: TestDirective}, {deprecated: TestDirective}];
+    const directives = [{ constraint: TestDirective }, { deprecated: TestDirective }];
     const merged = Directives.mergeDirectives(directives);
 
-    t.deepEquals(merged, {constraint: TestDirective, deprecated: TestDirective}, 'has constraint and deprecated directives in merged directives');
+    t.deepEquals(merged, { constraint: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
   });
 
   t.test('execute getImportedDirectives', async (t) => {
     t.plan(1);
     const component = {
-      _directives: {auth: TestDirective},
-      _importedDirectives: [{constraint: TestDirective}, {deprecated: TestDirective}]
+      _id: 1,
+      _directives: { auth: TestDirective },
+      _importedDirectives: [{ constraint: TestDirective }, { deprecated: TestDirective }]
     };
-    const imported = Directives.getImportedDirectives(component);
+    const imported = Directives.getImportedDirectives({}, component);
 
     t.deepEquals(imported, {
       auth: TestDirective,
@@ -166,4 +167,81 @@ Test('test directives utilities', async (t) => {
       deprecated: TestDirective
     }, 'has auth, constraint and deprecated directives in imported directives');
   });
+});
+
+Test('namespace directives execution', (t) => {
+  t.plan(3);
+
+  const component = new GraphQLComponent({
+    types: `
+      type Thing {
+        cField: String @test
+      }
+    `,
+    resolvers: {
+      Thing: {
+        cField() {
+          return 'something';
+        }
+      }
+    },
+    imports: [
+      new GraphQLComponent({
+        types: `
+          type Thing {
+            bField: String @test
+          }
+        `,
+        resolvers: {
+          Thing: {
+            bField() {
+              return 'something';
+            }
+          }
+        },
+        imports: [
+          new GraphQLComponent({
+            types: `
+              type Thing {
+                aField: String @test
+              }
+              type Query {
+                thing: Thing
+              }
+            `,
+            resolvers: {
+              Query: {
+                thing() {
+                  return { aField: 'something' }
+                }
+              }
+            },
+            directives: {
+              test: class extends SchemaDirectiveVisitor {
+                visitFieldDefinition(field) {
+                  t.ok(field.name === 'aField', 'executed correct directive');
+                }
+              }
+            }
+          })
+        ],
+        directives: {
+          test: class extends SchemaDirectiveVisitor {
+            visitFieldDefinition(field) {
+              t.ok(field.name === 'bField', 'executed correct directive');
+            }
+          }
+        }
+      })
+    ],
+    directives: {
+      test: class extends SchemaDirectiveVisitor {
+        visitFieldDefinition(field) {
+          t.ok(field.name === 'cField', 'executed correct directive');
+        }
+      }
+    }
+  });
+
+  component.execute(`query thing { aField, bField }`);
 });
