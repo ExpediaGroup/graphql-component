@@ -1,15 +1,18 @@
 
+
+interface ComponentOptions {
+  types?: any[];
+  resolvers?: {};
+  imports?: any[];
+  mocks?: (importedMocks: any) => any;
+  directives?: any;
+  context?: any;
+  useMocks?: boolean;
+  preserveTypeResolvers?: boolean;
+}
+
 export declare class GraphQLComponent {
-  constructor({ types, resolvers, imports, mocks, directives, context, useMocks, preserveTypeResolvers }?: {
-    types?: any[];
-    resolvers?: {};
-    imports?: any[];
-    mocks?: any;
-    directives?: any;
-    context?: any;
-    useMocks?: boolean;
-    preserveTypeResolvers?: boolean;
-  });
+  constructor(options?: ComponentOptions);
   static isComponent(check: any): any;
   execute(input: any, { root, context, variables }?: {
     root?: any;
