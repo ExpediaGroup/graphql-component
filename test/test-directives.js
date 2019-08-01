@@ -102,9 +102,9 @@ Test('test componentB', async (t) => {
   t.test('componentB construct', async (t) => {
     t.plan(3);
 
-    t.deepEquals(componentB.schemaDirectives, { [`constraint_${componentA._id}`]: TestDirective, deprecated: TestDirective }, 'has deprecated directive in directives');
-    t.deepEquals(componentB._importedDirectives, [{ [`constraint_${componentA._id}`]: TestDirective }], 'has constraint directive in imported directives');
-    t.deepEquals(componentB._mergedDirectives, { [`constraint_${componentA._id}`]: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
+    t.deepEquals(componentB.schemaDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has deprecated directive in directives');
+    t.deepEquals(componentB._importedDirectives, [{ constraint: TestDirective }], 'has constraint directive in imported directives');
+    t.deepEquals(componentB._mergedDirectives, { constraint: TestDirective, deprecated: TestDirective }, 'has constraint and deprecated directives in merged directives');
   });
 
   t.test('componentB schema', async (t) => {
@@ -113,7 +113,7 @@ Test('test componentB', async (t) => {
     t.ok(componentB.schema._directives, 'has directives');
 
     const constraintDirective = componentB.schema._directives.filter((d) => {
-      return d.name === `constraint_${componentA._id}`;
+      return d.name === 'constraint';
     });
 
     t.ok(constraintDirective, 'has constraint directive in schema');
@@ -159,10 +159,10 @@ Test('test directives utilities', async (t) => {
       _directives: { auth: TestDirective },
       _importedDirectives: [{ constraint: TestDirective }, { deprecated: TestDirective }]
     };
-    const imported = Directives.getImportedDirectives(component);
+    const imported = Directives.getImportedDirectives({}, component);
 
     t.deepEquals(imported, {
-      auth_1: TestDirective,
+      auth: TestDirective,
       constraint: TestDirective,
       deprecated: TestDirective
     }, 'has auth, constraint and deprecated directives in imported directives');
@@ -237,7 +237,6 @@ Test('namespace directives execution', (t) => {
     directives: {
       test: class extends SchemaDirectiveVisitor {
         visitFieldDefinition(field) {
-          console.log(field)
           t.ok(field.name === 'cField', 'executed correct directive');
         }
       }

@@ -11,7 +11,6 @@ class PropertyComponent extends GraphQLComponent {
     const directives = {
       legacy: class extends SchemaDirectiveVisitor {
         visitFieldDefinition(field, details) {
-          console.log('LEGACY');
         }
       }
     }
