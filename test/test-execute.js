@@ -1,7 +1,6 @@
 'use strict';
 
 const Test = require('tape');
-const Context = require('../lib/context');
 const GraphQLComponent = require('../lib/index');
 
 Test('test component execute', (t) => {
@@ -66,7 +65,7 @@ Test('test component execute', (t) => {
     t.ok(result.errors, 'errors');
   });
 
-  t.test('execute query', async (t) => {
+  t.test('execute multiple query', async (t) => {
     t.plan(3);
 
     const query = `
