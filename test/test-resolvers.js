@@ -138,6 +138,29 @@ Test('memoize resolver', (t) => {
     t.equal(value, 2, 'different value, different context');
   });
 
+  t.test('miss on different args', (t) => {
+    t.plan(2);
+
+    let ran = 0;
+
+    const resolver = function () {
+      ran += 1;
+      return ran;
+    };
+
+    const wrapped = memoize('Query', 'test', resolver);
+
+    const ctx = {};
+
+    let value = wrapped({}, { foo: 1 }, ctx);
+
+    t.equal(value, 1, 'expected value');
+
+    value = wrapped({}, { foo: 2 }, ctx);
+
+    t.equal(value, 2, 'different value');
+  });
+
 });
 
 Test('transform', (t) => {

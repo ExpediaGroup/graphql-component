@@ -18,9 +18,9 @@ Test('test component execute', (t) => {
 
   const resolvers = {
     Query: {
-      book() {
+      book(_, { id }) {
         return {
-          id: 1,
+          id,
           title: 'Some Title'
         };
       }
@@ -64,6 +64,28 @@ Test('test component execute', (t) => {
     const result = await component.execute(query);
 
     t.ok(result.errors, 'errors');
+  });
+
+  t.test('execute query', async (t) => {
+    t.plan(3);
+
+    const query = `
+      query {
+        one: book(id: 1) {
+          title
+        }
+        two: book(id: 2) {
+          id,
+          title
+        }
+      }
+    `;
+
+    const result = await component.execute(query);
+
+    t.ok(result, 'has result');
+    t.deepEqual(result.data, { one: { title: 'Some Title' }, two: { id: '2', title: 'Some Title' } }, 'data returned');
+    t.error(result.errors, 'no errors');
   });
 
 });
