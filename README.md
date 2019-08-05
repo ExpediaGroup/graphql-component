@@ -48,13 +48,15 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enable
 
 A new GraphQLComponent instance has the following API:
 
-- `schema` - getter that returns an executable schema.
-- `context` - context builder.
-- `schemaDirectives` - schema directives for this component.
+- `schema` - getter that returns an executable schema representing the entire component tree.
+- `context` - context function that build context for all components in the tree.
+- `schemaDirectives` - schema directives for the entire component tree.
+- `execute` - accepts a graphql query to execute agains `schema`.
 - `types` - this component's types.
 - `resolvers` - this component's resolvers.
-- `imports` - this component's imports.
-- `execute` - accepts a graphql query.
+- `imports` - this component's imported components.
+- `mocks` - custom mocks for this component.
+- `directives` - this component's directives.
 
 # General usage
 
