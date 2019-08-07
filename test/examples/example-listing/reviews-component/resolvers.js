@@ -1,13 +1,11 @@
 'use strict';
 
+const ReviewsProvider = require('./provider');
+
 const resolvers = {
   Query: {
-    reviewsByPropertyId(_, { propertyId }) {
-      return [{
-        id: 1,
-        propertyId: 1,
-        content: 'content for review'
-      }];
+    reviewsByPropertyId(_, { propertyId }, { providers }) {
+      return providers.get(ReviewsProvider).getReviewsByPropertyId(propertyId);
     }
   }
 };
