@@ -27,7 +27,9 @@ Test('context builder', async (t) => {
 Test('component context', async (t) => {
   t.plan(2);
 
-  const context = wrapContext(({}) => {});
+  const context = wrapContext({
+    _context() {}
+  });
 
   const result = await context({ default1: true, default2: true });
 
@@ -64,7 +66,9 @@ Test('component context once', async (t) => {
 Test('context middleware', async (t) => {
   t.plan(3);
 
-  const context = wrapContext(({}) => {});
+  const context = wrapContext({
+    _context() {}
+  });
 
   context.use('test', () => {
     return { test: true };
@@ -80,7 +84,9 @@ Test('context middleware', async (t) => {
 Test('unnamed context middleware', async (t) => {
   t.plan(3);
 
-  const context = wrapContext(() => {});
+  const context = wrapContext({
+    _context() {}
+  });
 
   context.use(() => {
     return { test: true };
