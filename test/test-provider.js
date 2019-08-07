@@ -1,7 +1,7 @@
 'use strict';
 
 const Test = require('tape');
-const { intercept } = require('../lib/provider');
+const { intercept, createProviderInjection } = require('../lib/provider');
 const GraphQLComponent = require('../lib/index');
 
 Test('provider', (t) => {
@@ -20,6 +20,84 @@ Test('provider', (t) => {
     });
 
     proxy.test('test');
+  });
+
+  t.test('provider injection function empty', (t) => {
+    t.plan(1);
+
+    const injection = createProviderInjection({
+      imports: []
+    });
+
+    t.doesNotThrow(() => {
+      injection();
+    }, 'no exception thrown');
+  });
+
+  t.test('provider injection function', (t) => {
+    t.plan(4);
+
+    class Provider {
+      test(...args) {
+        t.equal(args.length, 2, 'added additional arg');
+        t.equal(args[0].data, 'test', 'injected the right data');
+        t.equal(args[1], 'test', 'data still passed to original call');
+      }
+    };
+
+    const component = {
+      provider: new Provider(),
+      imports: []
+    };
+
+    const injection = createProviderInjection(component);
+
+    const globalContext = { providers: new WeakMap(), data: 'test' };
+    
+    injection(globalContext);
+
+    t.ok(globalContext.providers && globalContext.providers.get(Provider), 'provider added to context');
+    
+    globalContext.providers.get(Provider).test('test');
+  });
+
+  t.test('provider injection function imports', (t) => {
+    t.plan(1);
+
+    const injection = createProviderInjection({
+      imports: [
+        {
+          _providerInjection: createProviderInjection({ imports: [] }),
+          imports: []
+        }
+      ]
+    });
+
+    t.doesNotThrow(() => {
+      injection();
+    }, 'no exception thrown');
+  });
+
+  t.test('component and context injection', async (t) => {
+    t.plan(4);
+
+    class Provider {
+      test(...args) {
+        t.equal(args.length, 2, 'added additional arg');
+        t.equal(args[0].data, 'test', 'injected the right data');
+        t.equal(args[1], 'test', 'data still passed to original call');
+      }
+    };
+
+    const { context } = new GraphQLComponent({
+      provider: new Provider()
+    });
+
+    const globalContext = await context({ data: 'test' });
+
+    t.ok(globalContext.providers && globalContext.providers.get(Provider), 'provider added to context');
+    
+    globalContext.providers.get(Provider).test('test');
   });
 
 });

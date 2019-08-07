@@ -28,7 +28,8 @@ Test('component context', async (t) => {
   t.plan(2);
 
   const context = wrapContext({
-    _context() {}
+    _context() {},
+    _providerInjection() {}
   });
 
   const result = await context({ default1: true, default2: true });
@@ -67,7 +68,8 @@ Test('context middleware', async (t) => {
   t.plan(3);
 
   const context = wrapContext({
-    _context() {}
+    _context() {},
+    _providerInjection() {}
   });
 
   context.use('test', () => {
@@ -85,7 +87,8 @@ Test('unnamed context middleware', async (t) => {
   t.plan(3);
 
   const context = wrapContext({
-    _context() {}
+    _context() {},
+    _providerInjection() {}
   });
 
   context.use(() => {
