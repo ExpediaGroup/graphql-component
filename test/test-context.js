@@ -35,6 +35,32 @@ Test('component context', async (t) => {
   t.ok(result.default1 && result.default2, 'default values maintained');
 });
 
+Test('component context once', async (t) => {
+  t.plan(3);
+
+  const { context } = new GraphQLComponent({
+    context: { namespace: 'parent', factory: (context) => { 
+      t.equal(context.called, 1, 'import modified global context');
+      context.called++;
+      return Object.assign({}, context);
+    }},
+    imports: [
+      new GraphQLComponent({
+        context: { namespace: 'import', factory: (context) => {
+          t.equal(context.called, 0, 'initial global context');
+          context.called++;
+          return Object.assign({}, context);
+        }}
+      })
+    ]
+  });
+
+  const result = await context({ called: 0 });
+  
+  //The global context didn't reset because root wrapper context didn't get called again
+  t.equal(result.called, 2, 'called root once'); 
+});
+
 Test('context middleware', async (t) => {
   t.plan(3);
 
