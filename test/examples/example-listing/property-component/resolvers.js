@@ -1,12 +1,11 @@
 'use strict';
 
+const PropertyProvider = require('./provider');
+
 const resolvers = {
   Query: {
-    property(_, { id }) {
-      return {
-        id,
-        geo: ['41.40338', '2.17403']
-      };
+    property(_, { id }, { providers }) {
+      return providers.get(PropertyProvider).getPropertyById(id);
     }
   }
 };
