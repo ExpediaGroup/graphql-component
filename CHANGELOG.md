@@ -1,4 +1,8 @@
 
+### v1.0.3
+
+- Disabling type resolvers from memoization — this doesn't work right for type resolvers.
+
 ### v1.0.2
 
 - Outer global context setup occurs only once when `context` is fetched off component.
