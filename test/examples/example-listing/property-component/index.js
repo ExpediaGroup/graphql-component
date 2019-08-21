@@ -1,14 +1,14 @@
 'use strict';
 
 const GraphQLComponent = require('../../../../lib/index');
-const Resolvers = require('./resolvers');
-const Types = require('./types');
-const Mocks = require('./mocks');
 const PropertyProvider = require('./provider');
+const resolvers = require('./resolvers');
+const types = require('./types');
+const mocks = require('./mocks');
 
 class PropertyComponent extends GraphQLComponent {
-  constructor({ useMocks, preserveTypeResolvers, provider = new PropertyProvider() } = {}) {
-    super({ types: Types, resolvers: Resolvers, mocks: Mocks, useMocks, preserveTypeResolvers, provider });
+  constructor({ provider = new PropertyProvider(), ...options } = {}) {
+    super({ types, resolvers, mocks, provider, ...options });
   }
 }
 

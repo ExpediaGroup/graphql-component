@@ -10,6 +10,9 @@ Test('provider', (t) => {
     t.plan(3);
 
     const proxy = intercept(new class Provider {
+      get name() {
+        return 'TestProvider';
+      }
       test(...args) {
         t.equal(args.length, 2, 'added additional arg');
         t.equal(args[0].data, 'test', 'injected the right data');
@@ -38,6 +41,9 @@ Test('provider', (t) => {
     t.plan(4);
 
     class Provider {
+      get name() {
+        return 'TestProvider';
+      }
       test(...args) {
         t.equal(args.length, 2, 'added additional arg');
         t.equal(args[0].data, 'test', 'injected the right data');
@@ -52,13 +58,13 @@ Test('provider', (t) => {
 
     const injection = createProviderInjection(component);
 
-    const globalContext = { providers: new WeakMap(), data: 'test' };
+    const globalContext = { data: 'test' };
     
     injection(globalContext);
 
-    t.ok(globalContext.providers && globalContext.providers.get(Provider), 'provider added to context');
+    t.ok(globalContext.providers && globalContext.providers.TestProvider, 'provider added to context');
     
-    globalContext.providers.get(Provider).test('test');
+    globalContext.providers.TestProvider.test('test');
   });
 
   t.test('provider injection function imports', (t) => {
@@ -74,7 +80,7 @@ Test('provider', (t) => {
     });
 
     t.doesNotThrow(() => {
-      injection();
+      injection({});
     }, 'no exception thrown');
   });
 
@@ -82,6 +88,9 @@ Test('provider', (t) => {
     t.plan(4);
 
     class Provider {
+      get name() {
+        return 'TestProvider';
+      }
       test(...args) {
         t.equal(args.length, 2, 'added additional arg');
         t.equal(args[0].data, 'test', 'injected the right data');
@@ -95,9 +104,9 @@ Test('provider', (t) => {
 
     const globalContext = await context({ data: 'test' });
 
-    t.ok(globalContext.providers && globalContext.providers.get(Provider), 'provider added to context');
+    t.ok(globalContext.providers && globalContext.providers.TestProvider, 'provider added to context');
     
-    globalContext.providers.get(Provider).test('test');
+    globalContext.providers.TestProvider.test('test');
   });
 
 });

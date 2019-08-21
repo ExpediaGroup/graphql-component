@@ -1,6 +1,9 @@
 'use strict';
 
 class PropertyProvider {
+  get name() {
+    return 'PropertyProvider';
+  }
   getPropertyById(context, id) {
     return {
       id,

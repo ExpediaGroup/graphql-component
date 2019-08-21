@@ -1,6 +1,9 @@
 'use strict';
 
 class ReviewsProvider {
+  get name() {
+    return 'ReviewsProvider';
+  }
   getReviewsByPropertyId(context, propertyId) {
     return [{
       id: 1,
