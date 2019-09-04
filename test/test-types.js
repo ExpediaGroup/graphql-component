@@ -149,4 +149,41 @@ Test('type utilities', (t) => {
     t.notOk(schema.getMutationType().getFields().a, 'the "a" mutation does not exist');
   });
 
+  t.test('exclude one mutation', (t) => {
+    t.plan(6);
+
+    const component = {
+      _importedTypes: [Gql`
+        type B {
+          value: String
+        }
+        type Query {
+          b: B
+        }
+        type Mutation {
+          b1: String
+          b2: String
+        }
+      `],
+      _types: [`
+        type A {
+          value: String
+        }
+        type Query {
+          a: A
+        }
+      `]
+    };
+
+    const types = Types.getImportedTypes({}, component, [['Mutation', 'b1'], ['Query', 'b']]);
+    const schemaA = buildASTSchema(types[0]);
+    t.ok(schemaA.getType('A').getFields().value, 'the "A" type exists');
+    t.ok(schemaA.getQueryType().getFields().a, 'the "a" query exists');
+
+    const schemaB = buildASTSchema(types[1])
+    t.ok(schemaB.getType('B').getFields().value, 'the "B" type exists');
+    t.notOk(schemaB.getQueryType().getFields().b, 'the "b" query does not exist');
+    t.notOk(schemaB.getMutationType().getFields().b1, 'the "b1" mutation does not exist');
+    t.ok(schemaB.getMutationType().getFields().b2, 'the "b2" query exists');
+  });
 });
