@@ -1,4 +1,8 @@
 
+### v1.0.4
+
+- Fixes #23
+
 ### v1.0.3
 
 - Disabling type resolvers from memoization — this doesn't work right for type resolvers.
