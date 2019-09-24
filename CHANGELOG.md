@@ -1,3 +1,6 @@
+### v1.1.0
+
+- Added first class data source support and overriding
 
 ### v1.0.4
 

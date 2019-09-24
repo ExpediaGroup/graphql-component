@@ -37,14 +37,16 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enable
 # API
 
 - `GraphQLComponent(options)` - the component class, which may also be extended. Its options include:
-  - `types` - A string or array of strings representing typeDefs and rootTypes.
-  - `resolvers` - An object containing resolver functions.
-  - `imports` - An optional array of imported components for the schema to be merged with.
-  - `context` - An optional object { namespace, factory } for contributing to context.
-  - `directives` - An optional object containing custom schema directives.
-  - `useMocks` - Enable mocks.
-  - `preserveMockResolvers` - Preserve type resolvers in mock mode.
-  - `mocks` - An optional object containing mock types.
+  - `types` - a string or array of strings representing typeDefs and rootTypes.
+  - `resolvers` - an object containing resolver functions.
+  - `imports` - an optional array of imported components for the schema to be merged with.
+  - `context` - an optional object { namespace, factory } for contributing to context.
+  - `directives` - an optional object containing custom schema directives.
+  - `useMocks` - enable mocks.
+  - `preserveMockResolvers` - preserve type resolvers in mock mode.
+  - `mocks` - an optional object containing mock types.
+  - `dataSource` - a data source instance to make available on `context.dataSources` .
+  - `dataSourceOverrides` - overrides for data sources in the component tree.
 
 A new GraphQLComponent instance has the following API:
 
@@ -57,6 +59,7 @@ A new GraphQLComponent instance has the following API:
 - `imports` - this component's imported components.
 - `mocks` - custom mocks for this component.
 - `directives` - this component's directives.
+- `dataSource` - this component's data source, if any.
 
 # General usage
 
@@ -127,6 +130,50 @@ const { schema, context } = new GraphQLComponent({
 ```
 
 This will keep from leaking unintended surface area. But you can still delegate calls to the component's schema to enable it from the API you do expose.
+
+### Data Source support
+
+Data sources in `graphql-component` do not extend `apollo-datasource`'s `DataSource` class.
+
+Instead, data sources in components will be injected into the context, but wrapped in a proxy such that the global 
+context will be injected as the first argument of any function.
+
+This allows there to exist one instance of a data source for caching or other statefullness (like circuit breakers), 
+while still ensuring that a data source will have the current context.
+
+For example, a data source should be implemented like:
+
+```javascript
+class PropertyDataSource {
+  get name() {
+    return 'PropertyDataSource';
+  }
+  async getPropertyById(context, id) {
+    //do some work...
+  }
+}
+```
+
+This data source would be executed without passing the `context` manually:
+
+```javascript
+const resolvers = {
+  Query: {
+    property(_, { id }, { dataSources }) {
+      return dataSources.PropertyDataSource.getPropertyById(id);
+    }
+  }
+}
+```
+
+Setting up a component to use a data source might look like:
+
+```javascript
+new GraphQLComponent({
+  //...
+  dataSource: new PropertyDataSource()
+})
+```
 
 ### Directly executing components
 
