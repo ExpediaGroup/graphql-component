@@ -5,10 +5,10 @@ const ListingComponent = require('../listing-component');
 const { schema, context} = new ListingComponent({ 
   useMocks: !!process.env.MOCK, 
   preserveTypeResolvers: true,
-  providerOverrides: [
-    new class MockPropertyProvider {
+  dataSourceOverrides: [
+    new class MockDataSource {
       get name() {
-        return 'PropertyProvider';
+        return 'PropertyDataSource';
       }
       getPropertyById(context, id) {
         return {

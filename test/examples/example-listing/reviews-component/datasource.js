@@ -1,8 +1,8 @@
 'use strict';
 
-class ReviewsProvider {
+class ReviewsDataSource {
   get name() {
-    return 'ReviewsProvider';
+    return 'ReviewsDataSource';
   }
   getReviewsByPropertyId(context, propertyId) {
     return [{
@@ -13,4 +13,4 @@ class ReviewsProvider {
   }
 };
 
-module.exports = ReviewsProvider;
+module.exports = ReviewsDataSource;

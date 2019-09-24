@@ -2,8 +2,8 @@
 
 const resolvers = {
   Query: {
-    reviewsByPropertyId(_, { propertyId }, { providers }) {
-      return providers.ReviewsProvider.getReviewsByPropertyId(propertyId);
+    reviewsByPropertyId(_, { propertyId }, { dataSources }) {
+      return dataSources.ReviewsDataSource.getReviewsByPropertyId(propertyId);
     }
   }
 };

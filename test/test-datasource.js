@@ -1,17 +1,17 @@
 'use strict';
 
 const Test = require('tape');
-const { intercept, createProviderInjection } = require('../lib/provider');
+const { intercept, createDataSourceInjection } = require('../lib/datasource');
 const GraphQLComponent = require('../lib/index');
 
-Test('provider', (t) => {
+Test('dataSource', (t) => {
 
   t.test('intercept proxy', (t) => {
     t.plan(3);
 
-    const proxy = intercept(new class Provider {
+    const proxy = intercept(new class DataSource {
       get name() {
-        return 'TestProvider';
+        return 'TestDataSource';
       }
       test(...args) {
         t.equal(args.length, 2, 'added additional arg');
@@ -25,10 +25,10 @@ Test('provider', (t) => {
     proxy.test('test');
   });
 
-  t.test('provider injection function empty', (t) => {
+  t.test('dataSource injection function empty', (t) => {
     t.plan(1);
 
-    const injection = createProviderInjection({
+    const injection = createDataSourceInjection({
       imports: []
     });
 
@@ -37,12 +37,12 @@ Test('provider', (t) => {
     }, 'no exception thrown');
   });
 
-  t.test('provider injection function', (t) => {
+  t.test('dataSource injection function', (t) => {
     t.plan(4);
 
-    class Provider {
+    class DataSource {
       get name() {
-        return 'TestProvider';
+        return 'TestDataSourceInjection';
       }
       test(...args) {
         t.equal(args.length, 2, 'added additional arg');
@@ -52,28 +52,28 @@ Test('provider', (t) => {
     };
 
     const component = {
-      provider: new Provider(),
+      dataSource: new DataSource(),
       imports: []
     };
 
-    const injection = createProviderInjection(component);
+    const injection = createDataSourceInjection(component);
 
     const globalContext = { data: 'test' };
     
-    injection(globalContext);
+    globalContext.dataSources = injection(globalContext);
 
-    t.ok(globalContext.providers && globalContext.providers.TestProvider, 'provider added to context');
+    t.ok(globalContext.dataSources && globalContext.dataSources.TestDataSourceInjection, 'dataSource added to context');
     
-    globalContext.providers.TestProvider.test('test');
+    globalContext.dataSources.TestDataSourceInjection.test('test');
   });
 
-  t.test('provider injection function imports', (t) => {
+  t.test('dataSource injection function imports', (t) => {
     t.plan(1);
 
-    const injection = createProviderInjection({
+    const injection = createDataSourceInjection({
       imports: [
         {
-          _providerInjection: createProviderInjection({ imports: [] }),
+          _dataSourceInjection: createDataSourceInjection({ imports: [] }),
           imports: []
         }
       ]
@@ -87,9 +87,9 @@ Test('provider', (t) => {
   t.test('component and context injection', async (t) => {
     t.plan(4);
 
-    class Provider {
+    class DataSource {
       get name() {
-        return 'TestProvider';
+        return 'TestDataSource';
       }
       test(...args) {
         t.equal(args.length, 2, 'added additional arg');
@@ -99,14 +99,14 @@ Test('provider', (t) => {
     };
 
     const { context } = new GraphQLComponent({
-      provider: new Provider()
+      dataSource: new DataSource()
     });
 
     const globalContext = await context({ data: 'test' });
 
-    t.ok(globalContext.providers && globalContext.providers.TestProvider, 'provider added to context');
+    t.ok(globalContext.dataSources && globalContext.dataSources.TestDataSource, 'dataSource added to context');
     
-    globalContext.providers.TestProvider.test('test');
+    globalContext.dataSources.TestDataSource.test('test');
   });
 
 });

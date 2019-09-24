@@ -1,8 +1,8 @@
 'use strict';
 
-class PropertyProvider {
+class PropertyDataSource {
   get name() {
-    return 'PropertyProvider';
+    return 'PropertyDataSource';
   }
   getPropertyById(context, id) {
     return {
@@ -12,4 +12,4 @@ class PropertyProvider {
   }
 };
 
-module.exports = PropertyProvider;
+module.exports = PropertyDataSource;

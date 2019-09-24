@@ -2,8 +2,8 @@
 
 const resolvers = {
   Query: {
-    property(_, { id }, { providers }) {
-      return providers.PropertyProvider.getPropertyById(id);
+    property(_, { id }, { dataSources }) {
+      return dataSources.PropertyDataSource.getPropertyById(id);
     }
   }
 };

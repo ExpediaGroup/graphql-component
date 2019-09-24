@@ -2,10 +2,10 @@
 
 const resolvers = {
   Query: {
-    async listing(_, { id }, { providers }) {
+    async listing(_, { id }, { dataSources }) {
       const [property, reviews] = await Promise.all([
-        providers.PropertyProvider.getPropertyById(id),
-        providers.ReviewsProvider.getReviewsByPropertyId(id)
+        dataSources.PropertyDataSource.getPropertyById(id),
+        dataSources.ReviewsDataSource.getReviewsByPropertyId(id)
       ]);
 
       return { 
