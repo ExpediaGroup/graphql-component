@@ -5,7 +5,7 @@ const { wrapResolvers, getImportedResolvers, memoize, transformResolvers } = req
 
 Test('wrapping', (t) => {
 
-  t.test('wrap resolvers', (t) => {
+  t.test('wrap resolver function', (t) => {
 
     t.plan(1);
 
@@ -22,6 +22,20 @@ Test('wrapping', (t) => {
     const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query' });
 
     t.equal(value, 1, 'resolver was bound');
+  });
+
+  t.test('wrap resolver mapped to primitive (enum remap)', (t) => {
+    t.plan(1);
+
+    const resolvers = {
+      FooBarEnumType: {
+        FOO: 1,
+        BAR: 2
+      }
+    }
+
+    const wrapped = wrapResolvers({id: 1}, resolvers);
+    t.equal(wrapped.FooBarEnumType.FOO, 1, 'primitive resolver mapping wraps without error and returns primitive')
   });
 
   t.test('memoized resolvers', (t) => {
