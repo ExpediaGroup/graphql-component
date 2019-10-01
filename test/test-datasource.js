@@ -52,7 +52,7 @@ Test('dataSource', (t) => {
     };
 
     const component = {
-      dataSource: new DataSource(),
+      dataSources: [new DataSource()],
       imports: []
     };
 
@@ -99,7 +99,7 @@ Test('dataSource', (t) => {
     };
 
     const { context } = new GraphQLComponent({
-      dataSource: new DataSource()
+      dataSources: [new DataSource()]
     });
 
     const globalContext = await context({ data: 'test' });
@@ -107,6 +107,16 @@ Test('dataSource', (t) => {
     t.ok(globalContext.dataSources && globalContext.dataSources.TestDataSource, 'dataSource added to context');
     
     globalContext.dataSources.TestDataSource.test('test');
+  });
+
+  t.test('dataSource without name fails', async (t) => {
+    t.plan(1);
+
+    t.throws(() => {
+      new GraphQLComponent({
+        dataSources: [new class DataSource {}]
+      });
+    });
   });
 
 });

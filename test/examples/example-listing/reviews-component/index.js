@@ -7,8 +7,8 @@ const types = require('./types');
 const mocks = require('./mocks');
 
 class ReviewsComponent extends GraphQLComponent {
-  constructor({ dataSource = new ReviewsDataSource(), ...options } = {}) {
-    super({ types, resolvers, mocks, dataSource, ...options });
+  constructor({ dataSources = [new ReviewsDataSource()], ...options } = {}) {
+    super({ types, resolvers, mocks, dataSources, ...options });
   }
 }
 
