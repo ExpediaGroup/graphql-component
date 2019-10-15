@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Build graphql schema with components",
   "main": "lib/index.js",
   "scripts": {

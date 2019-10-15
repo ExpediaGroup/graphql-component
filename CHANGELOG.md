@@ -1,3 +1,7 @@
+### v1.1.1
+
+- [BREAKING (sorry, but it is 5 minutes later)]: data sources appear by constructor name on context
+
 ### v1.1.0
 
 - Added first class data source support and overriding

@@ -10,7 +10,7 @@ Test('dataSource', (t) => {
     t.plan(3);
 
     const proxy = intercept(new class DataSource {
-      get name() {
+      static get name() {
         return 'TestDataSource';
       }
       test(...args) {
@@ -41,7 +41,7 @@ Test('dataSource', (t) => {
     t.plan(4);
 
     class DataSource {
-      get name() {
+      static get name() {
         return 'TestDataSourceInjection';
       }
       test(...args) {
@@ -88,7 +88,7 @@ Test('dataSource', (t) => {
     t.plan(4);
 
     class DataSource {
-      get name() {
+      static get name() {
         return 'TestDataSource';
       }
       test(...args) {
@@ -107,16 +107,6 @@ Test('dataSource', (t) => {
     t.ok(globalContext.dataSources && globalContext.dataSources.TestDataSource, 'dataSource added to context');
     
     globalContext.dataSources.TestDataSource.test('test');
-  });
-
-  t.test('dataSource without name fails', async (t) => {
-    t.plan(1);
-
-    t.throws(() => {
-      new GraphQLComponent({
-        dataSources: [new class DataSource {}]
-      });
-    });
   });
 
 });

@@ -139,9 +139,6 @@ For example, a data source should be implemented like:
 
 ```javascript
 class PropertyDataSource {
-  get name() {
-    return 'PropertyDataSource';
-  }
   async getPropertyById(context, id) {
     //do some work...
   }
@@ -167,6 +164,33 @@ new GraphQLComponent({
   //...
   dataSources: [new PropertyDataSource()]
 })
+```
+
+### Override data sources
+
+Since data sources are added to the context based on the constructor name, it is possible to simply override data sources by passing the same class name or overriding the constructor name:
+
+```javascript
+const { schema, context } = new GraphQLComponent({
+  imports: [
+    {
+      component: new Property(),
+      exclude: ['Mutation.*']
+    },
+    {
+      component: new Reviews(),
+      exclude: ['Mutation.*']
+    }
+  ],
+  dataSourceOverrides: [
+    new class PropertyMock {
+      static get name() {
+        return 'PropertyDataSource';
+      }
+      //...etc
+    }
+  ]
+});
 ```
 
 ### Directly executing components

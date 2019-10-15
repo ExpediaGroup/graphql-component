@@ -1,9 +1,6 @@
 'use strict';
 
 class PropertyDataSource {
-  get name() {
-    return 'PropertyDataSource';
-  }
   getPropertyById(context, id) {
     return {
       id,

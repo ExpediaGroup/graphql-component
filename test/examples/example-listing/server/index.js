@@ -7,7 +7,7 @@ const { schema, context} = new ListingComponent({
   preserveTypeResolvers: true,
   dataSourceOverrides: [
     new class MockDataSource {
-      get name() {
+      static get name() {
         return 'PropertyDataSource';
       }
       getPropertyById(context, id) {
