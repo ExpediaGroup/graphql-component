@@ -45,7 +45,7 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enable
   - `useMocks` - enable mocks.
   - `preserveMockResolvers` - preserve type resolvers in mock mode.
   - `mocks` - an optional object containing mock types.
-  - `dataSource` - a data source instance to make available on `context.dataSources` .
+  - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
 
 A new GraphQLComponent instance has the following API:
@@ -59,7 +59,7 @@ A new GraphQLComponent instance has the following API:
 - `imports` - this component's imported components.
 - `mocks` - custom mocks for this component.
 - `directives` - this component's directives.
-- `dataSource` - this component's data source, if any.
+- `dataSources` - this component's data source(s), if any.
 
 # General usage
 
@@ -171,7 +171,7 @@ Setting up a component to use a data source might look like:
 ```javascript
 new GraphQLComponent({
   //...
-  dataSource: new PropertyDataSource()
+  dataSources: [new PropertyDataSource()]
 })
 ```
 
