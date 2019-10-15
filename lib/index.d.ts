@@ -9,6 +9,8 @@ interface ComponentOptions {
   context?: any;
   useMocks?: boolean;
   preserveTypeResolvers?: boolean;
+  dataSources?: any[];
+  dataSourceOverrides?: any;
 }
 
 export declare class GraphQLComponent {
@@ -29,4 +31,5 @@ export declare class GraphQLComponent {
   readonly imports: any[];
   readonly mocks: any;
   readonly schemaDirectives: any;
+  readonly dataSources: any[];
 }

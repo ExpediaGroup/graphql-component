@@ -99,8 +99,8 @@ const { schema, context } = new GraphQLComponent({
 });
 
 const server = new ApolloServer({
-    schema,
-    context
+  schema,
+  context
 });
 ```
 
