@@ -136,7 +136,7 @@ This will keep from leaking unintended surface area. But you can still delegate 
 Data sources in `graphql-component` do not extend `apollo-datasource`'s `DataSource` class.
 
 Instead, data sources in components will be injected into the context, but wrapped in a proxy such that the global 
-context will be injected as the first argument of any function.
+context will be injected as the first argument of any function implemented in a data source class.
 
 This allows there to exist one instance of a data source for caching or other statefullness (like circuit breakers), 
 while still ensuring that a data source will have the current context.
