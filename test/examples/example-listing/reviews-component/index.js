@@ -1,13 +1,14 @@
 'use strict';
 
 const GraphQLComponent = require('../../../../lib/index');
-const Resolvers = require('./resolvers');
-const Types = require('./types');
-const Mocks = require('./mocks');
+const ReviewsDataSource = require('./datasource');
+const resolvers = require('./resolvers');
+const types = require('./types');
+const mocks = require('./mocks');
 
 class ReviewsComponent extends GraphQLComponent {
-  constructor({ useMocks, preserveTypeResolvers } = {}) {
-    super({ types: Types, resolvers: Resolvers, mocks: Mocks, useMocks, preserveTypeResolvers });
+  constructor({ dataSources = [new ReviewsDataSource()], ...options } = {}) {
+    super({ types, resolvers, mocks, dataSources, ...options });
   }
 }
 

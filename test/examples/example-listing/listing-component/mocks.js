@@ -1,11 +1,11 @@
 'use strict';
 
-const Casual = require('casual');
+const casual = require('casual');
 
 const mocks = (importedMocks) => {
   return {
     Listing: () => ({
-      id: Casual.uuid,
+      id: casual.uuid,
       geo: importedMocks.Property().geo,
       reviews: [
         importedMocks.Review(),

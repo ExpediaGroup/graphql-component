@@ -1,21 +1,21 @@
 'use strict';
 
 const GraphQLComponent = require('../../../../lib/index');
-const Resolvers = require('./resolvers');
-const Types = require('./types');
-const Mocks = require('./mocks');
 const Property = require('../property-component');
 const Reviews = require('../reviews-component');
+const resolvers = require('./resolvers');
+const types = require('./types');
+const mocks = require('./mocks');
 
 class ListingComponent extends GraphQLComponent {
-  constructor({ useMocks, preserveTypeResolvers }) {
+  constructor(options) {
     const propertyComponent = new Property();
     const reviewsComponent = new Reviews();
 
     super ({
-      types: Types,
-      resolvers: Resolvers,
-      mocks: Mocks,
+      types,
+      resolvers,
+      mocks,
       imports: [
         {
           component: propertyComponent,
@@ -26,8 +26,7 @@ class ListingComponent extends GraphQLComponent {
           exclude: ['Query.*']
         }
       ] ,
-      useMocks,
-      preserveTypeResolvers
+      ...options
     });
 
     this.propertyComponent = propertyComponent;

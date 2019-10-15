@@ -1,8 +1,8 @@
 'use strict';
 
-const Fs = require('fs');
-const Path = require('path');
+const fs = require('fs');
+const path = require('path');
 
-const types = Fs.readFileSync(Path.resolve(Path.join(__dirname, 'schema.graphql')), 'utf-8');
+const types = fs.readFileSync(path.resolve(path.join(__dirname, 'schema.graphql')), 'utf-8');
 
 module.exports = types;
