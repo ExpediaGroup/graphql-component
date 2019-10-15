@@ -2,17 +2,11 @@
 
 # GraphQL schema components.
 
-This project is designed to make module or component based development of graphql schemas easy.
+This project is designed to make npm module or component based development of graphql schemas easy.
 
-Read more about the idea [here](https://medium.com/@tlivings/graphql-component-architecture-principles-homeaway-ede8a58d6fde): 
+Read more about the idea [here](https://medium.com/@tlivings/graphql-component-architecture-principles-homeaway-ede8a58d6fde).
 
-This is very similar to the excellent `graphql-modules` project — but a little closer to our own internal paradigm already in use for over a year and a half and adds some features such as `exclude` root types from `imports` and memoize resolvers.
-
-In fact, this module utilizes the `graphql-toolkit` developed by the `graphql-modules` team to merge types and resolvers.
-
-### The future
-
-Experimental / alpha for now.
+`graphql-component` lets you built a schema progressively through a tree of graphql schema dependencies.
 
 ### Repository structure
 
