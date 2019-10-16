@@ -25,6 +25,7 @@
     "cuid": "^2.1.6",
     "debug": "^4.1.0",
     "graphql-extensions": "^0.5.2",
+    "graphql-parse-resolve-info": "^4.4.5",
     "graphql-tag": "^2.10.1",
     "graphql-tag-pluck": "^0.8.7",
     "graphql-toolkit": "^0.5.0",
@@ -32,14 +33,14 @@
     "lodash.set": "^4.3.2"
   },
   "peerDependencies": {
-    "graphql": "^14.0"
+    "graphql": "^14"
   },
   "devDependencies": {
     "@apollo/gateway": "^0.10.8",
     "apollo-server": "^2.0.7",
     "casual": "^1.6.0",
-    "eslint": "^6.1.0",
-    "graphql": "^14.0",
+    "eslint": "^6.5.1",
+    "graphql": "^14",
     "nyc": "^14.1.1",
     "tape": "^4.9.1"
   }
