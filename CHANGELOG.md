@@ -1,6 +1,10 @@
 ### v1.1.1
 
-- [BREAKING (sorry, but it is 5 minutes later)]: data sources appear by constructor name on context
+- `execute` now supports both document objects and strings.
+
+### v1.1.1
+
+- [BREAKING from 1.1.0 (sorry, but it is 5 minutes later)]: data sources appear by constructor name on context
 
 ### v1.1.0
 
