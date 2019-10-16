@@ -2,6 +2,7 @@
 
 const Test = require('tape');
 const GraphQLComponent = require('../lib/index');
+const gql = require('graphql-tag');
 
 Test('test component execute', (t) => {
 
@@ -35,6 +36,24 @@ Test('test component execute', (t) => {
     t.plan(3);
 
     const query = `
+      query {
+        book(id: 1) {
+          title
+        }
+      }
+    `;
+
+    const result = await component.execute(query);
+
+    t.ok(result, 'has result');
+    t.ok(result.data, 'data returned');
+    t.error(result.errors, 'no errors');
+  });
+
+  t.test('execute query with document object', async (t) => {
+    t.plan(3);
+
+    const query = gql`
       query {
         book(id: 1) {
           title
