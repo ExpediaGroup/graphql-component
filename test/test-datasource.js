@@ -7,9 +7,12 @@ const GraphQLComponent = require('../lib/index');
 Test('dataSource', (t) => {
 
   t.test('intercept proxy', (t) => {
-    t.plan(3);
+    t.plan(4);
 
     const proxy = intercept(new class DataSource {
+      constructor() {
+        this.instanceField = 'some instance field value'
+      }
       static get name() {
         return 'TestDataSource';
       }
@@ -17,6 +20,7 @@ Test('dataSource', (t) => {
         t.equal(args.length, 2, 'added additional arg');
         t.equal(args[0].data, 'test', 'injected the right data');
         t.equal(args[1], 'test', 'data still passed to original call');
+        t.equal(this.instanceField, 'some instance field value', '`this` is correctly bound datasource instance methods')
       }
     }, {
       data: 'test'
