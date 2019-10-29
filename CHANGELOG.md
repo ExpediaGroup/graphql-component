@@ -1,3 +1,8 @@
+### v1.1.3
+
+- Fixed data source proxy losing instance binding
+- Upgraded to graphql peer ^14
+
 ### v1.1.1
 
 - `execute` now supports both document objects and strings.
