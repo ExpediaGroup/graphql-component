@@ -174,6 +174,7 @@ Test('namespace directives execution', (t) => {
 
   const component = new GraphQLComponent({
     types: `
+      directive @test on FIELD_DEFINITION
       type Thing {
         cField: String @test
       }
@@ -188,6 +189,7 @@ Test('namespace directives execution', (t) => {
     imports: [
       new GraphQLComponent({
         types: `
+          directive @test on FIELD_DEFINITION
           type Thing {
             bField: String @test
           }
@@ -202,6 +204,7 @@ Test('namespace directives execution', (t) => {
         imports: [
           new GraphQLComponent({
             types: `
+              directive @test on FIELD_DEFINITION
               type Thing {
                 aField: String @test
               }

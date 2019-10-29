@@ -22,13 +22,13 @@
     "graphql-tools": "^4.0.5"
   },
   "peerDependencies": {
-    "graphql": "^0.13"
+    "graphql": "^14.0"
   },
   "devDependencies": {
     "apollo-server": "^2.0.7",
     "casual": "^1.6.0",
     "eslint": "^6.1.0",
-    "graphql": "^0.13",
+    "graphql": "^14.0",
     "nyc": "^14.1.1",
     "tape": "^4.9.1"
   }
