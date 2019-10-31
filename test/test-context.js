@@ -24,6 +24,25 @@ Test('context builder', async (t) => {
   t.ok(result.import, 'import namespace populated');
 });
 
+Test('context builder with namespace merge', async (t) => {
+  t.plan(2);
+
+  const component = new GraphQLComponent({
+    imports: [
+      new GraphQLComponent({
+        context: { namespace: 'test', factory: () => ({ existing: true })}
+      })
+    ]
+  });
+
+  const context = createContext(component, { namespace: 'test', factory: () => ({ value: true }) });
+
+  const result = await context({});
+
+  t.ok(typeof result === 'object', 'returned object');  
+  t.ok(result.test.existing && result.test.value, 'namespace merged');
+});
+
 Test('component context', async (t) => {
   t.plan(2);
 
