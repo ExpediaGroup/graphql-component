@@ -1,4 +1,4 @@
-![](https://github.com/tlivings/graphql-component/workflows/Build/badge.svg)
+![](https://github.com/tlivings/graphql-component/workflows/.github/workflows/nodejs.yml/badge.svg)
 
 # GraphQL schema components.
 
