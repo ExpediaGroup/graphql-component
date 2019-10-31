@@ -1,0 +1,6 @@
+*
+
+!test/
+!lib/
+!package.json
+!.eslintrc
