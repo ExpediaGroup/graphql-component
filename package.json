@@ -18,7 +18,7 @@
     "cover": "nyc npm test"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
-  "repository": "https://github.com/tlivings/graphql-component",
+  "repository": "https://github.com/ExpediaGroup/graphql-component",
   "license": "MIT",
   "dependencies": {
     "cuid": "^2.1.6",

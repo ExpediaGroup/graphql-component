@@ -1,8 +1,8 @@
-![](https://github.com/tlivings/graphql-component/workflows/Build/badge.svg)
+![](https://github.com/ExpediaGroup/graphql-component/workflows/Build/badge.svg)
 
 # GraphQL schema components.
 
-This project is designed to make npm module or component based development of graphql schemas easy.
+This project is designed to make npm module or component based Node.js development of graphql schemas easy.
 
 Read more about the idea [here](https://medium.com/expedia-group-tech/graphql-component-architecture-principles-homeaway-ede8a58d6fde).
 
