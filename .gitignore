@@ -84,3 +84,4 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 package-lock.json
+.vscode/launch.json
