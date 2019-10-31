@@ -221,9 +221,11 @@ class PropertyComponentReviews extends GraphQLComponent {
       ],
       resolvers: {
         Property: {
-          reviews(_, args, context) {
+          async reviews(_, args, context) {
             //TODO: error handle here of course!
-            return reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context });
+            const { data } = return reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context });
+
+            return data.reviewsByPropertyId;
           }
         }
       },
