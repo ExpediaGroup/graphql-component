@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/tlivings0149/Trevor%20Livingston/_apis/build/status/tlivings.graphql-component?branchName=master)](https://dev.azure.com/tlivings0149/Trevor%20Livingston/_build/latest?definitionId=1&branchName=master)
+![](https://github.com/tlivings/graphql-component/workflows/Build/badge.svg)
 
 # GraphQL schema components.
 
