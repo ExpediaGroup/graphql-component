@@ -4,7 +4,7 @@
 
 This project is designed to make npm module or component based development of graphql schemas easy.
 
-Read more about the idea [here](https://medium.com/@tlivings/graphql-component-architecture-principles-homeaway-ede8a58d6fde).
+Read more about the idea [here](https://medium.com/expedia-group-tech/graphql-component-architecture-principles-homeaway-ede8a58d6fde).
 
 `graphql-component` lets you built a schema progressively through a tree of graphql schema dependencies.
 
@@ -13,20 +13,20 @@ Read more about the idea [here](https://medium.com/@tlivings/graphql-component-a
 - `lib` - the graphql-component code.
 - `test/examples/example-listing/property-component` - a component implementation for `Property`.
 - `test/examples/example-listing/reviews-component` - a component implementation for `Reviews`.
-- `test/examples/example-listing/listing-component` - a component implementation composing `Property` and `Reviews`.
+- `test/examples/example-listing/listing-component` - a component implementation composing `Property` and `Reviews` into a new `Listing`.
 - `test/examples/example-listing/server` - the "application".
 
 ### Running the example
 
 Can be run with `node examples/server/index.js` or `npm start` which will start with debug flags.
 
-### Debugging
+### Debug output
 
 Enable debug logging with `DEBUG=graphql-component:*`
 
 ### Activating mocks
 
-To intercept resolvers with mocks execute this app with `GRAPHQL_DEBUG=1` enabled.
+To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled or simply run `npm start-mock`.
 
 # API
 
@@ -241,7 +241,7 @@ class PropertyComponentReviews extends GraphQLComponent {
 
 For the `Review` type in the `reviewsComponent`, a helper fragment will exist as `AllReview` that provides all fields.
 
-### Adding to context
+### Decorating the global context
 
 Example context argument:
 

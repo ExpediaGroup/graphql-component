@@ -3,7 +3,7 @@ const { ApolloServer } = require('apollo-server');
 const ListingComponent = require('../listing-component');
 
 const { schema, context} = new ListingComponent({ 
-  useMocks: !!process.env.MOCK, 
+  useMocks: !!process.env.GRAPHQL_MOCK, 
   preserveTypeResolvers: true,
   dataSourceOverrides: [
     new class MockDataSource {
