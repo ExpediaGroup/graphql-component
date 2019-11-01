@@ -1,0 +1,11 @@
+
+# A listing
+type Property {
+  legacyId: String
+  id: ID!
+  geo: [String]
+}
+type Query {
+  # Property by id
+  property(id: ID!) : Property
+}
