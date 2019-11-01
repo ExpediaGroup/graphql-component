@@ -1,10 +1,16 @@
 
 # A review
-type Review {
+type Review @key(fields: "id") {
   id: ID!
   propertyId: ID!
   content: String!
 }
+
+extend type Property @key(fields: "id") {
+  id: ID! @external
+  reviews: [Review]
+}
+
 type Query {
   # Reviews by property id
   reviewsByPropertyId(propertyId: ID!) : [Review]

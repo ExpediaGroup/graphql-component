@@ -1,7 +1,6 @@
 
 # A listing
-type Property {
-  legacyId: String
+type Property @key(fields: "id") {
   id: ID!
   geo: [String]
 }
