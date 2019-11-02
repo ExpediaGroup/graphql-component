@@ -11,6 +11,7 @@ interface ComponentOptions {
   preserveTypeResolvers?: boolean;
   dataSources?: any[];
   dataSourceOverrides?: any;
+  federation?: boolean;
 }
 
 export declare class GraphQLComponent {

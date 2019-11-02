@@ -41,6 +41,7 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `mocks` - an optional object containing mock types.
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
+  - `federation` - enable building a federated schema (default: `false`).
 
 A new GraphQLComponent instance has the following API:
 
