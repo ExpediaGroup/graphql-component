@@ -1,3 +1,0 @@
-{
-  "query": "query { listing(id:1) { geo, reviews { content }}}"
-}

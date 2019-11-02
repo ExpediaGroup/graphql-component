@@ -2,7 +2,7 @@ FROM node:12.13.0-alpine as stage
 
 WORKDIR /app
 
-COPY ./test/examples/example-federation/reviews-service/package.json .
+COPY ./test/examples/federation/property-service/package.json .
 
 RUN npm set progress=false && npm config set depth 0
 RUN npm install --only=production
@@ -12,6 +12,6 @@ FROM stage
 
 COPY --from=stage /app/prod_node_modules ./node_modules
 COPY ./lib ./lib
-COPY ./test/examples/example-federation/reviews-service .
+COPY ./test/examples/federation/property-service .
 
 CMD ["node", "index.js"]

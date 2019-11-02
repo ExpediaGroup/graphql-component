@@ -3,22 +3,21 @@ services:
   property_service:
     build: 
       context: ../../..
-      dockerfile: ./test/examples/example-federation/property-service/Dockerfile
+      dockerfile: ./test/examples/federation/property-service/Dockerfile
     hostname: property
     ports:
       - "4000"
   reviews_service:
     build: 
       context: ../../..
-      dockerfile: ./test/examples/example-federation/reviews-service/Dockerfile
+      dockerfile: ./test/examples/federation/reviews-service/Dockerfile
     hostname: reviews
     ports:
       - "4000"
   gateway:
-    build: ./gateway
     build: 
       context: ../../..
-      dockerfile: ./test/examples/example-federation/gateway/Dockerfile
+      dockerfile: ./test/examples/federation/gateway/Dockerfile
     ports:
       - "4000:4000"
     links: 

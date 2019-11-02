@@ -5,6 +5,7 @@ const ListingComponent = require('../listing-component');
 const { schema, context} = new ListingComponent({ 
   useMocks: !!process.env.GRAPHQL_MOCK, 
   preserveTypeResolvers: true,
+  //Data source overriding
   dataSourceOverrides: [
     new class MockDataSource {
       static get name() {
