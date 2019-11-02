@@ -1,3 +1,8 @@
+### v1.2.0
+
+- Added federation support
+- New license copyright
+
 ### v1.1.3
 
 - Fixed data source proxy losing instance binding
