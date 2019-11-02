@@ -18,11 +18,11 @@ Read more about the idea [here](https://medium.com/expedia-group-tech/graphql-co
 
 ### Running the example
 
-Can be run with `node examples/server/index.js` or `npm start` which will start with debug flags.
+Can be run with `npm start` which will start with debug flags.
 
 ### Debug output
 
-Enable debug logging with `DEBUG=graphql-component:*`
+Generally enable debug logging with `DEBUG=graphql-component:*`
 
 ### Activating mocks
 

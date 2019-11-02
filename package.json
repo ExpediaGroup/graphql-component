@@ -12,8 +12,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "tape test/test-*.js",
-    "start": "DEBUG=graphql-component:* node examples/example-listing/server/index.js",
-    "start-mock": "DEBUG=graphql-component:* GRAPHQL_MOCK=1 node examples/example-listing/server/index.js",
+    "start": "DEBUG=graphql-component:* node test/examples/composition/server/index.js",
+    "start-mock": "DEBUG=graphql-component:* GRAPHQL_MOCK=1 node test/examples/composition/server/index.js",
     "lint": "eslint lib",
     "cover": "nyc npm test"
   },
