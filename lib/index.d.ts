@@ -8,7 +8,7 @@ interface ComponentOptions {
   directives?: any;
   context?: any;
   useMocks?: boolean;
-  preserveTypeResolvers?: boolean;
+  preserveResolvers?: boolean;
   dataSources?: any[];
   dataSourceOverrides?: any;
   federation?: boolean;
