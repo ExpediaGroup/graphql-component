@@ -7,3 +7,4 @@ azure-pipelines.yml
 .eslintrc
 .github
 .nycrc
+.dockerignore
