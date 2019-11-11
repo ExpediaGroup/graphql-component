@@ -198,6 +198,8 @@ const { schema, context } = new GraphQLComponent({
 
 Components can be directly executed via the `execute` function. The `execute` function is basically a passthrough to `graphql.execute` and is mostly useful for components calling imported components and the like.
 
+The `execute` function will return an object representing the result of the call, and may contain errors as field values. These errors will be propagated to the errors list in the graphql response when the result is returned.
+
 For example, this allows one component to invoke another component and still get the benefits of that component's schema type resolvers and validation.
 
 `execute(input, options)` accepts an `input` string and an optional `options` object with the following fields:
@@ -205,6 +207,8 @@ For example, this allows one component to invoke another component and still get
 - `root` - root object.
 - `context` - context object value.
 - `variables` - key:value mapping of variables for the input.
+
+Returns an object containing results and may contain errors on field values.
 
 The `execute` function also adds some helper fragments. For any type you query in a component, a helper fragment will exist to query all fields.
 
@@ -223,10 +227,9 @@ class PropertyComponentReviews extends GraphQLComponent {
       resolvers: {
         Property: {
           async reviews(_, args, context) {
-            //TODO: error handle here of course!
-            const { data } = return reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context });
+            const { reviewsByPropertyId } = await reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context });
 
-            return data.reviewsByPropertyId;
+            return reviewsByPropertyId;
           }
         }
       },
