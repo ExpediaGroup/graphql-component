@@ -27,7 +27,8 @@
     "graphql-extensions": "^0.5.2",
     "graphql-tag": "^2.10.1",
     "graphql-toolkit": "^0.5.0",
-    "graphql-tools": "^4.0.5"
+    "graphql-tools": "^4.0.5",
+    "lodash.set": "^4.3.2"
   },
   "peerDependencies": {
     "graphql": "^14.0"
