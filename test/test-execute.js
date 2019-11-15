@@ -33,7 +33,7 @@ Test('test component execute', (t) => {
   });
 
   t.test('execute query', async (t) => {
-    t.plan(3);
+    t.plan(1);
 
     const query = `
       query {
@@ -45,13 +45,11 @@ Test('test component execute', (t) => {
 
     const result = await component.execute(query);
 
-    t.ok(result, 'has result');
-    t.ok(result.data, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(result, { book: { title: 'Some Title' } }, 'has result');
   });
 
   t.test('execute query with document object', async (t) => {
-    t.plan(3);
+    t.plan(1);
 
     const query = gql`
       query {
@@ -63,9 +61,7 @@ Test('test component execute', (t) => {
 
     const result = await component.execute(query);
 
-    t.ok(result, 'has result');
-    t.ok(result.data, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(result, { book: { title: 'Some Title' } }, 'has result');
   });
 
   t.test('execute error', async (t) => {
@@ -81,11 +77,11 @@ Test('test component execute', (t) => {
 
     const result = await component.execute(query);
 
-    t.ok(result.errors, 'errors');
+    t.ok(result.book instanceof Error, 'error');
   });
 
   t.test('execute multiple query', async (t) => {
-    t.plan(3);
+    t.plan(1);
 
     const query = `
       query {
@@ -101,9 +97,7 @@ Test('test component execute', (t) => {
 
     const result = await component.execute(query);
 
-    t.ok(result, 'has result');
-    t.deepEqual(result.data, { one: { title: 'Some Title' }, two: { id: '2', title: 'Some Title' } }, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(result, { one: { title: 'Some Title' }, two: { id: '2', title: 'Some Title' } }, 'data returned');
   });
 
 });

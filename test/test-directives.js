@@ -82,7 +82,7 @@ Test('test componentA', async (t) => {
   });
 
   t.test('componentA execute', async (t) => {
-    t.plan(3);
+    t.plan(1);
 
     const query = `
       query {
@@ -92,9 +92,7 @@ Test('test componentA', async (t) => {
 
     const result = await componentA.execute(query);
 
-    t.ok(result, 'has result');
-    t.ok(result.data, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(result, { book: { id: '1', title: 'Some Title' } }, 'has result');
   });
 });
 
@@ -127,19 +125,17 @@ Test('test componentB', async (t) => {
   });
 
   t.test('componentB execute', async (t) => {
-    t.plan(3);
+    t.plan(1);
 
     const query = `
       query {
-        author(id: 1) {id, name, books}
+        author(id: 1) {id, name}
       }
     `;
 
     const result = await componentB.execute(query);
 
-    t.ok(result, 'has result');
-    t.ok(result.data, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(result, { author: { id: '1', name: 'Some Author' } }, 'has result');
   });
 });
 
