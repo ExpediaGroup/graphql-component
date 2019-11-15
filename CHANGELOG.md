@@ -1,3 +1,7 @@
+### Unreleased
+
+- [BREAKING] Execute inlines errors to facilitate returning multiple errors from resolver
+
 ### v1.2.0
 
 - Added federation support
