@@ -1,3 +1,8 @@
+### v1.2.1
+
+- Clean up empty types that were excluded (#38)
+- Reduced package size with npmignore
+
 ### v1.2.0
 
 - Added federation support
