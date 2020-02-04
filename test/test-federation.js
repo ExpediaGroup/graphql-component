@@ -2,16 +2,21 @@
 
 const Test = require('tape');
 const GraphQLComponent = require('../lib');
+const {SchemaDirectiveVisitor} = require('apollo-server');
 
 Test('federated schema', (t) => {
 
-  t.plan(1);
+  class CustomDirective extends SchemaDirectiveVisitor {
+
+  }
 
   const component = new GraphQLComponent({
     types: [
       `
+      directive @custom on FIELD_DEFINITION
+
       type Query {
-        property(id: ID!): Property
+        property(id: ID!): Property @custom
       }
       type Property @key(fields: "id") {
         id: ID!
@@ -34,10 +39,20 @@ Test('federated schema', (t) => {
         }
       }
     },
+    directives: { custom: CustomDirective },
     federation: true
   });
 
-  t.doesNotThrow(() => {
-    component.schema;
-  }, 'can return a buildFederatedSchema schema');
+  t.test('create federated schema', (t) => {
+    t.plan(1);
+    t.doesNotThrow(() => {
+      component.schema;
+    }, 'can return a buildFederatedSchema schema');
+  });
+
+  t.test('custom schema added to schema', (t) => {
+    t.plan(1);
+    console.dir(JSON.stringify(component.schema));
+    t.true(component.schema.directives === 0);  // TODO:  Need to find the distinctive change between schemas from buildFederatedSchema and mergeSchema
+  });
 });
