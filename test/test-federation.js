@@ -7,7 +7,10 @@ const {SchemaDirectiveVisitor} = require('apollo-server');
 Test('federated schema', (t) => {
 
   class CustomDirective extends SchemaDirectiveVisitor {
-
+    // required for our dummy "custom" directive (ie. implement the SchemaDirectiveVisitor interface)
+    visitFieldDefinition() {
+      return;
+    }
   }
 
   const component = new GraphQLComponent({
@@ -50,9 +53,9 @@ Test('federated schema', (t) => {
     }, 'can return a buildFederatedSchema schema');
   });
 
-  t.test('custom schema added to schema', (t) => {
+  t.test('custom directive added to federated schema', (t) => {
     t.plan(1);
-    console.dir(JSON.stringify(component.schema));
-    t.true(component.schema.directives === 0);  // TODO:  Need to find the distinctive change between schemas from buildFederatedSchema and mergeSchema
+    const {schema: {_directives: schemaDirectives}} = component;
+    t.equals(schemaDirectives.filter((directive) => directive.name === 'custom').length, 1, `federated schema has '@custom' directive`);
   });
 });
