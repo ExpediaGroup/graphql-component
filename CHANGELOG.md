@@ -1,3 +1,7 @@
+### v1.2.2
+
+- Allow custom directives in federation (#40)
+
 ### v1.2.1
 
 - Clean up empty types that were excluded (#38)
