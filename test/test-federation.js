@@ -2,16 +2,24 @@
 
 const Test = require('tape');
 const GraphQLComponent = require('../lib');
+const {SchemaDirectiveVisitor} = require('apollo-server');
 
 Test('federated schema', (t) => {
 
-  t.plan(1);
+  class CustomDirective extends SchemaDirectiveVisitor {
+    // required for our dummy "custom" directive (ie. implement the SchemaDirectiveVisitor interface)
+    visitFieldDefinition() {
+      return;
+    }
+  }
 
   const component = new GraphQLComponent({
     types: [
       `
+      directive @custom on FIELD_DEFINITION
+
       type Query {
-        property(id: ID!): Property
+        property(id: ID!): Property @custom
       }
       type Property @key(fields: "id") {
         id: ID!
@@ -34,10 +42,20 @@ Test('federated schema', (t) => {
         }
       }
     },
+    directives: { custom: CustomDirective },
     federation: true
   });
 
-  t.doesNotThrow(() => {
-    component.schema;
-  }, 'can return a buildFederatedSchema schema');
+  t.test('create federated schema', (t) => {
+    t.plan(1);
+    t.doesNotThrow(() => {
+      component.schema;
+    }, 'can return a buildFederatedSchema schema');
+  });
+
+  t.test('custom directive added to federated schema', (t) => {
+    t.plan(1);
+    const {schema: {_directives: schemaDirectives}} = component;
+    t.equals(schemaDirectives.filter((directive) => directive.name === 'custom').length, 1, `federated schema has '@custom' directive`);
+  });
 });
