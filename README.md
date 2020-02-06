@@ -77,15 +77,15 @@ const types = require('./types');
 const mocks = require('./mocks');
 
 class PropertyComponent extends GraphQLComponent {
-  constructor({ useMocks, preserveTypeResolvers }) {
-    super({ types, resolvers, mocks, useMocks, preserveTypeResolvers });
+  constructor({ useMocks, preserveResolvers }) {
+    super({ types, resolvers, mocks, useMocks, preserveResolvers });
   }
 }
 
 module.exports = PropertyComponent;
 ```
 
-This will allow for configuration (in this example, `useMocks` and `preserveTypeResolvers`) as well as instance data per component (such as data base clients, etc).
+This will allow for configuration (in this example, `useMocks` and `preserveResolvers`) as well as instance data per component (such as data base clients, etc).
 
 ### Aggregation
 
@@ -216,7 +216,7 @@ Example extending `Property` to include a `reviews` field that delegates to anot
 
 ```javascript
 class PropertyComponentReviews extends GraphQLComponent {
-  constructor({ useMocks, preserveTypeResolvers }) {
+  constructor({ useMocks, preserveResolvers }) {
     const propertyComponent = new PropertyComponent();
     const reviewsComponent = new ReviewsComponent();
 

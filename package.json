@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Build graphql schema with components",
   "keywords": [
     "graphql",
@@ -26,6 +26,7 @@
     "debug": "^4.1.0",
     "graphql-extensions": "^0.5.2",
     "graphql-tag": "^2.10.1",
+    "graphql-tag-pluck": "^0.8.7",
     "graphql-toolkit": "^0.5.0",
     "graphql-tools": "^4.0.5",
     "lodash.set": "^4.3.2"

@@ -7,7 +7,7 @@ const Types = require('../lib/types');
 
 Test('type utilities', (t) => {
 
-  t.test('get types', (t) => {
+  t.test('get types with no imports', (t) => {
 
     t.plan(2);
 
@@ -27,8 +27,8 @@ Test('type utilities', (t) => {
     const schema = buildASTSchema(types[0]);
 
 
-    t.ok(schema.getType('A').getFields().value, 'the "A" type exists');
-    t.ok(schema.getQueryType().getFields().a, 'the "a" query exists');
+    t.ok(schema.getType('A').getFields().value, `the "A" type exists in component's schema`);
+    t.ok(schema.getQueryType().getFields().a, `the "a" query exists in component's schema`);
   });
 
   t.test('get imported types', (t) => {
@@ -56,12 +56,12 @@ Test('type utilities', (t) => {
 
     const types = Types.getImportedTypes({}, component);
     const schemaA = buildASTSchema(types[0]);
-    t.ok(schemaA.getType('A').getFields().value, 'the "A" type exists');
-    t.ok(schemaA.getQueryType().getFields().a, 'the "a" query exists');
+    t.ok(schemaA.getType('A').getFields().value, `the "A" type exists in component's schema`);
+    t.ok(schemaA.getQueryType().getFields().a, `the "a" query exists in component's schema`);
 
     const schemaB = buildASTSchema(types[1])
-    t.ok(schemaB.getType('B').getFields().value, 'the "B" type exists');
-    t.ok(schemaB.getQueryType().getFields().b, 'the "b" query exists');
+    t.ok(schemaB.getType('B').getFields().value, `the "B" type exists in imported component's schema`);
+    t.ok(schemaB.getQueryType().getFields().b, `the "b" query exists in imported component's schema`);
   });
 
   t.test('exclude', (t) => {
@@ -89,12 +89,12 @@ Test('type utilities', (t) => {
 
     const types = Types.getImportedTypes({}, component, [['Query', 'b']]);
     const schemaA = buildASTSchema(types[0]);
-    t.ok(schemaA.getType('A').getFields().value, 'the "A" type exists');
-    t.ok(schemaA.getQueryType().getFields().a, 'the "a" query exists');
+    t.ok(schemaA.getType('A').getFields().value, `the "A" type exists in component's schema`);
+    t.ok(schemaA.getQueryType().getFields().a, `the "a" query exists in component's schema`);
 
     const schemaB = buildASTSchema(types[1])
-    t.ok(schemaB.getType('B').getFields().value, 'the "B" type exists');
-    t.notOk(schemaB.getQueryType().getFields().b, 'the "b" query does not exist');
+    t.ok(schemaB.getType('B').getFields().value, `the "B" type exists in imported component's schema`);
+    t.notOk(schemaB.getQueryType(), `the "Query" type does not exist in imported component's schema because all of its fields have been removed`);
   });
 
   t.test('exclude caching', (t) => {
@@ -109,24 +109,25 @@ Test('type utilities', (t) => {
         }
         type Query {
           a: A
+          b(c: Int): A
         }
       `]
     };
 
     let types = Types.getImportedTypes({}, component, [['Query', 'a']]);
     let schema = buildASTSchema(types[0]);
-    t.ok(schema.getType('A').getFields().value, 'the "A" type exists');
-    t.notOk(schema.getQueryType().getFields().a, 'the "a" query does not exist');
+    t.ok(schema.getType('A').getFields().value, `the "A" type exists in component's schema`);
+    t.notOk(schema.getQueryType().getFields().a, `the "a" query does not exist in component's schema`);
 
     types = Types.getImportedTypes({}, component);
     schema = buildASTSchema(types[0]);
-    t.ok(schema.getType('A').getFields().value, 'the "A" type exists');
-    t.ok(schema.getQueryType().getFields().a, 'the "a" query exists');
+    t.ok(schema.getType('A').getFields().value, `the "A" type exists in component's schema`);
+    t.ok(schema.getQueryType().getFields().a, `the "a" query exists in component's schema`);
   });
 
   t.test('exclude all', (t) => {
 
-    t.plan(2);
+    t.plan(3);
 
     const component = {
       _importedTypes: [],
@@ -145,11 +146,12 @@ Test('type utilities', (t) => {
 
     const types = Types.getImportedTypes({}, component, [['*']]);
     const schema = buildASTSchema(types[0]);
-    t.notOk(schema.getQueryType().getFields().a, 'the "a" query does not exist');
-    t.notOk(schema.getMutationType().getFields().a, 'the "a" mutation does not exist');
+    t.notOk(schema.getQueryType(), `the "Query" type does not exist in component's schema because all of it's fields were removed`);
+    t.notOk(schema.getMutationType(), `the "Mutation" type does not exist in component's schema because all of its fields were removed`);
+    t.ok(schema.getType('A').getFields().value, `the "A" type and its field exist in component's schema`);
   });
-
-  t.test('exclude one mutation', (t) => {
+  
+  t.test('component with no Mutation and 1 Query with imported component with 2 Mutations and 1 Query, exclude 1 Mutation and 1 Query from imported component', (t) => {
     t.plan(6);
 
     const component = {
@@ -177,13 +179,13 @@ Test('type utilities', (t) => {
 
     const types = Types.getImportedTypes({}, component, [['Mutation', 'b1'], ['Query', 'b']]);
     const schemaA = buildASTSchema(types[0]);
-    t.ok(schemaA.getType('A').getFields().value, 'the "A" type exists');
-    t.ok(schemaA.getQueryType().getFields().a, 'the "a" query exists');
+    t.ok(schemaA.getType('A').getFields().value, `the "A" type exists in component's schema`);
+    t.ok(schemaA.getQueryType().getFields().a, `the "a" query exists in component's schema`);
 
     const schemaB = buildASTSchema(types[1])
-    t.ok(schemaB.getType('B').getFields().value, 'the "B" type exists');
-    t.notOk(schemaB.getQueryType().getFields().b, 'the "b" query does not exist');
-    t.notOk(schemaB.getMutationType().getFields().b1, 'the "b1" mutation does not exist');
-    t.ok(schemaB.getMutationType().getFields().b2, 'the "b2" query exists');
+    t.ok(schemaB.getType('B').getFields().value, `the "B" type exists in imported component's schema`);
+    t.notOk(schemaB.getQueryType(), `the "Query" type does not exist in imported component's schema because all of its fields were removed`);
+    t.notOk(schemaB.getMutationType().getFields().b1, `the "b1" mutation does not exist in imported component's schema`);
+    t.ok(schemaB.getMutationType().getFields().b2, `the "b2" mutation exists in imported component's schema`);
   });
 });
