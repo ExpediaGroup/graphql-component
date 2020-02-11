@@ -1,7 +1,11 @@
 
-### Unreleased
+### v1.2.4
 
 - Execute flag `mergeErrors` allows inline errors to facilitate returning multiple errors from resolvers that use `execute`.
+
+### v1.2.3
+
+- Allow extended properties in federated schema with custom directives
 
 ### v1.2.2
 
