@@ -67,7 +67,7 @@ Test('test component mocks', (t) => {
         c { value }
       }
     `;
-    const result = await componentC.execute(query);
+    const result = await componentC.execute(query, { mergeErrors: true });
 
     t.equal(result.a.value, 'a', 'returns Component A\'s mock');
     t.equal(result.b.value, 'b', 'returns Component B\'s mock');

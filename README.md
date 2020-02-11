@@ -207,8 +207,11 @@ For example, this allows one component to invoke another component and still get
 - `root` - root object.
 - `context` - context object value.
 - `variables` - key:value mapping of variables for the input.
+- `mergeErrors` - merge errors and data together.
 
-Returns an object containing results and may contain errors on field values.
+Returns an object containing `data` and `errors`. 
+
+If `mergeErrors: true`, returns an object containing the result and may contain errors on field values.
 
 The `execute` function also adds some helper fragments. For any type you query in a component, a helper fragment will exist to query all fields.
 
@@ -227,7 +230,7 @@ class PropertyComponentReviews extends GraphQLComponent {
       resolvers: {
         Property: {
           async reviews(_, args, context) {
-            const { reviewsByPropertyId } = await reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context });
+            const { reviewsByPropertyId } = await reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context, mergeErrors: true });
 
             return reviewsByPropertyId;
           }

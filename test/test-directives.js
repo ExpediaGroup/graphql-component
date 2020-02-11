@@ -90,7 +90,7 @@ Test('test componentA', async (t) => {
       }
     `;
 
-    const result = await componentA.execute(query);
+    const result = await componentA.execute(query, { mergeErrors: true });
 
     t.deepEqual(result, { book: { id: '1', title: 'Some Title' } }, 'has result');
   });
@@ -133,7 +133,7 @@ Test('test componentB', async (t) => {
       }
     `;
 
-    const result = await componentB.execute(query);
+    const result = await componentB.execute(query, { mergeErrors: true });
 
     t.deepEqual(result, { author: { id: '1', name: 'Some Author' } }, 'has result');
   });
@@ -242,5 +242,5 @@ Test('namespace directives execution', (t) => {
     }
   });
 
-  component.execute(`query thing { aField, bField }`);
+  component.execute(`query thing { aField, bField }`, { mergeErrors: true });
 });
