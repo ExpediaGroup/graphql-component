@@ -1,7 +1,7 @@
 
 ### Unreleased
 
-- [BREAKING] Execute inlines errors to facilitate returning multiple errors from resolver
+- Execute flag `mergeErrors` allows inline errors to facilitate returning multiple errors from resolvers that use `execute`.
 
 ### v1.2.2
 
