@@ -25,6 +25,10 @@ Test('federated schema', (t) => {
         id: ID!
         geo: [String]
       }
+      extend type Extended @key(fields: "id") {
+        id: ID! @external
+        newProp: String
+      }
       `
     ],
     resolvers: {
@@ -38,7 +42,7 @@ Test('federated schema', (t) => {
       },
       Property: {
         __resolveReference(property, context) {
-          
+
         }
       }
     },
@@ -57,5 +61,12 @@ Test('federated schema', (t) => {
     t.plan(1);
     const {schema: {_directives: schemaDirectives}} = component;
     t.equals(schemaDirectives.filter((directive) => directive.name === 'custom').length, 1, `federated schema has '@custom' directive`);
+  });
+
+  t.test('extended properties maintained after adding custom directive', (t) => {
+    t.plan(2);
+    const {schema: {_typeMap: {Extended}}} = component;
+    t.equals(Extended.extensionASTNodes.length, 1, 'Extension AST Nodes is defined');
+    t.equals(Extended.extensionASTNodes[0].fields.filter((field) => field.name.value === "id" && field.directives[0].name.value === "external").length, 1, `id field marked external`);
   });
 });
