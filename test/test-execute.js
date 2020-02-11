@@ -33,7 +33,7 @@ Test('test component execute', (t) => {
   });
 
   t.test('execute query', async (t) => {
-    t.plan(3);
+    t.plan(2);
 
     const query = `
       query {
@@ -43,15 +43,14 @@ Test('test component execute', (t) => {
       }
     `;
 
-    const result = await component.execute(query);
+    const { data, errors } = await component.execute(query);
 
-    t.ok(result, 'has result');
-    t.ok(result.data, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(data, { book: { title: 'Some Title' } }, 'has result');
+    t.equal(errors.length, 0, 'no errors');
   });
 
   t.test('execute query with document object', async (t) => {
-    t.plan(3);
+    t.plan(1);
 
     const query = gql`
       query {
@@ -61,14 +60,29 @@ Test('test component execute', (t) => {
       }
     `;
 
-    const result = await component.execute(query);
+    const result = await component.execute(query, { mergeErrors: true });
 
-    t.ok(result, 'has result');
-    t.ok(result.data, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(result, { book: { title: 'Some Title' } }, 'has result');
   });
 
   t.test('execute error', async (t) => {
+    t.plan(2);
+
+    const query = `
+      query {
+        book {
+          title
+        }
+      }
+    `;
+
+    const { data, errors } = await component.execute(query);
+
+    t.ok(data);
+    t.ok(errors && errors.length === 1, 'error');
+  });
+
+  t.test('execute error merged', async (t) => {
     t.plan(1);
 
     const query = `
@@ -79,13 +93,13 @@ Test('test component execute', (t) => {
       }
     `;
 
-    const result = await component.execute(query);
+    const result = await component.execute(query, { mergeErrors: true });
 
-    t.ok(result.errors, 'errors');
+    t.ok(result.book instanceof Error, 'error');
   });
 
   t.test('execute multiple query', async (t) => {
-    t.plan(3);
+    t.plan(1);
 
     const query = `
       query {
@@ -99,11 +113,9 @@ Test('test component execute', (t) => {
       }
     `;
 
-    const result = await component.execute(query);
+    const result = await component.execute(query, { mergeErrors: true });
 
-    t.ok(result, 'has result');
-    t.deepEqual(result.data, { one: { title: 'Some Title' }, two: { id: '2', title: 'Some Title' } }, 'data returned');
-    t.error(result.errors, 'no errors');
+    t.deepEqual(result, { one: { title: 'Some Title' }, two: { id: '2', title: 'Some Title' } }, 'data returned');
   });
 
 });

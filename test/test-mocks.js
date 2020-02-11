@@ -67,9 +67,10 @@ Test('test component mocks', (t) => {
         c { value }
       }
     `;
-    const result = await componentC.execute(query);
-    t.equal(result.data.a.value, 'a', 'returns Component A\'s mock');
-    t.equal(result.data.b.value, 'b', 'returns Component B\'s mock');
-    t.equal(result.data.c.value, 'c', 'returns Component C\'s mock');
+    const result = await componentC.execute(query, { mergeErrors: true });
+
+    t.equal(result.a.value, 'a', 'returns Component A\'s mock');
+    t.equal(result.b.value, 'b', 'returns Component B\'s mock');
+    t.equal(result.c.value, 'c', 'returns Component C\'s mock');
   });
 });

@@ -1,3 +1,8 @@
+
+### Unreleased
+
+- Execute flag `mergeErrors` allows inline errors to facilitate returning multiple errors from resolvers that use `execute`.
+
 ### v1.2.2
 
 - Allow custom directives in federation (#40)
