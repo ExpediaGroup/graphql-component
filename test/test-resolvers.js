@@ -1,7 +1,8 @@
 'use strict';
 
 const Test = require('tape');
-const { wrapResolvers, getImportedResolvers, memoize, transformResolvers } = require('../lib/resolvers');
+const { Kind } = require('graphql');
+const { memoize, transformResolvers, wrapResolvers, getImportedResolvers, createProxyResolvers, createProxyResolver, createOperationForField } = require('../lib/resolvers');
 
 Test('wrapping', (t) => {
 
@@ -196,6 +197,107 @@ Test('transform', (t) => {
     t.ok(transformed.Query && transformed.Query.test, 'query present');
     t.ok(!transformed.Mutation, 'mutation not present');
 
+  });
+
+});
+
+Test('proxy resolvers', (t) => {
+
+  t.test('createProxyResolver', (t) => {
+    t.plan(1);
+
+    const resolver = createProxyResolver(undefined, 'Query', 'test');
+
+    t.strictEqual(resolver.__isProxy, true, 'function created is a proxy');
+  });
+
+  t.test('createProxyResolvers', (t) => {
+    t.plan(2);
+
+    const resolvers = createProxyResolvers(undefined, { Query: { test() {} }, Test: { field() {} } });
+
+    t.ok(resolvers.Query, 'included root resolvers');
+    t.ok(!resolvers.Test, 'did not include type resolvers');
+
+  });
+
+  t.test('createOperationForField', (t) => {
+    t.plan(1);
+
+    const info = {
+      fragments: {
+        AllTest: {
+          kind: Kind.FRAGMENT_DEFINITION,
+          name: {
+            value: 'AllTest'
+          }
+        }
+      },
+      operation: {
+        operation: 'query',
+        variableDefinitions: [],
+        selectionSet: {
+          selections: [
+            {
+              kind: Kind.FIELD,
+              name: {
+                value: 'value'
+              },
+              selectionSet: {
+                kind: Kind.SELECTION_SET,
+                selections: [{
+                  kind: Kind.FRAGMENT_SPREAD,
+                  name: {
+                    value: 'AllTest'
+                  }
+                }]
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const expected = {
+      kind: Kind.DOCUMENT,
+      definitions: [
+        {
+          kind: Kind.FRAGMENT_DEFINITION,
+          name: {
+            value: 'AllTest'
+          }
+        },
+        {
+          kind: Kind.OPERATION_DEFINITION,
+          operation: 'query',
+          variableDefinitions: [],
+          selectionSet: {
+            kind: Kind.SELECTION_SET,
+            selections: [
+              {
+                kind: Kind.FIELD,
+                name: {
+                  value: 'value'
+                },
+                selectionSet: {
+                  kind: Kind.SELECTION_SET,
+                  selections: [{
+                    kind: Kind.FRAGMENT_SPREAD,
+                    name: {
+                      value: 'AllTest'
+                    }
+                  }]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    };
+
+    const operation = createOperationForField('value', info);
+
+    t.deepEqual(operation, expected, 'operation matches');
   });
 
 });
