@@ -109,9 +109,9 @@ const server = new ApolloServer({
 
 Imports can be a configuration object supplying the following properties:
 
-- `component: GraphQLComponent` - the component instance to import.
-- `exclude: [string]` - fields, if any, to exclude.
-- `proxyImportedResolvers: boolean` - enable disabling wrapping imported resolvers in proxy (defaults to `true`).
+- `component` - the component instance to import.
+- `exclude` - fields, if any, to exclude.
+- `proxyImportedResolvers` - enable disabling wrapping imported resolvers in proxy (defaults to `true`).
 
 ### Exclude
 
