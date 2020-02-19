@@ -51,7 +51,7 @@ A new GraphQLComponent instance has the following API:
 - `execute` - accepts a graphql query to execute agains `schema`.
 - `types` - this component's types.
 - `resolvers` - this component's resolvers.
-- `imports` - this component's imported components.
+- `imports` - this component's imported components or a import configuration.
 - `mocks` - custom mocks for this component.
 - `directives` - this component's directives.
 - `dataSources` - this component's data source(s), if any.
@@ -105,7 +105,15 @@ const server = new ApolloServer({
 });
 ```
 
-### Excluding root fields from imports
+### Import configuration
+
+Imports can be a configuration object supplying the following properties:
+
+- `component: GraphQLComponent` - the component instance to import.
+- `exclude: [string]` - fields, if any, to exclude.
+- `proxyImportedResolvers: boolean` - enable disabling wrapping imported resolvers in proxy (defaults to `true`).
+
+### Exclude
 
 You can exclude root fields from imported components:
 
@@ -125,6 +133,14 @@ const { schema, context } = new GraphQLComponent({
 ```
 
 This will keep from leaking unintended surface area. But you can still delegate calls to the component's schema to enable it from the API you do expose.
+
+### proxyImportedResolvers
+
+When importing a component's resolvers, the default behavior is to replace the resolver with a function that executes a graphql query against the imported component for that field.
+
+This allows components to compose together without accidentally potentially re-running type resolvers.
+
+To disable this functionality (if you are never calling a sub-component's `execute` function), set to `false`.
 
 ### Data Source support
 

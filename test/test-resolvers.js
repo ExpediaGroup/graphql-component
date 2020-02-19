@@ -203,6 +203,52 @@ Test('transform', (t) => {
 
 Test('proxy resolvers', (t) => {
 
+  t.test('get imported resolvers with proxy flag true', (t) => {
+
+    t.plan(2);
+
+    const imp = {
+      _resolvers: {
+        Query: {
+          test() {
+            return true;
+          }
+        }
+      },
+      _importedResolvers: {
+        Query: {
+          imported() {
+            return true;
+          }
+        }
+      }
+    };
+
+    const imported = getImportedResolvers(imp, true);
+
+    t.ok(imported.Query.test.__isProxy, 'resolver is proxy');
+    t.ok(!imported.Query.imported.__isProxy, 'transitive resolver is not proxy');
+  });
+
+  t.test('get imported resolvers with proxy flag false', (t) => {
+
+    t.plan(1);
+
+    const imp = {
+      _resolvers: {
+        Query: {
+          test() {
+            return true;
+          }
+        }
+      }
+    };
+
+    const imported = getImportedResolvers(imp, false);
+
+    t.ok(!imported.Query.test.__isProxy, 'resolver is not proxy');
+  });
+
   t.test('createProxyResolver', (t) => {
     t.plan(1);
 
