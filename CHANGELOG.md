@@ -2,10 +2,13 @@
 
 - Remove `this._context` as default value for context in `execute()` requiring `execute()` users to pass in context from a calling resolver.
 
+### Unreleased
+
+- Imported resolvers proxy as an `execute` call to imported component and type resolvers are no longer pulled up.
+
 ### v1.2.4
 
 - Execute flag `mergeErrors` allows inline errors to facilitate returning multiple errors from resolvers that use `execute`.
-- Imported resolvers proxy as an `execute` call to imported component and type resolvers are no longer pulled up.
 
 ### v1.2.3
 
