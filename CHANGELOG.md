@@ -1,3 +1,6 @@
+### Unreleased
+
+- Remove `this._context` as default value for context in `execute()` requiring `execute()` users to pass in context from a calling resolver.
 
 ### v1.2.4
 
