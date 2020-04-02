@@ -1,5 +1,5 @@
 
-### Unreleased 
+### v1.3.0 
 
 - Imported resolvers will delegate to the imported component schema to which they belong.
 - Remove `this._context` as default value for context in `execute()` requiring `execute()` users to pass in context from a calling resolver.
