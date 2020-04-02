@@ -19,11 +19,11 @@ class ListingComponent extends GraphQLComponent {
       imports: [
         {
           component: propertyComponent,
-          exclude: ['Query.*']
+          //exclude: ['Query.*']
         },
         {
           component: reviewsComponent,
-          exclude: ['Query.*']
+          //exclude: ['Query.*']
         }
       ] ,
       ...options

@@ -85,3 +85,4 @@ Thumbs.db
 .Trashes
 package-lock.json
 .vscode/launch.json
+*.swp

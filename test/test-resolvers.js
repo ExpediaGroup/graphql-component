@@ -1,7 +1,8 @@
 'use strict';
 
 const Test = require('tape');
-const { wrapResolvers, getImportedResolvers, memoize, transformResolvers } = require('../lib/resolvers');
+const { Kind } = require('graphql');
+const { memoize, transformResolvers, wrapResolvers, getImportedResolvers, createProxyResolvers, createProxyResolver, createOperationForField } = require('../lib/resolvers');
 
 Test('wrapping', (t) => {
 
@@ -195,6 +196,74 @@ Test('transform', (t) => {
 
     t.ok(transformed.Query && transformed.Query.test, 'query present');
     t.ok(!transformed.Mutation, 'mutation not present');
+
+  });
+
+});
+
+Test('proxy resolvers', (t) => {
+
+  t.test('get imported resolvers with proxy flag true', (t) => {
+
+    t.plan(2);
+
+    const imp = {
+      _resolvers: {
+        Query: {
+          test() {
+            return true;
+          }
+        }
+      },
+      _importedResolvers: {
+        Query: {
+          imported() {
+            return true;
+          }
+        }
+      }
+    };
+
+    const imported = getImportedResolvers(imp, true);
+
+    t.ok(imported.Query.test.__isProxy, 'resolver is proxy');
+    t.ok(!imported.Query.imported.__isProxy, 'transitive resolver is not proxy');
+  });
+
+  t.test('get imported resolvers with proxy flag false', (t) => {
+
+    t.plan(1);
+
+    const imp = {
+      _resolvers: {
+        Query: {
+          test() {
+            return true;
+          }
+        }
+      }
+    };
+
+    const imported = getImportedResolvers(imp, false);
+
+    t.ok(!imported.Query.test.__isProxy, 'resolver is not proxy');
+  });
+
+  t.test('createProxyResolver', (t) => {
+    t.plan(1);
+
+    const resolver = createProxyResolver(undefined, 'Query', 'test');
+
+    t.strictEqual(resolver.__isProxy, true, 'function created is a proxy');
+  });
+
+  t.test('createProxyResolvers', (t) => {
+    t.plan(2);
+
+    const resolvers = createProxyResolvers(undefined, { Query: { test() {} }, Test: { field() {} } });
+
+    t.ok(resolvers.Query, 'included root resolvers');
+    t.ok(!resolvers.Test, 'did not include type resolvers');
 
   });
 
