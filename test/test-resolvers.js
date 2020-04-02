@@ -227,7 +227,7 @@ Test('proxy resolvers', (t) => {
     const imported = getImportedResolvers(imp, true);
 
     t.ok(imported.Query.test.__isProxy, 'resolver is proxy');
-    t.ok(!imported.Query.imported.__isProxy, 'transitive resolver is not proxy');
+    t.ok(imported.Query.imported.__isProxy, 'transitive resolver is proxy');
   });
 
   t.test('get imported resolvers with proxy flag false', (t) => {
