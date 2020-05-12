@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "1.3.0-rc2",
+  "version": "2.0-rc1",
   "description": "Build graphql schema with components",
   "keywords": [
     "graphql",
@@ -11,9 +11,9 @@
   ],
   "main": "lib/index.js",
   "scripts": {
-    "test": "tape test/test-*.js",
-    "start": "DEBUG=graphql-component:* node test/examples/composition/server/index.js",
-    "start-mock": "DEBUG=graphql-component:* GRAPHQL_MOCK=1 node test/examples/composition/server/index.js",
+    "test": "tape lib/*/**/__tests__.js lib/__tests__.js",
+    "start": "DEBUG=graphql-component:* node examples/composition/server/index.js",
+    "start-mock": "DEBUG=graphql-component:* GRAPHQL_MOCK=1 node examples/composition/server/index.js",
     "lint": "eslint lib",
     "cover": "nyc npm test"
   },
@@ -21,14 +21,14 @@
   "repository": "https://github.com/ExpediaGroup/graphql-component",
   "license": "MIT",
   "dependencies": {
-    "@apollo/federation": "^0.10.2",
-    "cuid": "^2.1.6",
-    "debug": "^4.1.0",
-    "graphql-extensions": "^0.5.2",
-    "graphql-tag": "^2.10.1",
+    "@apollo/federation": "^0.10.3",
+    "cuid": "^2.1.8",
+    "debug": "^4.1.1",
+    "graphql-extensions": "^0.12.0",
+    "graphql-tag": "^2.10.3",
     "graphql-tag-pluck": "^0.8.7",
-    "graphql-toolkit": "^0.5.0",
-    "graphql-tools": "^4.0.5",
+    "graphql-toolkit": "^0.7.5",
+    "graphql-tools": "^4.0.8",
     "lodash.set": "^4.3.2"
   },
   "peerDependencies": {
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@apollo/gateway": "^0.10.8",
-    "apollo-server": "^2.0.7",
+    "apollo-server": "^2.13.1",
     "casual": "^1.6.0",
     "eslint": "^6.5.1",
     "graphql": "^14",
