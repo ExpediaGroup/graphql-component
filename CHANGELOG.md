@@ -1,10 +1,13 @@
-### UNRELEASED
+### UNRELEASED 2.x
 
-- Refactor how imports are merged together to be optimized and only run when a schema is requested
-- Moved tests alongside source code
+- [FIXED] Memoizing resolvers didn't take into account aliased requests
+- [CLEANUP] Refactor how imports are merged together to be optimized and only run when a schema is requested
+- [CLEANUP] Moved tests alongside source code
 - [BREAKING] removed fragment helpers
 - [BREAKING] `schemaDirectives` (which returned merged directives) removed from component api
 - [BREAKING] removed `proxyImportedResolvers` feature flag
+- [BREAKING] removed `execute`
+- [FEATURE] added a new feature for `delegateToComponent` to replace `execute`
 
 ### v1.3.0
 
