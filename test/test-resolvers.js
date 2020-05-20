@@ -20,7 +20,7 @@ Test('wrapping', (t) => {
 
     const wrapped = wrapResolvers({ id: 1 }, resolvers);
 
-    const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query' });
+    const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query', path: { key: 'test' } });
 
     t.equal(value, 1, 'resolver was bound');
   });
@@ -57,7 +57,7 @@ Test('wrapping', (t) => {
     const wrapped = wrapResolvers(undefined, resolvers);
 
     const ctx = {};
-    const info = { parentType: 'Query' };
+    const info = { parentType: 'Query', path: { key: 'test' } };
 
     let value = wrapped.Query.test({}, {}, ctx, info);
 
@@ -124,6 +124,29 @@ Test('memoize resolver', (t) => {
     value = wrapped({}, {}, ctx);
 
     t.equal(value, 1, 'same value, only ran resolver once');
+  });
+
+  t.test('miss on different alias', (t) => {
+    t.plan(2);
+
+    let ran = 0;
+
+    const resolver = function () {
+      ran += 1;
+      return ran;
+    };
+
+    const wrapped = memoize('Query', 'test', resolver);
+
+    const ctx = {};
+
+    let value = wrapped({}, {}, ctx, { path: { key: 'alias1' }});
+
+    t.equal(value, 1, 'expected value');
+
+    value = wrapped({}, {}, ctx, { path: { key: 'alias2' }});
+
+    t.equal(value, 2, 'different value due to different alias');
   });
 
   t.test('miss on different context', (t) => {
