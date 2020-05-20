@@ -1,3 +1,6 @@
+### Unreleased
+
+- Resolver `memoize` key includes the `info.path.key` to keep different aliases from colliding
 
 ### v1.3.0 
 
