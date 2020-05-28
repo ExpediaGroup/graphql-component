@@ -1,12 +1,18 @@
 'use strict';
 
 const Test = require('tape');
-const { Kind } = require('graphql');
-const { memoize, transformResolvers, wrapResolvers, getImportedResolvers, createProxyResolvers, createProxyResolver, createOperationForField } = require('../lib/resolvers');
+const {
+  memoize,
+  transformResolvers,
+  wrapResolvers,
+  getImportedResolvers,
+  createProxyResolvers,
+  createProxyResolver 
+} = require('../lib/resolvers');
 
 Test('wrapping', (t) => {
 
-  t.test('wrap resolver function', (t) => {
+  t.test('wrap Query resolver function', (t) => {
 
     t.plan(1);
 
@@ -22,7 +28,41 @@ Test('wrapping', (t) => {
 
     const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query', path: { key: 'test' } });
 
-    t.equal(value, 1, 'resolver was bound');
+    t.equal(value, 1, 'Query resolver was bound');
+  });
+
+  t.test('wrap Mutation resolver function', (t) => {
+
+    t.plan(1);
+
+    const resolvers = {
+      Mutation: {
+        test() {
+          return this.id;
+        }
+      }
+    };
+
+    const wrapped = wrapResolvers({ id: 1 }, resolvers);
+    const value = wrapped.Mutation.test({}, {}, {}, { parentType: 'Mutation', path: { key: 'test' } });
+
+    t.equal(value, 1, 'Mutation resolver was bound');
+  });
+
+  t.test('wrap Subscription resolver object', (t) => {
+    t.plan(1);
+
+    const resolvers = {
+      Subscription: {
+        someSub: {
+          subscribe: () => { t.equal(this.id, undefined, 'subscription subscribe() resolver was not bound to the wrapResolvers input object containing an id field')}
+        }
+      }
+    };
+
+    const wrapped = wrapResolvers({ id: 1 }, resolvers);
+    // call the wrapped resolver result to assert this test case
+    wrapped.Subscription.someSub.subscribe();
   });
 
   t.test('wrap resolver mapped to primitive (enum remap)', (t) => {
