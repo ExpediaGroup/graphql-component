@@ -1,4 +1,6 @@
-### UNRELEASED v1.3.0 
+### UNRELEASED 
+
+### v1.3.0 
 
 - Resolver `memoize` key includes the `info.path.key` to keep different aliases from colliding
 - Imported resolvers will delegate to the imported component schema to which they belong.
