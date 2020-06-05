@@ -227,7 +227,7 @@ Test('transform', (t) => {
 Test('transform and proxyImportedResolvers=true', (t) => {
 
   t.test('exclude wildcard', (t) => {
-    t.plan(2);
+    t.plan(4);
 
     const imp = {
       _resolvers: {
@@ -251,6 +251,8 @@ Test('transform and proxyImportedResolvers=true', (t) => {
     const transformed = transformResolvers(imported, [['Mutation', '*']]);
     t.ok(transformed.Query.test.__isProxy, 'resolver is proxy');
     t.ok(transformed.Query.imported.__isProxy, 'transitive resolver is proxy');
+    t.ok(transformed.Query && transformed.Query.test, 'query present');
+    t.ok(!transformed.Mutation, 'mutation not present');
 
   });
 
@@ -259,7 +261,7 @@ Test('transform and proxyImportedResolvers=true', (t) => {
 Test('transform and proxyImportedResolvers=false', (t) => {
 
   t.test('exclude wildcard', (t) => {
-    t.plan(1);
+    t.plan(3);
 
     const imp = {
       _resolvers: {
@@ -282,6 +284,8 @@ Test('transform and proxyImportedResolvers=false', (t) => {
 
     const transformed = transformResolvers(imported, [['Mutation', '*']]);
     t.ok(!transformed.Query.test.__isProxy, 'resolver is not proxy');
+    t.ok(transformed.Query && transformed.Query.test, 'query present');
+    t.ok(!transformed.Mutation, 'mutation not present');
 
   });
 
