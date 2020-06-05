@@ -264,6 +264,73 @@ Test('transform', (t) => {
 
 });
 
+Test('transform and proxyImportedResolvers=true', (t) => {
+
+  t.test('exclude wildcard', (t) => {
+    t.plan(4);
+
+    const imp = {
+      _resolvers: {
+        Query: {
+          test() {
+            return true;
+          }
+        }
+      },
+      _importedResolvers: {
+        Query: {
+          imported() {
+            return true;
+          }
+        }
+      }
+    };
+
+    const imported = getImportedResolvers(imp, true);
+
+    const transformed = transformResolvers(imported, [['Mutation', '*']]);
+    t.ok(transformed.Query.test.__isProxy, 'resolver is proxy');
+    t.ok(transformed.Query.imported.__isProxy, 'transitive resolver is proxy');
+    t.ok(transformed.Query && transformed.Query.test, 'query present');
+    t.ok(!transformed.Mutation, 'mutation not present');
+
+  });
+
+});
+
+Test('transform and proxyImportedResolvers=false', (t) => {
+
+  t.test('exclude wildcard', (t) => {
+    t.plan(3);
+
+    const imp = {
+      _resolvers: {
+        Query: {
+          test() {
+            return true;
+          }
+        }
+      },
+      _importedResolvers: {
+        Query: {
+          imported() {
+            return true;
+          }
+        }
+      }
+    };
+
+    const imported = getImportedResolvers(imp, false);
+
+    const transformed = transformResolvers(imported, [['Mutation', '*']]);
+    t.ok(!transformed.Query.test.__isProxy, 'resolver is not proxy');
+    t.ok(transformed.Query && transformed.Query.test, 'query present');
+    t.ok(!transformed.Mutation, 'mutation not present');
+
+  });
+
+});
+
 Test('proxy resolvers', (t) => {
 
   t.test('get imported resolvers with proxy flag true', (t) => {
