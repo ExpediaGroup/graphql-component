@@ -1,21 +1,252 @@
 'use strict';
 
 const Test = require('tape');
+const { GraphQLScalarType } = require('graphql');
 const {
   memoize,
   transformResolvers,
   wrapResolvers,
   getImportedResolvers,
+  createProxyResolver,
   createProxyResolvers,
-  createProxyResolver 
 } = require('../lib/resolvers');
 
-Test('wrapping', (t) => {
+Test('memoize()', (t) => {
+  t.test('memoize() a resolver function', (st) => {
+    let resolverRunCount = 0;
 
-  t.test('wrap Query resolver function', (t) => {
+    const resolverToMemoize = function () {
+      resolverRunCount += 1;
+      return resolverRunCount;
+    };
 
-    t.plan(1);
+    const memoizedResolver = memoize('Query', 'test', resolverToMemoize);
 
+    const parent = {};
+    const args = {};
+    const context = {};
+
+    let callCount = memoizedResolver(parent, args, context);
+
+    st.equal(callCount, 1, 'first call of memoized resolver returns expected value');
+
+    callCount = memoizedResolver(parent, args, context);
+
+    st.equal(callCount, 1, 'second call of memoizedResolver function doesnt call underlying resolver');
+    st.end();
+  });
+
+  t.test('memoize() with different operation aliases', (st) => {
+    let resolverRunCount = 0;
+
+    const resolverToMemoize = function () {
+      resolverRunCount += 1;
+      return resolverRunCount;
+    };
+
+    const memoizedResolver = memoize('Query', 'test', resolverToMemoize);
+
+    const parent = {};
+    const args = {};
+    const context = {};
+    const infoWithAlias1 = { path: { key: 'alias1' } };
+    const infoWithAlias2 = { path: { key: 'alias2' } };
+
+    let callCount = memoizedResolver(parent, args, context, infoWithAlias1);
+
+    st.equal(callCount, 1, 'first call returns expected call count of 1');
+
+    callCount = memoizedResolver(parent, args, context, infoWithAlias2);
+
+    st.equal(callCount, 2, 'second call of same resolver with different alias results in cache miss and call count 2');
+    st.end();
+  });
+
+  t.test('memoize() with different context', (st) => {
+    let resolverRunCount = 0;
+
+    const resolverToMemoize = function () {
+      resolverRunCount += 1;
+      return resolverRunCount;
+    };
+
+    const memoizedResolver = memoize('Query', 'test', resolverToMemoize);
+
+    const parent = {};
+    const args = {};
+    let context = {};
+
+    let callCount = memoizedResolver(parent, args, context);
+
+    st.equal(callCount, 1, 'first call returns expected call count of 1');
+
+    callCount = memoizedResolver(parent, args, context);
+
+    st.equal(callCount, 1, 'second call with same context returns expected call count of 1');
+
+    // set context to a new reference
+    context = {};
+    callCount = memoizedResolver(parent, args, context);
+
+    st.equal(callCount, 2, 'third call with different context results in cache miss and expected call count 2');
+    st.end();
+  });
+
+  t.test('memoize() with different args', (st) => {
+    let resolverRunCount = 0;
+
+    const resolverToMemoize = function () {
+      resolverRunCount += 1;
+      return resolverRunCount;
+    };
+
+    const memoizedResolver = memoize('Query', 'test', resolverToMemoize);
+
+    const parent = {};
+    const args = {};
+    const context = {};
+
+    let callCount = memoizedResolver(parent, args, context);
+
+    st.equal(callCount, 1, 'first call returns expected call count of 1');
+
+    args.foo = 'bar';
+    callCount = memoizedResolver(parent, args, context);
+
+    st.equal(callCount, 2, 'second call with different args results in cache miss and expected call count 2');
+    st.end();
+  });
+});
+
+Test('transformResolvers()', (t) => {
+  t.test('exclusions argument is undefined', (st) => {
+    const resolvers = {
+      Query: {
+        foo() { }
+      }
+    }
+    const transformedResolvers = transformResolvers(resolvers);
+    st.equal(transformedResolvers, resolvers, 'object reference returned from transformResolvers is equal to input reference');
+    st.deepEqual(transformedResolvers, resolvers, 'object content returned from transformResolver is equal to input resolver object content');
+    st.end();
+  });
+
+  t.test('exclusions argument is an empty array', (st) => {
+    const resolvers = {
+      Query: {
+        foo() { }
+      }
+    }
+    const transformedResolvers = transformResolvers(resolvers, []);
+    st.equal(transformedResolvers, resolvers, 'object reference returned from transformResolvers is equal to input reference');
+    st.deepEqual(transformedResolvers, resolvers, 'object content returned from transformResolver is equal to input resolver object content');
+    st.end();
+  });
+
+  t.test(`exclude all types via '*'`, (st) => {
+    const resolvers = {
+      Query: {
+        foo() {}
+      },
+      Mutation: {
+        baz() {}
+      },
+      SomeType: {
+        bar() {}
+      }
+    };
+
+    const transformedResolvers = transformResolvers(resolvers, [['*']]);
+    st.deepEqual(transformedResolvers, {}, 'results in an empty resolver map being returned');
+    st.end();
+  });
+
+  t.test(`exclude a entire type by specifying 'Type' exclusion)`, (st) => {
+    const resolvers = {
+      Query: {
+        foo() {}
+      },
+      SomeType: {
+        bar() {}
+      }
+    };
+
+    const transformedResolvers = transformResolvers(resolvers, [['SomeType']]);
+    st.notOk(transformedResolvers.SomeType, 'entire specified type is excluded');
+    st.ok(transformedResolvers.Query.foo, 'other non-excluded type remains');
+    st.end();
+  });
+
+  t.test(`exclude an entire type by specifying 'Type.' exclusion`, (st) => {
+    const resolvers = {
+      Query: {
+        foo() {}
+      },
+      SomeType: {
+        bar() {}
+      }
+    };
+
+    const transformedResolvers = transformResolvers(resolvers, [['SomeType', '']]);
+    st.notOk(transformedResolvers.SomeType,'entire specified type is excluded');
+    st.ok(transformedResolvers.Query.foo, 'other non-excluded type remains');
+    st.end();
+  });
+
+  t.test(`exclude an entire type by specifying 'Type.*' exclusion`, (st) => {
+    const resolvers = {
+      Query: {
+        foo() {}
+      },
+      SomeType: {
+        bar() {}
+      }
+    };
+
+    const transformedResolvers = transformResolvers(resolvers, [['SomeType', '*']]);
+    st.notOk(transformedResolvers.SomeType, 'entire specified type is excluded');
+    st.ok(transformedResolvers.Query.foo, 'other non-excluded type remains');
+    st.end();
+  });
+
+  t.test(`exclude an individual field on a type`, (st) => {
+    const resolvers = {
+      Query: {
+        foo() {}
+      },
+      SomeType: {
+        bar() {},
+        a() {}
+      }
+    };
+
+    const transformedResolvers = transformResolvers(resolvers, [['SomeType', 'bar']]);
+    st.notOk(transformedResolvers.SomeType.bar, 'specified field on specified type is removed');
+    st.ok(transformedResolvers.SomeType.a, 'non-excluded field on specified type remains');
+    st.ok(transformedResolvers.Query.foo, 'non-exluded type remains');
+    st.end();
+  });
+
+  t.test('exclude all fields on a type via 1 by 1 exclusion', (st) => {
+    const resolvers = {
+      Query: {
+        foo() {}
+      },
+      SomeType: {
+        bar() {},
+        a() {}
+      }
+    };
+
+    const transformedResolvers = transformResolvers(resolvers, [['SomeType', 'bar'], ['SomeType', 'a']]);
+    st.notOk(transformedResolvers.SomeType, 'specified type is completely removed because all of its fields were removed');
+    st.ok(transformedResolvers.Query.foo, 'non-exluded type remains');
+    st.end();
+  })
+});
+
+Test('wrapResolvers()', (t) => {
+  t.test('wrap Query field resolver function', (st) => {
     const resolvers = {
       Query: {
         test() {
@@ -28,13 +259,11 @@ Test('wrapping', (t) => {
 
     const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query', path: { key: 'test' } });
 
-    t.equal(value, 1, 'Query resolver was bound');
+    st.equal(value, 1, 'Query field resolver is bound');
+    st.end();
   });
 
-  t.test('wrap Mutation resolver function', (t) => {
-
-    t.plan(1);
-
+  t.test('wrap Mutation field resolver function', (st) => {
     const resolvers = {
       Mutation: {
         test() {
@@ -44,18 +273,19 @@ Test('wrapping', (t) => {
     };
 
     const wrapped = wrapResolvers({ id: 1 }, resolvers);
+
     const value = wrapped.Mutation.test({}, {}, {}, { parentType: 'Mutation', path: { key: 'test' } });
 
-    t.equal(value, 1, 'Mutation resolver was bound');
+    st.equal(value, 1, 'Mutation field resolver is bound');
+    st.end();
   });
 
-  t.test('wrap Subscription resolver object', (t) => {
-    t.plan(1);
+  t.test('wrap Subscription field resolver object', (st) => {
 
     const resolvers = {
       Subscription: {
         someSub: {
-          subscribe: () => { t.equal(this.id, undefined, 'subscription subscribe() resolver was not bound to the wrapResolvers input object containing an id field')}
+          subscribe: () => { st.notOk(this.id, 'subscription subscribe() resolver was not bound')}
         }
       }
     };
@@ -63,11 +293,10 @@ Test('wrapping', (t) => {
     const wrapped = wrapResolvers({ id: 1 }, resolvers);
     // call the wrapped resolver result to assert this test case
     wrapped.Subscription.someSub.subscribe();
+    st.end();
   });
 
-  t.test('wrap resolver mapped to primitive (enum remap)', (t) => {
-    t.plan(1);
-
+  t.test('wrap an enum remap', (st) => {
     const resolvers = {
       FooBarEnumType: {
         FOO: 1,
@@ -76,200 +305,51 @@ Test('wrapping', (t) => {
     }
 
     const wrapped = wrapResolvers({id: 1}, resolvers);
-    t.equal(wrapped.FooBarEnumType.FOO, 1, 'primitive resolver mapping wraps without error and returns primitive')
+    st.equal(wrapped.FooBarEnumType.FOO, 1, 'enum remap runs through wrapResolvers() without error, left as is');
+    st.end();
   });
 
-  t.test('memoized resolvers', (t) => {
-
-    t.plan(2);
-
-    let ran = 0;
-
+  t.test('wrap non root type field resolver', (st) => {
     const resolvers = {
-      Query: {
+      SomeType: {
         test() {
-          ran += 1;
-          return ran;
+          return this.id;
         }
       }
     };
 
-    const wrapped = wrapResolvers(undefined, resolvers);
+    const wrapped = wrapResolvers({ id: 1 }, resolvers);
 
-    const ctx = {};
-    const info = { parentType: 'Query', path: { key: 'test' } };
+    const value = wrapped.SomeType.test({}, {}, {}, { parentType: 'SomeType', path: { key: 'test' } });
 
-    let value = wrapped.Query.test({}, {}, ctx, info);
-
-    t.equal(value, 1, 'expected value');
-
-    value = wrapped.Query.test({}, {}, ctx, info);
-
-    t.equal(value, 1, 'same value, only ran resolver once');
+    st.equal(value, 1, 'SomeType field resolver is bound');
+    st.end();
   });
 
-});
-
-Test('imports', (t) => {
-
-  t.test('get imported resolvers', (t) => {
-
-    t.plan(2);
-
-    const imp = {
-      _resolvers: {
-        Query: {
-          test() {
-            return true;
-          }
-        }
-      },
-      _importedResolvers: {
-        Query: {
-          imported() {
-            return true;
-          }
-        }
-      }
-    };
-
-    const imported = getImportedResolvers(imp);
-
-    t.ok(imported.Query.test, 'resolver present');
-    t.ok(imported.Query.imported, 'transitive resolver present');
-  });
-
-});
-
-Test('memoize resolver', (t) => {
-
-  t.test('memoized', (t) => {
-    t.plan(2);
-
-    let ran = 0;
-
-    const resolver = function () {
-      ran += 1;
-      return ran;
-    };
-
-    const wrapped = memoize('Query', 'test', resolver);
-
-    const ctx = {};
-
-    let value = wrapped({}, {}, ctx);
-
-    t.equal(value, 1, 'expected value');
-
-    value = wrapped({}, {}, ctx);
-
-    t.equal(value, 1, 'same value, only ran resolver once');
-  });
-
-  t.test('miss on different alias', (t) => {
-    t.plan(2);
-
-    let ran = 0;
-
-    const resolver = function () {
-      ran += 1;
-      return ran;
-    };
-
-    const wrapped = memoize('Query', 'test', resolver);
-
-    const ctx = {};
-
-    let value = wrapped({}, {}, ctx, { path: { key: 'alias1' }});
-
-    t.equal(value, 1, 'expected value');
-
-    value = wrapped({}, {}, ctx, { path: { key: 'alias2' }});
-
-    t.equal(value, 2, 'different value due to different alias');
-  });
-
-  t.test('miss on different context', (t) => {
-    t.plan(3);
-
-    let ran = 0;
-
-    const resolver = function () {
-      ran += 1;
-      return ran;
-    };
-
-    const wrapped = memoize('Query', 'test', resolver);
-
-    const ctx = {};
-
-    let value = wrapped({}, {}, ctx);
-
-    t.equal(value, 1, 'expected value');
-
-    value = wrapped({}, {}, ctx);
-
-    t.equal(value, 1, 'same value, only ran resolver once');
-
-    value = wrapped({}, {}, {});
-
-    t.equal(value, 2, 'different value, different context');
-  });
-
-  t.test('miss on different args', (t) => {
-    t.plan(2);
-
-    let ran = 0;
-
-    const resolver = function () {
-      ran += 1;
-      return ran;
-    };
-
-    const wrapped = memoize('Query', 'test', resolver);
-
-    const ctx = {};
-
-    let value = wrapped({}, { foo: 1 }, ctx);
-
-    t.equal(value, 1, 'expected value');
-
-    value = wrapped({}, { foo: 2 }, ctx);
-
-    t.equal(value, 2, 'different value');
-  });
-
-});
-
-Test('transform', (t) => {
-
-  t.test('exclude wildcard', (t) => {
-    t.plan(2);
-
+  t.test('wrap a custom GraphQLScalarType resolver', (st) => {
+    const CustomScalarType = new GraphQLScalarType({
+      name: 'CustomScalarType',
+      description: 'foo bar custom scalar type',
+      serialize() {},
+      parseValue() {},
+      parseLiteral() {}
+    })
     const resolvers = {
       Query: {
-        test: () => {}
+        foo() {}
       },
-      Mutation: {
-        test: () => {}
-      }
+      CustomScalarType
     };
-
-    const transformed = transformResolvers(resolvers, [['Mutation', '*']]);
-
-    t.ok(transformed.Query && transformed.Query.test, 'query present');
-    t.ok(!transformed.Mutation, 'mutation not present');
-
+    const wrapped = wrapResolvers({ id: 1}, resolvers);
+    st.equal(wrapped.CustomScalarType, CustomScalarType, 'wrapped reference is equal to original reference (returned as is)');
+    st.end();
   });
-
 });
 
-Test('transform and proxyImportedResolvers=true', (t) => {
-
-  t.test('exclude wildcard', (t) => {
-    t.plan(4);
-
-    const imp = {
+Test('getImportedResolvers()', (t) => {
+  t.test('import resolvers - proxy false', (st) => {
+    // create an object that has the fields that a GraphQLComponent instance would have
+    const importedComponentWhoHasImports = {
       _resolvers: {
         Query: {
           test() {
@@ -279,31 +359,27 @@ Test('transform and proxyImportedResolvers=true', (t) => {
       },
       _importedResolvers: {
         Query: {
-          imported() {
+          transitive() {
             return true;
           }
         }
       }
     };
 
-    const imported = getImportedResolvers(imp, true);
+    // imagine the closure this test creates is a parent component calling getImportedResolvers() on an imported component passed through its constructor
+    // _resolvers above would be the imported component's own resolvers
+    // _importedResolvers above would be the imported component's imported resolvers
+    const resolvers = getImportedResolvers(importedComponentWhoHasImports, false);
 
-    const transformed = transformResolvers(imported, [['Mutation', '*']]);
-    t.ok(transformed.Query.test.__isProxy, 'resolver is proxy');
-    t.ok(transformed.Query.imported.__isProxy, 'transitive resolver is proxy');
-    t.ok(transformed.Query && transformed.Query.test, 'query present');
-    t.ok(!transformed.Mutation, 'mutation not present');
-
+    st.ok(resolvers.Query.test(), `imported component's own resolver is present`);
+    st.notOk(resolvers.Query.test.__isProxy, `imported component's own resolver is not a proxy`)
+    st.ok(resolvers.Query.transitive(), `imported component's imported resolver (transitive resolver) is present`);
+    st.notOk(resolvers.Query.transitive.__isProxy, `imported component's imported resolver (transitive resolver) is not a proxy`);
+    st.end();
   });
 
-});
-
-Test('transform and proxyImportedResolvers=false', (t) => {
-
-  t.test('exclude wildcard', (t) => {
-    t.plan(3);
-
-    const imp = {
+  t.test('import resolvers - proxy true', (st) => {
+    const importedComponentWhoHasImports = {
       _resolvers: {
         Query: {
           test() {
@@ -313,88 +389,45 @@ Test('transform and proxyImportedResolvers=false', (t) => {
       },
       _importedResolvers: {
         Query: {
-          imported() {
+          transitive() {
             return true;
           }
         }
       }
     };
-
-    const imported = getImportedResolvers(imp, false);
-
-    const transformed = transformResolvers(imported, [['Mutation', '*']]);
-    t.ok(!transformed.Query.test.__isProxy, 'resolver is not proxy');
-    t.ok(transformed.Query && transformed.Query.test, 'query present');
-    t.ok(!transformed.Mutation, 'mutation not present');
-
+    // imagine the closure this test creates is a parent component calling getImportedResolvers() on an imported component passed through its constructor
+    // _resolvers above would be the imported component's own resolvers
+    // _importedResolvers above would be the imported component's imported resolvers
+    const resolvers = getImportedResolvers(importedComponentWhoHasImports, true);
+    st.ok(resolvers.Query.test, `imported component's own resolver is present`);
+    st.ok(resolvers.Query.test.__isProxy, `imported component's own resolver is not a proxy`)
+    st.ok(resolvers.Query.transitive, `imported component's imported resolver (transitive resolver) is present`);
+    st.ok(resolvers.Query.transitive.__isProxy, `imported component's imported resolver (transitive resolver) is a proxy`);
+    st.end();
   });
-
 });
 
-Test('proxy resolvers', (t) => {
+Test('createProxyResolver()', (t) => {
+  const resolver = createProxyResolver(undefined, 'Query', 'test');
+  t.strictEqual(resolver.__isProxy, true, 'function returned is a proxy');
+  t.end();
+});
 
-  t.test('get imported resolvers with proxy flag true', (t) => {
-
-    t.plan(2);
-
-    const imp = {
-      _resolvers: {
-        Query: {
-          test() {
-            return true;
-          }
-        }
+Test('createProxyResolvers()', (t) => {
+  t.test('resolver map passed to createProxyResolvers()', (st) => {
+    const resolvers = {
+      Query: {
+        foo() { }
       },
-      _importedResolvers: {
-        Query: {
-          imported() {
-            return true;
-          }
-        }
+      Foo: {
+        bar() { }
       }
     };
-
-    const imported = getImportedResolvers(imp, true);
-
-    t.ok(imported.Query.test.__isProxy, 'resolver is proxy');
-    t.ok(imported.Query.imported.__isProxy, 'transitive resolver is proxy');
+  
+    const proxiedResolvers = createProxyResolvers(undefined, resolvers);
+    st.ok(proxiedResolvers.Query.foo.__isProxy, 'root type field resolver is a proxy');
+    st.notOk(proxiedResolvers.Foo, `non root type isn't returned with proxied resolver map`);
+    st.end();
   });
-
-  t.test('get imported resolvers with proxy flag false', (t) => {
-
-    t.plan(1);
-
-    const imp = {
-      _resolvers: {
-        Query: {
-          test() {
-            return true;
-          }
-        }
-      }
-    };
-
-    const imported = getImportedResolvers(imp, false);
-
-    t.ok(!imported.Query.test.__isProxy, 'resolver is not proxy');
-  });
-
-  t.test('createProxyResolver', (t) => {
-    t.plan(1);
-
-    const resolver = createProxyResolver(undefined, 'Query', 'test');
-
-    t.strictEqual(resolver.__isProxy, true, 'function created is a proxy');
-  });
-
-  t.test('createProxyResolvers', (t) => {
-    t.plan(2);
-
-    const resolvers = createProxyResolvers(undefined, { Query: { test() {} }, Test: { field() {} } });
-
-    t.ok(resolvers.Query, 'included root resolvers');
-    t.ok(!resolvers.Test, 'did not include type resolvers');
-
-  });
-
 });
+
