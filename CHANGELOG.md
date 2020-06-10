@@ -1,10 +1,12 @@
-### UNRELEASED v1.3.0 
+### UNRELEASED 
+
+### v1.3.0
 
 - Resolver `memoize` key includes the `info.path.key` to keep different aliases from colliding
 - Imported resolvers will delegate to the imported component schema to which they belong.
 - Remove `this._context` as default value for context in `execute()` requiring `execute()` users to pass in context from a calling resolver.
 - Remove binding of `GraphQLComponent` class context to Subscription resolvers.
-- Fixed proxyImportedResolvers option to include exclude scenario
+- Apply proxyImportedResolvers regardless of how the way a component is imported and whether or not exclusions are provided. proxyImportedResolvers can still be turned off for an imported component if the component is passed via config object.
 
 ### v1.2.4
 
