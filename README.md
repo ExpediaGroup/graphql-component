@@ -111,7 +111,7 @@ Imports can be a configuration object supplying the following properties:
 
 - `component` - the component instance to import.
 - `exclude` - fields, if any, to exclude.
-- `proxyImportedResolvers` - enable disabling wrapping imported resolvers in proxy (defaults to `true`).
+- `proxyImportedResolvers` - enable/disable wrapping imported resolvers in a proxy (defaults to `true`).
 
 ### Exclude
 
