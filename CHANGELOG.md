@@ -1,4 +1,8 @@
-### UNRELEASED 
+### UNRELEASED
+
+### v1.3.1
+
+- Fixed exclude mapping in GraphQLComponent constructor - Array.map was erroniously changed to Array.filter
 
 ### v1.3.0
 
