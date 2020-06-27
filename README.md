@@ -37,7 +37,7 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `context` - an optional object { namespace, factory } for contributing to context.
   - `directives` - an optional object containing custom schema directives.
   - `useMocks` - enable mocks.
-  - `preserveResolvers` - dont replace provided atual resolvers with mocks (custom or default), enables mocking parts of a schema
+  - `preserveResolvers` - dont replace provided actual resolvers with mocks (custom or default), enables mocking parts of a schema
   - `mocks` - an optional object containing mock types.
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
