@@ -37,7 +37,7 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `context` - an optional object { namespace, factory } for contributing to context.
   - `directives` - an optional object containing custom schema directives.
   - `useMocks` - enable mocks.
-  - `preserveMockResolvers` - preserve type resolvers in mock mode.
+  - `preserveResolvers` - dont replace provided actual resolvers with mocks (custom or default), enables mocking parts of a schema
   - `mocks` - an optional object containing mock types.
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
@@ -47,7 +47,7 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `options` - additional options:
     - `subPath` - optional subPath to extract sub-query from
     - `contextValue` - the context (required).
-    - `info` - the info object (required).
+    - `info` - the info object from the calling resolver (required).
 
 A new GraphQLComponent instance has the following API:
 
