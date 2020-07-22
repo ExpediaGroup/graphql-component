@@ -8,3 +8,4 @@ azure-pipelines.yml
 .github
 .nycrc
 .dockerignore
+__tests__.js

@@ -37,18 +37,22 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `context` - an optional object { namespace, factory } for contributing to context.
   - `directives` - an optional object containing custom schema directives.
   - `useMocks` - enable mocks.
-  - `preserveMockResolvers` - preserve type resolvers in mock mode.
+  - `preserveResolvers` - dont replace provided actual resolvers with mocks (custom or default), enables mocking parts of a schema
   - `mocks` - an optional object containing mock types.
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
   - `federation` - enable building a federated schema (default: `false`).
+- `GraphQLComponent.delegateToComponent(component, options)` - helper for delegating a sub-query to another component
+  - `component` - the component to delegate to.
+  - `options` - additional options:
+    - `subPath` - optional subPath to extract sub-query from
+    - `contextValue` - the context (required).
+    - `info` - the info object from the calling resolver (required).
 
 A new GraphQLComponent instance has the following API:
 
 - `schema` - getter that returns an executable schema representing the entire component tree.
 - `context` - context function that build context for all components in the tree.
-- `schemaDirectives` - schema directives for the entire component tree.
-- `execute` - accepts a graphql query to execute agains `schema`.
 - `types` - this component's types.
 - `resolvers` - this component's resolvers.
 - `imports` - this component's imported components or a import configuration.
@@ -111,7 +115,6 @@ Imports can be a configuration object supplying the following properties:
 
 - `component` - the component instance to import.
 - `exclude` - fields, if any, to exclude.
-- `proxyImportedResolvers` - enable/disable wrapping imported resolvers in a proxy (defaults to `true`).
 
 ### Exclude
 
@@ -133,14 +136,6 @@ const { schema, context } = new GraphQLComponent({
 ```
 
 This will keep from leaking unintended surface area. But you can still delegate calls to the component's schema to enable it from the API you do expose.
-
-### proxyImportedResolvers
-
-When importing a component's resolvers, the default behavior is to replace the resolver with a function that executes a graphql query against the imported component for that field.
-
-This allows components to compose together without accidentally potentially re-running type resolvers.
-
-To disable this functionality (if you are never calling a sub-component's `execute` function), set to `false`.
 
 ### Data Source support
 
@@ -210,62 +205,6 @@ const { schema, context } = new GraphQLComponent({
 });
 ```
 
-### Directly executing components
-
-Components can be directly executed via the `execute` function. The `execute` function is basically a passthrough to `graphql.execute` and is mostly useful for components calling imported components and the like.
-
-The `execute` function will return an object representing the result of the call, and may contain errors as field values. These errors will be propagated to the errors list in the graphql response when the result is returned.
-
-For example, this allows one component to invoke another component and still get the benefits of that component's schema type resolvers and validation.
-
-`execute(input, options)` accepts an `input` string and an optional `options` object with the following fields:
-
-- `root` - root object.
-- `context` - context object value.
-- `variables` - key:value mapping of variables for the input.
-- `mergeErrors` - merge errors and data together.
-
-Returns an object containing `data` and `errors`. 
-
-If `mergeErrors: true`, returns an object containing the result and may contain errors on field values.
-
-The `execute` function also adds some helper fragments. For any type you query in a component, a helper fragment will exist to query all fields.
-
-Example extending `Property` to include a `reviews` field that delegates to another component:
-
-```javascript
-class PropertyComponentReviews extends GraphQLComponent {
-  constructor({ useMocks, preserveResolvers }) {
-    const propertyComponent = new PropertyComponent();
-    const reviewsComponent = new ReviewsComponent();
-
-    super ({
-      types: [
-        `type Property { reviews: [Review] }`
-      ],
-      resolvers: {
-        Property: {
-          async reviews(_, args, context) {
-            const { reviewsByPropertyId } = await reviewsComponent.execute(`query { reviewsByPropertyId(id: ${_.id}) { ...AllReview }}`, { context, mergeErrors: true });
-
-            return reviewsByPropertyId;
-          }
-        }
-      },
-      imports: [
-        propertyComponent,
-        {
-          component: reviewsComponent,
-          exclude: ['*'] //Exclude the imported component's API
-        }
-      ]
-    });
-  }
-}
-```
-
-For the `Review` type in the `reviewsComponent`, a helper fragment will exist as `AllReview` that provides all fields.
-
 ### Decorating the global context
 
 Example context argument:
@@ -295,8 +234,6 @@ context.use('transformRawRequest', ({ request }) => {
 
 Using `context` now in `apollo-server-hapi` for example, will transform the context to one similar to default `apollo-server`.
 
-### Mocks
+### Delegating sub-query to another component
 
-graphql-component accepts mocks in much the same way that Apollo does but with one difference.
-
-Instead of accepting a mocks object, it accepts `(importedMocks) => mocksObject` argument. This allows components to utilize the mocks from other imported components easily.
+TODO

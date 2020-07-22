@@ -1,4 +1,13 @@
-### UNRELEASED
+### UNRELEASED 2.x
+
+- [FIXED] Memoizing resolvers didn't take into account aliased requests
+- [CLEANUP] Refactor how imports are merged together to be optimized and only run when a schema is requested
+- [CLEANUP] Moved tests alongside source code
+- [BREAKING] removed fragment helpers
+- [BREAKING] `schemaDirectives` (which returned merged directives) removed from component api
+- [BREAKING] removed `proxyImportedResolvers` feature flag
+- [BREAKING] removed `execute`
+- [FEATURE] added a new feature for `delegateToComponent` to replace `execute`
 
 ### v1.3.1
 
@@ -6,7 +15,6 @@
 
 ### v1.3.0
 
-- Resolver `memoize` key includes the `info.path.key` to keep different aliases from colliding
 - Imported resolvers will delegate to the imported component schema to which they belong.
 - Remove `this._context` as default value for context in `execute()` requiring `execute()` users to pass in context from a calling resolver.
 - Remove binding of `GraphQLComponent` class context to Subscription resolvers.
