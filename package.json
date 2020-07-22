@@ -28,7 +28,7 @@
     "lodash.set": "^4.3.2"
   },
   "peerDependencies": {
-    "graphql": "^14"
+    "graphql": "^14.0.0"
   },
   "devDependencies": {
     "@apollo/gateway": "^0.10.8",

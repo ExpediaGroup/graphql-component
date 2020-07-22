@@ -9,12 +9,16 @@
 - [BREAKING] removed `execute`
 - [FEATURE] added a new feature for `delegateToComponent` to replace `execute`
 
+### v1.3.1
+
+- Fixed exclude mapping in GraphQLComponent constructor - Array.map was erroniously changed to Array.filter
+
 ### v1.3.0
 
 - Imported resolvers will delegate to the imported component schema to which they belong.
 - Remove `this._context` as default value for context in `execute()` requiring `execute()` users to pass in context from a calling resolver.
 - Remove binding of `GraphQLComponent` class context to Subscription resolvers.
-- Fixed proxyImportedResolvers option to include exclude scenario
+- Apply proxyImportedResolvers regardless of how the way a component is imported and whether or not exclusions are provided. proxyImportedResolvers can still be turned off for an imported component if the component is passed via config object.
 
 ### v1.2.4
 
