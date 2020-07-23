@@ -37,7 +37,7 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `context` - an optional object { namespace, factory } for contributing to context.
   - `directives` - an optional object containing custom schema directives.
   - `useMocks` - enable mocks.
-  - `preserveMockResolvers` - preserve type resolvers in mock mode.
+  - `preserveResolvers` - preserve type resolvers in mock mode.
   - `mocks` - an optional object containing mock types.
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
@@ -111,7 +111,6 @@ Imports can be a configuration object supplying the following properties:
 
 - `component` - the component instance to import.
 - `exclude` - fields, if any, to exclude.
-- `proxyImportedResolvers` - enable/disable wrapping imported resolvers in a proxy (defaults to `true`).
 
 ### Exclude
 
@@ -133,14 +132,6 @@ const { schema, context } = new GraphQLComponent({
 ```
 
 This will keep from leaking unintended surface area. But you can still delegate calls to the component's schema to enable it from the API you do expose.
-
-### proxyImportedResolvers
-
-When importing a component's resolvers, the default behavior is to replace the resolver with a function that executes a graphql query against the imported component for that field.
-
-This allows components to compose together without accidentally potentially re-running type resolvers.
-
-To disable this functionality (if you are never calling a sub-component's `execute` function), set to `false`.
 
 ### Data Source support
 
