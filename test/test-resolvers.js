@@ -4,12 +4,11 @@ const Test = require('tape');
 const { GraphQLScalarType } = require('graphql');
 const {
   memoize,
-  transformResolvers,
   wrapResolvers,
   getImportedResolvers,
   createProxyResolver,
-  createProxyResolvers,
 } = require('../lib/resolvers');
+const GraphQLComponent = require('../lib');
 
 Test('memoize()', (t) => {
   t.test('memoize() a resolver function', (st) => {
@@ -118,133 +117,6 @@ Test('memoize()', (t) => {
   });
 });
 
-Test('transformResolvers()', (t) => {
-  t.test('exclusions argument is undefined', (st) => {
-    const resolvers = {
-      Query: {
-        foo() { }
-      }
-    }
-    const transformedResolvers = transformResolvers(resolvers);
-    st.equal(transformedResolvers, resolvers, 'object reference returned from transformResolvers is equal to input reference');
-    st.deepEqual(transformedResolvers, resolvers, 'object content returned from transformResolver is equal to input resolver object content');
-    st.end();
-  });
-
-  t.test('exclusions argument is an empty array', (st) => {
-    const resolvers = {
-      Query: {
-        foo() { }
-      }
-    }
-    const transformedResolvers = transformResolvers(resolvers, []);
-    st.equal(transformedResolvers, resolvers, 'object reference returned from transformResolvers is equal to input reference');
-    st.deepEqual(transformedResolvers, resolvers, 'object content returned from transformResolver is equal to input resolver object content');
-    st.end();
-  });
-
-  t.test(`exclude all types via '*'`, (st) => {
-    const resolvers = {
-      Query: {
-        foo() {}
-      },
-      Mutation: {
-        baz() {}
-      },
-      SomeType: {
-        bar() {}
-      }
-    };
-
-    const transformedResolvers = transformResolvers(resolvers, [['*']]);
-    st.deepEqual(transformedResolvers, {}, 'results in an empty resolver map being returned');
-    st.end();
-  });
-
-  t.test(`exclude a entire type by specifying 'Type' exclusion)`, (st) => {
-    const resolvers = {
-      Query: {
-        foo() {}
-      },
-      SomeType: {
-        bar() {}
-      }
-    };
-
-    const transformedResolvers = transformResolvers(resolvers, [['SomeType']]);
-    st.notOk(transformedResolvers.SomeType, 'entire specified type is excluded');
-    st.ok(transformedResolvers.Query.foo, 'other non-excluded type remains');
-    st.end();
-  });
-
-  t.test(`exclude an entire type by specifying 'Type.' exclusion`, (st) => {
-    const resolvers = {
-      Query: {
-        foo() {}
-      },
-      SomeType: {
-        bar() {}
-      }
-    };
-
-    const transformedResolvers = transformResolvers(resolvers, [['SomeType', '']]);
-    st.notOk(transformedResolvers.SomeType,'entire specified type is excluded');
-    st.ok(transformedResolvers.Query.foo, 'other non-excluded type remains');
-    st.end();
-  });
-
-  t.test(`exclude an entire type by specifying 'Type.*' exclusion`, (st) => {
-    const resolvers = {
-      Query: {
-        foo() {}
-      },
-      SomeType: {
-        bar() {}
-      }
-    };
-
-    const transformedResolvers = transformResolvers(resolvers, [['SomeType', '*']]);
-    st.notOk(transformedResolvers.SomeType, 'entire specified type is excluded');
-    st.ok(transformedResolvers.Query.foo, 'other non-excluded type remains');
-    st.end();
-  });
-
-  t.test(`exclude an individual field on a type`, (st) => {
-    const resolvers = {
-      Query: {
-        foo() {}
-      },
-      SomeType: {
-        bar() {},
-        a() {}
-      }
-    };
-
-    const transformedResolvers = transformResolvers(resolvers, [['SomeType', 'bar']]);
-    st.notOk(transformedResolvers.SomeType.bar, 'specified field on specified type is removed');
-    st.ok(transformedResolvers.SomeType.a, 'non-excluded field on specified type remains');
-    st.ok(transformedResolvers.Query.foo, 'non-exluded type remains');
-    st.end();
-  });
-
-  t.test('exclude all fields on a type via 1 by 1 exclusion', (st) => {
-    const resolvers = {
-      Query: {
-        foo() {}
-      },
-      SomeType: {
-        bar() {},
-        a() {}
-      }
-    };
-
-    const transformedResolvers = transformResolvers(resolvers, [['SomeType', 'bar'], ['SomeType', 'a']]);
-    st.notOk(transformedResolvers.SomeType, 'specified type is completely removed because all of its fields were removed');
-    st.ok(transformedResolvers.Query.foo, 'non-exluded type remains');
-    st.end();
-  })
-});
-
 Test('wrapResolvers()', (t) => {
   t.test('wrap Query field resolver function', (st) => {
     const resolvers = {
@@ -347,87 +219,111 @@ Test('wrapResolvers()', (t) => {
 });
 
 Test('getImportedResolvers()', (t) => {
-  t.test('import resolvers - proxy false', (st) => {
-    // create an object that has the fields that a GraphQLComponent instance would have
-    const importedComponentWhoHasImports = {
-      _resolvers: {
-        Query: {
-          test() {
-            return true;
-          }
+  t.test(`import component's resolvers`, (st) => {
+    const component = new GraphQLComponent({
+      types: `
+        type Query {
+          someQuery: SomeType
         }
-      },
-      _importedResolvers: {
+
+        type SomeType {
+          someField: String
+        }
+      `,
+      resolvers: {
         Query: {
-          transitive() {
-            return true;
+          someQuery() {
+            return { someField: 'hello' }
           }
         }
       }
-    };
+    });
 
-    // imagine the closure this test creates is a parent component calling getImportedResolvers() on an imported component passed through its constructor
-    // _resolvers above would be the imported component's own resolvers
-    // _importedResolvers above would be the imported component's imported resolvers
-    const resolvers = getImportedResolvers(importedComponentWhoHasImports, false);
-
-    st.ok(resolvers.Query.test(), `imported component's own resolver is present`);
-    st.notOk(resolvers.Query.test.__isProxy, `imported component's own resolver is not a proxy`)
-    st.ok(resolvers.Query.transitive(), `imported component's imported resolver (transitive resolver) is present`);
-    st.notOk(resolvers.Query.transitive.__isProxy, `imported component's imported resolver (transitive resolver) is not a proxy`);
+    const importedResolvers = getImportedResolvers(component);
+    st.ok(importedResolvers.Query.someQuery.__isProxy, 'Query.someQuery is a proxy');
+    st.notOk(importedResolvers.SomeType, 'non-root type (SomeType) is not imported')
     st.end();
   });
 
-  t.test('import resolvers - proxy true', (st) => {
-    const importedComponentWhoHasImports = {
-      _resolvers: {
-        Query: {
-          test() {
-            return true;
-          }
+  t.test(`import component's resolvers with exclusion`, (st) => {
+    const component = new GraphQLComponent({
+      types: `
+        type Query {
+          someQuery: SomeType
+          someOtherQuery: String
         }
-      },
-      _importedResolvers: {
+
+        type SomeType {
+          someField: String
+        }
+      `,
+      resolvers: {
         Query: {
-          transitive() {
-            return true;
+          someQuery() {
+            return { someField: 'hello' }
+          },
+          someOtherQuery() {
+            return 'hello';
           }
         }
       }
-    };
-    // imagine the closure this test creates is a parent component calling getImportedResolvers() on an imported component passed through its constructor
-    // _resolvers above would be the imported component's own resolvers
-    // _importedResolvers above would be the imported component's imported resolvers
-    const resolvers = getImportedResolvers(importedComponentWhoHasImports, true);
-    st.ok(resolvers.Query.test, `imported component's own resolver is present`);
-    st.ok(resolvers.Query.test.__isProxy, `imported component's own resolver is not a proxy`)
-    st.ok(resolvers.Query.transitive, `imported component's imported resolver (transitive resolver) is present`);
-    st.ok(resolvers.Query.transitive.__isProxy, `imported component's imported resolver (transitive resolver) is a proxy`);
+    });
+
+    const importedResolvers = getImportedResolvers(component, ['Query.someOtherQuery']);
+    st.ok(importedResolvers.Query.someQuery.__isProxy, 'Query.someQuery is a proxy');
+    st.notOk(importedResolvers.Query.someOtherQuery, 'Query.someOtherQuery was excluded');
+    st.notOk(importedResolvers.SomeType, 'non-root type (SomeType) is not imported')
     st.end();
   });
-});
+
+  t.test(`import component's resolvers that contain an abstract type`, (st) => {
+    const component = new GraphQLComponent({
+      types: `
+        type Query {
+          thing: Thing
+        }
+
+        interface Thing {
+          id: ID
+        }
+
+        type A implements Thing {
+          id: ID
+          fieldForA: String
+        }
+
+        type B implements Thing {
+          id: ID
+          fieldForB: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          thing() {
+            return { id: '1', fieldForA: 'a', fieldForB: 'b'};
+          }
+        },
+        Thing: {
+          __resolveType(thing) {
+            if (thing.fieldForA) {
+              return 'A';
+            } else if (thing.fieldForB) {
+              return 'B';
+            }
+          }
+        }
+      }
+    });
+
+    const importedResolvers = getImportedResolvers(component);
+    st.ok(importedResolvers.Query.thing.__isProxy, 'Query.thing is a proxy');
+    st.ok(importedResolvers.Thing.__resolveType, '__resolveType was pulled up');
+    st.end();
+  });
+})
 
 Test('createProxyResolver()', (t) => {
   const resolver = createProxyResolver(undefined, 'Query', 'test');
   t.strictEqual(resolver.__isProxy, true, 'function returned is a proxy');
   t.end();
 });
-
-Test('createProxyResolvers()', (t) => {
-  t.test('resolver map passed to createProxyResolvers()', (st) => {
-    const resolvers = {
-      Query: {
-        foo() { }
-      },
-      Foo: {
-        bar() { }
-      }
-    };
-  
-    const proxiedResolvers = createProxyResolvers(undefined, resolvers);
-    st.ok(proxiedResolvers.Query.foo.__isProxy, 'root type field resolver is a proxy');
-    st.notOk(proxiedResolvers.Foo, `non root type isn't returned with proxied resolver map`);
-    st.end();
-  });
-});
-

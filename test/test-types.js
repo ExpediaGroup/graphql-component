@@ -87,7 +87,7 @@ Test('type utilities', (t) => {
       `]
     };
 
-    const types = Types.getImportedTypes({}, component, [['Query', 'b']]);
+    const types = Types.getImportedTypes({}, component, ['Query.b']);
     const schemaA = buildASTSchema(types[0]);
     t.ok(schemaA.getType('A').getFields().value, `the "A" type exists in component's schema`);
     t.ok(schemaA.getQueryType().getFields().a, `the "a" query exists in component's schema`);
@@ -114,7 +114,7 @@ Test('type utilities', (t) => {
       `]
     };
 
-    let types = Types.getImportedTypes({}, component, [['Query', 'a']]);
+    let types = Types.getImportedTypes({}, component, ['Query.a']);
     let schema = buildASTSchema(types[0]);
     t.ok(schema.getType('A').getFields().value, `the "A" type exists in component's schema`);
     t.notOk(schema.getQueryType().getFields().a, `the "a" query does not exist in component's schema`);
@@ -144,7 +144,7 @@ Test('type utilities', (t) => {
       `]
     };
 
-    const types = Types.getImportedTypes({}, component, [['*']]);
+    const types = Types.getImportedTypes({}, component, ['*']);
     const schema = buildASTSchema(types[0]);
     t.notOk(schema.getQueryType(), `the "Query" type does not exist in component's schema because all of it's fields were removed`);
     t.notOk(schema.getMutationType(), `the "Mutation" type does not exist in component's schema because all of its fields were removed`);
@@ -177,7 +177,7 @@ Test('type utilities', (t) => {
       `]
     };
 
-    const types = Types.getImportedTypes({}, component, [['Mutation', 'b1'], ['Query', 'b']]);
+    const types = Types.getImportedTypes({}, component, ['Mutation.b1', 'Query.b']);
     const schemaA = buildASTSchema(types[0]);
     t.ok(schemaA.getType('A').getFields().value, `the "A" type exists in component's schema`);
     t.ok(schemaA.getQueryType().getFields().a, `the "a" query exists in component's schema`);
