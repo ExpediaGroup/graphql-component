@@ -80,7 +80,6 @@ Test('parent pulls up and delegates to child query that throws error', async (t)
 });
 
 Test(`parent delegates to child's query that returns an abstract type`, async (t) => {
-  let childResolveTypeCallCount = 0;
   const child = new GraphQLComponent({
     types: `
       type Query {
@@ -118,7 +117,6 @@ Test(`parent delegates to child's query that returns an abstract type`, async (t
       },
       Item: {
         __resolveType(item) {
-          childResolveTypeCallCount = childResolveTypeCallCount + 1;
           if (item.title) {
             return 'Book'
           } else if (item.brand) {
@@ -136,17 +134,14 @@ Test(`parent delegates to child's query that returns an abstract type`, async (t
 
   const result = await parent.execute(`query { inventory { id, ... on Book { title }, ... on Laptop { brand } } }`);
   t.ok(parent._importedResolvers.Query.inventory.__isProxy, `parent's query resolver is a proxy`);
-  t.equals(childResolveTypeCallCount, 2, `child's resolveType function only called 2 times (1 per result item)`);
   t.deepEquals(result.data.inventory, [
     {
       id: '1',
-      title: 'Some book title',
-      __typename: 'Book'
+      title: 'Some book title'
     },
     {
       id: '2',
-      brand: 'Apple',
-      __typename: 'Laptop'
+      brand: 'Apple'
     }
   ], 'query resolved as expected');
   t.equals(result.errors.length, 0, 'no errors');
@@ -194,7 +189,7 @@ Test('parent delegates to child that results in non-root type resolver execution
   const result = await parent.execute(`query { child { childField1 childField2 }}`);
   t.ok(parent._importedResolvers.Query.child.__isProxy, `parent's query resolver is a proxy`);
   t.equals(childNonRootResolverCount, 1, `child's non root type resolver only called 1 time`);
-  t.deepEquals(result.data.child, { childField1: 'childField1', childField2: 'childField1-modified', __typename: 'Child'});
+  t.deepEquals(result.data.child, { childField1: 'childField1', childField2: 'childField1-modified' });
   t.equals(result.errors.length, 0, 'no errors');
   t.end();
 })
