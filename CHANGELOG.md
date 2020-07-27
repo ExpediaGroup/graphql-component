@@ -1,5 +1,5 @@
 ### UNRELEASED 2.x
-
+- [CLEANUP] additional refactoring of resolver importation
 - [FIXED] Memoizing resolvers didn't take into account aliased requests
 - [CLEANUP] Refactor how imports are merged together to be optimized and only run when a schema is requested
 - [CLEANUP] Moved tests alongside source code
