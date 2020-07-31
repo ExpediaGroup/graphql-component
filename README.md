@@ -234,6 +234,16 @@ context.use('transformRawRequest', ({ request }) => {
 
 Using `context` now in `apollo-server-hapi` for example, will transform the context to one similar to default `apollo-server`.
 
-### Delegating sub-query to another component
+### Delegating root-type operations to a component
+GraphQLComponent exposes a static function called `delegateToComponent` that provides functionality for delegating execution of a operation (ie. `query`, `mutation`) to a given component. In general, delegateToComponent is meant to be somewhat opinionated/restrictive in order to encourage more formal links or connections between types defined in seperate components. `delegateToComponent` can be called from a component's root or non-root type field resolvers.
 
-TODO
+#### static delegateToComponent(component, options) => delegated graphql execution result
+* component: the component to delegate execution to
+* options: an object whose properties facilitate delegation of a graphql operation to the input component
+  * `contextValue` (required): the `context` object from resolver that calls `delegateToComponent`
+  * `info` (required): the `info` object from the resolver that calls `delegateToComponent`
+  * `targetRootField` (`string`, optional): if the calling resolver's field name is different from the root field name on the delegatee, you can specify the desired root field on the delegatee that you want to execute
+  * `subPath` (`string`, optional): dot separated string designating a path into the incoming selection set that will limit the selection set in delegated operation
+
+
+
