@@ -1,4 +1,7 @@
 ### UNRELEASED 2.x
+- [DOCS] added basic documentation for `delegateToComponent`
+- [FEATURE] added `targetRootField` option to `delegateToComponent`
+- [CLEANUP] use fieldNodes to build sub-operation document in delegateToComponent such that the original operation document isn't unintentionally modified
 - [CLEANUP] additional refactoring of resolver importation
 - [FIXED] Memoizing resolvers didn't take into account aliased requests
 - [CLEANUP] Refactor how imports are merged together to be optimized and only run when a schema is requested
