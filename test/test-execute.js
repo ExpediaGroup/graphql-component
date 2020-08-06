@@ -13,6 +13,7 @@ Test('test component execute', (t) => {
     }
     type Query {
       book(id: ID!) : Book
+      bookNonNullable(id: ID!): Book!
     }
   `];
 
@@ -23,6 +24,9 @@ Test('test component execute', (t) => {
           id,
           title: 'Some Title'
         };
+      },
+      bookNonNullable() {
+        throw new Error('error from resolver with non-nullable return');
       }
     }
   };
@@ -116,6 +120,20 @@ Test('test component execute', (t) => {
     const result = await component.execute(query, { mergeErrors: true });
 
     t.deepEqual(result, { one: { title: 'Some Title' }, two: { id: '2', title: 'Some Title' } }, 'data returned');
+  });
+
+  t.test('execute error merged (non nullable return type)', async (t) => {
+    t.plan(1);
+    const query = `
+      query {
+        bookNonNullable(id: "1") {
+          title
+        }
+      }
+    `;
+    
+    const result = await component.execute(query, { mergeErrors: true });
+    t.ok(result.bookNonNullable instanceof Error, 'error set at path when graphql.execute returns completely null response');
   });
 
 });
