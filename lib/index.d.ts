@@ -34,5 +34,3 @@ export default class GraphQLComponent {
   readonly schemaDirectives: any;
   readonly dataSources: any[];
 }
-
-export default GraphQLComponent
