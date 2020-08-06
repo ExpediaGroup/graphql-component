@@ -14,17 +14,17 @@ interface ComponentOptions {
   federation?: boolean;
 }
 
-export declare class GraphQLComponent {
+export default class GraphQLComponent {
   constructor(options?: ComponentOptions);
   static isComponent(check: any): any;
   execute(input: any, { root, context, variables }?: {
     root?: any;
     context?: {};
     variables?: {};
-  }): Promise;
+  }): Promise<any>;
   readonly schema: any;
   readonly context: {
-    (arg: any): Promise;
+    (arg: any): Promise<any>;
     use(name: any, fn: any): void;
   };
   readonly types: any[];
