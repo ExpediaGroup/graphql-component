@@ -14,7 +14,7 @@ interface ComponentOptions {
   federation?: boolean;
 }
 
-declare class GraphQLComponent {
+export default class GraphQLComponent {
   constructor(options?: ComponentOptions);
   static isComponent(check: any): any;
   execute(input: any, { root, context, variables }?: {
