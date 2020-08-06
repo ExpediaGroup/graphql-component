@@ -1,5 +1,11 @@
 ### UNRELEASED
 
+### v1.3.2
+- Fixed index.d.ts to support ES6 syntax
+- Cleaned up import loop
+- Fixed `execute()` merge errors functionality when `graphql.execute()` returns a completely null value
+- Fixed proxying an imported root type resolver when the return type is abstract
+
 ### v1.3.1
 
 - Fixed exclude mapping in GraphQLComponent constructor - Array.map was erroniously changed to Array.filter
