@@ -42,12 +42,14 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
   - `federation` - enable building a federated schema (default: `false`).
-- `GraphQLComponent.delegateToComponent(component, options)` - helper for delegating a sub-query to another component
-  - `component` - the component to delegate to.
-  - `options` - additional options:
-    - `subPath` - optional subPath to extract sub-query from
-    - `contextValue` - the context (required).
-    - `info` - the info object from the calling resolver (required).
+- `GraphQLComponent.delegateToComponent(component, options)` - helper for delegating an operation to another component's schema and returning the GraphQL result. When called from a resolver, this function will examine the passed `info` object and will automatically forward the remaining operation selection set (or a limited subset of the selection set) to a root type field in the input component's schema.
+  - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
+  - `options` (`Object`)
+    - `contextValue` (required) - the `context` object from resolver that calls `delegateToComponent`
+    - `info` (required) - the `info` object from the resolver that calls `delegateToComponent`
+    - `targetRootField` (`string`, optional) - if the calling resolver's field name is different from the root field name on the delegatee, you can specify the desired root field on the delegatee that you want to execute
+    - `subPath` (`string`, optional)- a dot separated path into the incoming selection set (from the calling resolver) that represents the root of the delegated selection set (limits delegated selection set)
+    - `args` (`object`, optional) -  an object literal whose keys/values are passed as args to the delegatee's target field resolver. By default, the resolver's args from which `delegateToComponent` is called will be passed if the target field has an argument of the same name. Otherwise, arguments passed via the `args` object will override the calling resolver's args of the same name.
 
 A new GraphQLComponent instance has the following API:
 
@@ -233,17 +235,3 @@ context.use('transformRawRequest', ({ request }) => {
 ```
 
 Using `context` now in `apollo-server-hapi` for example, will transform the context to one similar to default `apollo-server`.
-
-### Delegating root-type operations to a component
-GraphQLComponent exposes a static function called `delegateToComponent` that provides functionality for delegating execution of a operation (ie. `query`, `mutation`) to a given component. In general, delegateToComponent is meant to be somewhat opinionated/restrictive in order to encourage more formal links or connections between types defined in seperate components. `delegateToComponent` can be called from a component's root or non-root type field resolvers.
-
-#### static delegateToComponent(component, options) => delegated graphql execution result
-* component: the component to delegate execution to
-* options: an object whose properties facilitate delegation of a graphql operation to the input component
-  * `contextValue` (required): the `context` object from resolver that calls `delegateToComponent`
-  * `info` (required): the `info` object from the resolver that calls `delegateToComponent`
-  * `targetRootField` (`string`, optional): if the calling resolver's field name is different from the root field name on the delegatee, you can specify the desired root field on the delegatee that you want to execute
-  * `subPath` (`string`, optional): dot separated string designating a path into the incoming selection set that will limit the selection set in delegated operation
-
-
-
