@@ -50,6 +50,77 @@ Test('automatic imported root resolver delegation', async (t) => {
   t.notOk(errors, 'no errors');
 });
 
+Test('subscription delegation', async (t) => {
+  const component = new GraphQLComponent({
+    imports: [
+      new GraphQLComponent({
+        types: [
+          `
+            type Post {
+              id: ID
+              content: String
+            }
+
+            type Query {
+              postById(id: ID): Post
+            }
+
+            type Subscription {
+              postAdded: Post
+            }
+          `
+        ],
+        resolvers: {
+          Query: {
+            postById() {
+              return { id: 1, content: 'hello' };
+            }
+          },
+          Subscription: {
+            postAdded: {
+              subscribe() {
+                return {
+                  [Symbol.asyncIterator]() {
+                    return {
+                      async next() {
+                        return { done: false, value: { postAdded: { id: 2, content: 'foobar'}}};
+                      }
+                    };
+                  }
+                }
+              }
+            }
+          }
+        }
+      })
+    ]
+  });
+
+  const document = gql`
+    subscription {
+      postAdded {
+        id
+        content
+      }
+    }
+  `
+  // graphql.subscribe would ultimately be called by servers such as Apollo Server instead of graphql.execute
+  const result = await graphql.subscribe({
+    document,
+    schema: component.schema,
+    rootValue: undefined,
+    contextValue: {}
+  });
+
+  // simulate pulling from the async iterator (normally this would be triggered by pubsub)
+  for await (const res of result) {
+    t.deepEquals(res.data, { postAdded: { id: '2', content: 'foobar' }}, 'subscription result resolved');
+    // prevent infinite loop since the source of async iterator never returns a { done: true, value: undefined }
+    break;
+  }
+  t.end();
+});
+
 Test('automatic imported root resolver delegation with errors', async (t) => {
 
   t.plan(4);
