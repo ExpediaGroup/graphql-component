@@ -1,4 +1,6 @@
 ### UNRELEASED 2.x
+- [FEATURE] args can be overridden/passed via `delegateToComponent`
+- [FIXED] delegation for subscription operations
 - [DOCS] added basic documentation for `delegateToComponent`
 - [FEATURE] added `targetRootField` option to `delegateToComponent`
 - [CLEANUP] use fieldNodes to build sub-operation document in delegateToComponent such that the original operation document isn't unintentionally modified
