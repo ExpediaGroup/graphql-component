@@ -1,4 +1,5 @@
-### UNRELEASED
+### v1.3.3
+- Fixed delegation for subscription operations
 
 ### v1.3.2
 - Fixed index.d.ts to properly support ES6 syntax
