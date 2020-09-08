@@ -194,6 +194,75 @@ Test('automatic imported root resolver delegation with errors', async (t) => {
   t.equal(errorResult.errors[0].message, 'error', 'error propagated properly');
 });
 
+Test('merging errors: correct error message is surfaced in non-nullable situations regardless of order of fields requested', async (t) => {
+  const component = new GraphQLComponent({
+    imports: [
+      new GraphQLComponent({
+        types: `
+          type Query {
+            foo: Foo
+          }
+
+          type Foo {
+            a: String!
+            b: String!
+            c: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo() {
+              return {
+                a: 'bar',
+                b: null,
+                c: 'baz'
+              }
+            }
+          }
+        }
+      })
+    ]
+  });
+
+  const documentABC = gql`
+    query {
+      foo {
+        a
+        b
+        c
+      }
+    }
+  `;
+
+  const result1 = await graphql.execute({
+    document: documentABC,
+    schema: component.schema,
+    rootValue: undefined,
+    contextValue: {}
+  });
+  t.equals(result1.errors.length, 1, '1 error is returned in first request');
+  t.equals(result1.errors[0].message, 'Cannot return null for non-nullable field Foo.b.', 'expected error message related to Foo.b being non-nullable is returned in first request with field order a,b,c');
+
+  const documentBCA = gql`
+    query {
+      foo {
+        b
+        c
+        a
+      }
+    }
+  `
+  const result2 = await graphql.execute({
+    document: documentBCA,
+    schema: component.schema,
+    rootValue: undefined,
+    contextValue: {}
+  });
+  t.equals(result2.errors.length, 1, '1 error is returned in second request');
+  t.equals(result2.errors[0].message, 'Cannot return null for non-nullable field Foo.b.', 'expected error message related to Foo.b being non-nullable is returned in second request with field order b,c,a');
+  t.end();
+})
+
 Test('automatic imported root resolver delegation with errors (return type not nullable)', async (t) => {
 
   t.plan(2);
