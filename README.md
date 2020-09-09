@@ -111,7 +111,6 @@ Imports can be a configuration object supplying the following properties:
 
 - `component` - the component instance to import.
 - `exclude` - fields, if any, to exclude.
-- `proxyImportedResolvers` - enable/disable wrapping imported resolvers in a proxy (defaults to `true`).
 
 ### Exclude
 
@@ -133,14 +132,6 @@ const { schema, context } = new GraphQLComponent({
 ```
 
 This will keep from leaking unintended surface area. But you can still delegate calls to the component's schema to enable it from the API you do expose.
-
-### proxyImportedResolvers
-
-When importing a component's resolvers, the default behavior is to replace the resolver with a function that executes a graphql query against the imported component for that field.
-
-This allows components to compose together without accidentally potentially re-running type resolvers.
-
-To disable this functionality (if you are never calling a sub-component's `execute` function), set to `false`.
 
 ### Data Source support
 
@@ -230,6 +221,8 @@ Returns an object containing `data` and `errors`.
 If `mergeErrors: true`, returns an object containing the result and may contain errors on field values.
 
 The `execute` function also adds some helper fragments. For any type you query in a component, a helper fragment will exist to query all fields.
+
+**NOTE**: If any field in the selection set passed to `execute()` is an abstract type, `__typename` must be included in that field's selection set, otherwise an unresolved abstract type error will be encountered. The `__typename` selection will not be visible to your callers/requesters unless they explicitly request it.
 
 Example extending `Property` to include a `reviews` field that delegates to another component:
 

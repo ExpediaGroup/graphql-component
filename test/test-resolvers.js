@@ -5,10 +5,11 @@ const { GraphQLScalarType } = require('graphql');
 const GraphQLComponent = require('../lib/index');
 const {
   memoize,
-  wrapResolvers,
+  bindResolvers,
   getImportedResolvers,
-  createProxyResolver,
 } = require('../lib/resolvers');
+const gql = require('graphql-tag');
+const graphql = require('graphql');
 
 Test('memoize()', (t) => {
   t.test('memoize() a resolver function', (st) => {
@@ -117,8 +118,8 @@ Test('memoize()', (t) => {
   });
 });
 
-Test('wrapResolvers()', (t) => {
-  t.test('wrap Query field resolver function', (st) => {
+Test('bindResolvers()', (t) => {
+  t.test('bind Query field resolver function', (st) => {
     const resolvers = {
       Query: {
         test() {
@@ -127,15 +128,15 @@ Test('wrapResolvers()', (t) => {
       }
     };
 
-    const wrapped = wrapResolvers({ id: 1 }, resolvers);
+    const bound = bindResolvers({ id: 1 }, resolvers);
 
-    const value = wrapped.Query.test({}, {}, {}, { parentType: 'Query', path: { key: 'test' } });
+    const value = bound.Query.test({}, {}, {}, { parentType: 'Query', path: { key: 'test' } });
 
     st.equal(value, 1, 'Query field resolver is bound');
     st.end();
   });
 
-  t.test('wrap Mutation field resolver function', (st) => {
+  t.test('bind Mutation field resolver function', (st) => {
     const resolvers = {
       Mutation: {
         test() {
@@ -144,15 +145,15 @@ Test('wrapResolvers()', (t) => {
       }
     };
 
-    const wrapped = wrapResolvers({ id: 1 }, resolvers);
+    const bound = bindResolvers({ id: 1 }, resolvers);
 
-    const value = wrapped.Mutation.test({}, {}, {}, { parentType: 'Mutation', path: { key: 'test' } });
+    const value = bound.Mutation.test({}, {}, {}, { parentType: 'Mutation', path: { key: 'test' } });
 
     st.equal(value, 1, 'Mutation field resolver is bound');
     st.end();
   });
 
-  t.test('wrap Subscription field resolver object', (st) => {
+  t.test('bind Subscription field resolver object', (st) => {
 
     const resolvers = {
       Subscription: {
@@ -162,13 +163,13 @@ Test('wrapResolvers()', (t) => {
       }
     };
 
-    const wrapped = wrapResolvers({ id: 1 }, resolvers);
-    // call the wrapped resolver result to assert this test case
-    wrapped.Subscription.someSub.subscribe();
+    const bound = bindResolvers({ id: 1 }, resolvers);
+    // call the bound resolver result to assert this test case
+    bound.Subscription.someSub.subscribe();
     st.end();
   });
 
-  t.test('wrap an enum remap', (st) => {
+  t.test('bind an enum remap', (st) => {
     const resolvers = {
       FooBarEnumType: {
         FOO: 1,
@@ -176,12 +177,12 @@ Test('wrapResolvers()', (t) => {
       }
     }
 
-    const wrapped = wrapResolvers({id: 1}, resolvers);
-    st.equal(wrapped.FooBarEnumType.FOO, 1, 'enum remap runs through wrapResolvers() without error, left as is');
+    const bound = bindResolvers({id: 1}, resolvers);
+    st.equal(bound.FooBarEnumType.FOO, 1, 'enum remap runs through bindResolvers() without error, left as is');
     st.end();
   });
 
-  t.test('wrap non root type field resolver', (st) => {
+  t.test('bind non root type field resolver', (st) => {
     const resolvers = {
       SomeType: {
         test() {
@@ -190,15 +191,15 @@ Test('wrapResolvers()', (t) => {
       }
     };
 
-    const wrapped = wrapResolvers({ id: 1 }, resolvers);
+    const bound = bindResolvers({ id: 1 }, resolvers);
 
-    const value = wrapped.SomeType.test({}, {}, {}, { parentType: 'SomeType', path: { key: 'test' } });
+    const value = bound.SomeType.test({}, {}, {}, { parentType: 'SomeType', path: { key: 'test' } });
 
     st.equal(value, 1, 'SomeType field resolver is bound');
     st.end();
   });
 
-  t.test('wrap a custom GraphQLScalarType resolver', (st) => {
+  t.test('bind a custom GraphQLScalarType resolver', (st) => {
     const CustomScalarType = new GraphQLScalarType({
       name: 'CustomScalarType',
       description: 'foo bar custom scalar type',
@@ -212,14 +213,14 @@ Test('wrapResolvers()', (t) => {
       },
       CustomScalarType
     };
-    const wrapped = wrapResolvers({ id: 1}, resolvers);
-    st.equal(wrapped.CustomScalarType, CustomScalarType, 'wrapped reference is equal to original reference (returned as is)');
+    const bound = bindResolvers({ id: 1}, resolvers);
+    st.equal(bound.CustomScalarType, CustomScalarType, 'bound reference is equal to original reference (returned as is)');
     st.end();
   });
 });
 
 Test('getImportedResolvers()', (t) => {
-  t.test(`import component's resolvers, no exclusion, no proxy`, (st) => {
+  t.test(`import component's resolvers, no exclusion`, (st) => {
     const component = new GraphQLComponent({
       types: `
         type Query {
@@ -242,13 +243,13 @@ Test('getImportedResolvers()', (t) => {
       }
     });
 
-    const importedResolvers = getImportedResolvers(component, [], false);
+    const importedResolvers = getImportedResolvers(component, []);
     st.notOk(importedResolvers.Query.someQuery.__isProxy, 'Query.someQuery is imported and not a proxy');
     st.ok(importedResolvers.SomeType.anotherField, 'non-root type resolver is imported');
     st.end();
   });
 
-  t.test(`import component's resolvers with explicit exclusion, no proxy`, (st) => {
+  t.test(`import component's resolvers with explicit exclusion`, (st) => {
     const component = new GraphQLComponent({
       types: `
         type Query {
@@ -275,14 +276,13 @@ Test('getImportedResolvers()', (t) => {
       }
     });
 
-    const importedResolvers = getImportedResolvers(component, ['Query.someOtherQuery'], false);
-    st.notOk(importedResolvers.Query.someQuery.__isProxy, 'Query.someQuery is imported and not a proxy');
+    const importedResolvers = getImportedResolvers(component, ['Query.someOtherQuery']);
     st.notOk(importedResolvers.Query.someOtherQuery, 'Query.someOtherQuery was excluded');
     st.ok(importedResolvers.SomeType.anotherField, 'non-root type resolver is imported');
     st.end();
   });
 
-  t.test(`import component's resolvers with wild card exclusion, no proxy`, (st) => {
+  t.test(`import component's resolvers with wild card exclusion`, (st) => {
     const component = new GraphQLComponent({
       types: `
         type Query {
@@ -309,75 +309,9 @@ Test('getImportedResolvers()', (t) => {
       }
     });
 
-    const importedResolvers = getImportedResolvers(component, ['Query.*'], false);
+    const importedResolvers = getImportedResolvers(component, ['Query.*']);
     st.notOk(importedResolvers.Query, 'no Query type resolvers were imported');
     st.ok(importedResolvers.SomeType.anotherField, 'non-root type resolver is imported');
     st.end();
   });
-
-  t.test(`import component's resolvers, no exclusion, proxy = true`, (st) => {
-    const component = new GraphQLComponent({
-      types: `
-        type Query {
-          someQuery: SomeType
-        }
-        type SomeType {
-          someField: String
-        }
-      `,
-      resolvers: {
-        Query: {
-          someQuery() {
-            return { someField: 'hello' }
-          }
-        }
-      }
-    });
-
-    const importedResolvers = getImportedResolvers(component, [], true);
-    st.ok(importedResolvers.Query.someQuery.__isProxy, 'Query.someQuery is imported and is proxy');
-    st.notOk(importedResolvers.SomeType, 'non-root type resolver is not imported')
-    st.end();
-  });
-
-  t.test(`import component's resolvers with explicit exclusion, proxy = true`, (st) => {
-    const component = new GraphQLComponent({
-      types: `
-        type Query {
-          someQuery: SomeType
-          someOtherQuery: String
-        }
-        type SomeType {
-          someField: String
-          anotherField: String
-        }
-      `,
-      resolvers: {
-        Query: {
-          someQuery() {
-            return { someField: 'hello' }
-          },
-          someOtherQuery() {
-            return 'hello';
-          }
-        },
-        SomeType: {
-          anotherField() { return 'anotherField' }
-        }
-      }
-    });
-
-    const importedResolvers = getImportedResolvers(component, ['Query.someOtherQuery'], true);
-    st.ok(importedResolvers.Query.someQuery.__isProxy, 'Query.someQuery is imported and is proxy');
-    st.notOk(importedResolvers.Query.someOtherQuery, 'Query.someOtherQuery was excluded');
-    st.notOk(importedResolvers.SomeType, 'non-root type resolver is not imported');
-    st.end();
-  });
 });
-
-Test('createProxyResolver()', (t) => {
-  const resolver = createProxyResolver(undefined, 'Query', 'test');
-  t.strictEqual(resolver.__isProxy, true, 'function returned is a proxy');
-  t.end();
-});
-
