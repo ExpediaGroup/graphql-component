@@ -3,6 +3,7 @@
 const Test = require('tape');
 const GraphQLComponent = require('../lib/index');
 const gql = require('graphql-tag');
+const graphql = require('graphql');
 
 Test('test component execute', (t) => {
 
@@ -102,6 +103,114 @@ Test('test component execute', (t) => {
     t.ok(result.book instanceof Error, 'error');
   });
 
+  t.test('execute error merged (non nullable return type)', async (t) => {
+    t.plan(1);
+    const query = `
+      query {
+        bookNonNullable(id: "1") {
+          title
+        }
+      }
+    `;
+    
+    const result = await component.execute(query, { mergeErrors: true });
+    t.ok(result.bookNonNullable instanceof Error, 'error set at path when graphql.execute returns completely null response');
+  });
+
+  t.test('execute error merged regardless of selection set order', async (t) => {
+    const composite = new GraphQLComponent({
+      types: `
+        type Query {
+          bar: Foo
+        }
+  
+        type Foo {
+          c: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          async bar() {
+            const query = `
+              query {
+                foo {
+                  a
+                  b
+                }
+              }
+            `
+            const result = await composite.execute(query, { mergeErrors: true });
+            return result.foo;
+          }
+        },
+        Foo: {
+          c() {
+            return 'c';
+          }
+        }
+      },
+      imports: [new GraphQLComponent({
+        types: `
+          type Query {
+            foo: Foo
+          }
+  
+          type Foo {
+            a: String!
+            b: String!
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo() {
+              return { a: 'a', b: null };
+            }
+          }
+        }
+      })],
+    });
+  
+    const documentABC = gql`
+      query {
+        bar {
+          a
+          b
+          c
+        }
+      }
+    `;
+  
+    const result1 = await graphql.execute({
+      document: documentABC,
+      schema: composite.schema,
+      contextValue: {}
+    });
+    t.deepEqual(result1.data, { bar: null }, 'data is resolved as expected');
+    t.equals(result1.errors.length, 1, '1 error returned');
+    t.equals(result1.errors[0].message, 'Cannot return null for non-nullable field Foo.b.', 'error returned related to non-nullable field Foo.b with selection set order a,b,c');
+  
+    const documentCBA = gql`
+      query {
+        bar {
+          c
+          b
+          a
+        }
+      }
+    `; 
+  
+    const result2 = await graphql.execute({
+      document: documentCBA,
+      schema: composite.schema,
+      contextValue: {}
+    });
+  
+    t.deepEqual(result2.data, { bar: null }, 'data is resolved as expected');
+    t.equals(result2.errors.length, 1, '1 error returned');
+    t.equals(result2.errors[0].message, 'Cannot return null for non-nullable field Foo.b.', 'error returned related to non-nullable field Foo.b with selection set order c, b, a');
+    t.end();
+  })
+
   t.test('execute multiple query', async (t) => {
     t.plan(1);
 
@@ -122,18 +231,160 @@ Test('test component execute', (t) => {
     t.deepEqual(result, { one: { title: 'Some Title' }, two: { id: '2', title: 'Some Title' } }, 'data returned');
   });
 
-  t.test('execute error merged (non nullable return type)', async (t) => {
-    t.plan(1);
-    const query = `
+  t.test('integration - wrapNonRootTypeResolvers - non root resolver only called 1 time in import', async (t) => {
+    let nonRootResolverCount = 0;
+    const component = new GraphQLComponent({
+      imports: [
+        new GraphQLComponent({
+          types: `
+            type Query {
+              foo: Foo
+            }
+  
+            type Foo {
+              a: String
+              b: Int
+            }
+          `,
+          resolvers: {
+            Query: {
+              foo() {
+                return { a: 'hello' }
+              }
+            },
+            Foo: {
+              b() {
+                nonRootResolverCount += 1;
+                return 10;
+              }
+            }
+          }
+        })
+      ]
+    });
+  
+    const document = gql`
       query {
-        bookNonNullable(id: "1") {
-          title
+        foo {
+          a
+          b
         }
       }
     `;
-    
-    const result = await component.execute(query, { mergeErrors: true });
-    t.ok(result.bookNonNullable instanceof Error, 'error set at path when graphql.execute returns completely null response');
+  
+    const { data, errors } = await graphql.execute({
+      document,
+      schema: component.schema,
+      contextValue: {}
+    });
+    t.deepEquals(data, { foo: { a: 'hello', b: 10 }}, 'expected response');
+    t.notOk(errors, 'no errors');
+    t.equals(nonRootResolverCount, 1, 'non root resolver called 1 time');
+    t.end();
   });
 
+  t.test('integration - wrapNonRootTypeResolvers - interfaces resolved in import', async (t) => {
+    let resolveTypeCount = 0;
+    let nonRootResolverCount = 0;
+    const component = new GraphQLComponent({
+      types: `
+        type Query {
+          foo: IBar
+        }
+      `,
+      resolvers: {
+        Query: {
+          async foo() {
+            // __typename needs to be in the execute() call selection set
+            // this will be documented
+            const query = `
+              query {
+                bar {
+                  __typename
+                  a
+                  ... on Bar {
+                    bar
+                  }
+                }
+              }
+            `;
+            const result = await component.execute(query, { mergeErrors: true });
+            return result.bar;
+          }
+        }
+      },
+      imports: [
+        new GraphQLComponent({
+          types: `
+            type Query {
+              bar: IBar
+            }
+  
+            interface IBar {
+              a: String
+            }
+  
+            type Bar implements IBar {
+              a: String
+              bar: Int
+            }
+  
+            type Baz implements IBar {
+              a: String
+              baz: Int
+            }
+          `,
+          resolvers: {
+            Query: {
+              bar() {
+                return { a: 'hello', bar: 1 }
+              }
+            },
+            IBar: {
+              __resolveType(data) {
+                resolveTypeCount += 1;
+                if (data.bar) {
+                  return 'Bar';
+                }
+                return 'Baz'
+              }
+            },
+            Bar: {
+              bar() {
+                nonRootResolverCount += 1;
+                return 10;
+              }
+            }
+          }
+        })
+      ]
+    });
+  
+    const document = gql`
+      query {
+        foo {
+          a
+          ... on Bar {
+            bar
+          }
+        }
+      }
+    `;
+  
+    const { data, errors } = await graphql.execute({
+      document,
+      schema: component.schema,
+      contextValue: {}
+    });
+    t.deepEquals(data, { foo: { a: 'hello', bar: 10 }}, 'expected response');
+    t.notOk(errors, 'no errors');
+    t.equals(resolveTypeCount, 1, '__resolveType called 1 time');
+    t.equals(nonRootResolverCount, 1, 'non root resolver called 1 time');
+    t.end();
+  });
 });
+
+
+
+
+
