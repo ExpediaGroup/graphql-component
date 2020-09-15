@@ -315,3 +315,54 @@ Test('getImportedResolvers()', (t) => {
     st.end();
   });
 });
+
+Test('integration - importing resolvers properly handles enum remaps', async (t) => {
+  const component = new GraphQLComponent({
+    imports: [new GraphQLComponent({
+      types: `
+        type Query {
+          foo: Foo
+        }
+        
+        type Foo {
+          id: ID
+          bar: Bar
+        }
+
+        enum Bar {
+          GOOD
+          BAD
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo() {
+            return { id: 1, bar: 'good' }
+          }
+        },
+        Bar: {
+          GOOD: 'good',
+          BAD: 'bad'
+        }
+      }
+    })]
+  });
+
+  const document = gql`
+    query {
+      foo {
+        id
+        bar
+      }
+    }
+  `
+
+  const { data, errors } = graphql.execute({
+    document,
+    schema: component.schema,
+    contextValue: {}
+  });
+  t.deepEqual(data, { foo: { id: '1', bar: 'GOOD'} }, 'schema with enum remap is resolved as expected');
+  t.notOk(errors, 'no errors');
+  t.end();
+});
