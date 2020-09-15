@@ -1,3 +1,6 @@
+### v1.3.5
+- Fixed handling of enum remapping resolvers introduced by changes in v1.3.4 around removal of proxy resolvers
+
 ### v1.3.4
 - Fixed merging errors in non-null situations such that the correct source of error is propagated regardless of the order in which fields are requested.
 - Fixed `execute()` with abstract types by removing proxy resolvers (removes proxyImportedResolvers flag), wrapping non-root type resolvers and requiring `__typename` in abstract type selection sets
