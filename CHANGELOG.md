@@ -1,18 +1,20 @@
-### UNRELEASED 2.x
-- [FEATURE] args can be overridden/passed via `delegateToComponent`
-- [FIXED] delegation for subscription operations
-- [DOCS] added basic documentation for `delegateToComponent`
-- [FEATURE] added `targetRootField` option to `delegateToComponent`
-- [CLEANUP] use fieldNodes to build sub-operation document in delegateToComponent such that the original operation document isn't unintentionally modified
-- [CLEANUP] additional refactoring of resolver importation
-- [FIXED] Memoizing resolvers didn't take into account aliased requests
-- [CLEANUP] Refactor how imports are merged together to be optimized and only run when a schema is requested
-- [CLEANUP] Moved tests alongside source code
+### 2.0.0
+
 - [BREAKING] removed fragment helpers
 - [BREAKING] `schemaDirectives` (which returned merged directives) removed from component api
 - [BREAKING] removed `proxyImportedResolvers` feature flag
 - [BREAKING] removed `execute`
-- [FEATURE] added a new feature for `delegateToComponent` to replace `execute`
+- [FEATURE] added `delegateToComponent` to replace `execute`
+- [FEATURE] args can be overridden/passed via `delegateToComponent`
+- [FEATURE] added `targetRootField` option to `delegateToComponent`
+- [FIXED] delegation for subscription operations
+- [FIXED] Memoizing resolvers didn't take into account aliased requests
+- [FIXED] delegating an operation that contains an abstract type
+- [DOCS] added documentation for `delegateToComponent`
+- [CLEANUP] use fieldNodes to build sub-operation document in delegateToComponent such that the original operation document isn't unintentionally modified
+- [CLEANUP] removal of proxy resolvers creation when importing resolvers
+- [CLEANUP] Refactor how imports are merged together to be optimized and only run when a schema is requested
+- [CLEANUP] Moved tests alongside source code
 
 ### v1.3.1
 
