@@ -209,7 +209,77 @@ Test('test component execute', (t) => {
     t.equals(result2.errors.length, 1, '1 error returned');
     t.equals(result2.errors[0].message, 'Cannot return null for non-nullable field Foo.b.', 'error returned related to non-nullable field Foo.b with selection set order c, b, a');
     t.end();
-  })
+  });
+
+  t.test('execute errors merged as expected for non-nullable list that allows nullable items', async (t) => {
+    const primitive = new GraphQLComponent({
+      types: `
+        type Query {
+          foos: [Foo]!
+        }
+        type Foo {
+          a: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          foos() {
+            return [ { a: 'bar'} , {}, { a: 'baz'} ];
+          }
+        }
+      }
+    });
+  
+    const composite = new GraphQLComponent({
+      types: `
+        type Query {
+          bar: Bar
+        }
+        type Bar {
+          foos: [Foo]!
+        }
+      `,
+      resolvers: {
+        Query: {
+          async bar() {
+            const query = `
+              query {
+                foos { 
+                  a
+                }
+              }
+            `
+            const result = await composite.execute(query, { mergeErrors: true });
+            return { foos: result.foos };
+          }
+        }
+      },
+      imports: [primitive]
+    });
+  
+    const document = gql`
+      query {
+        bar {
+          foos {
+            a
+          }
+        }
+      }
+    `;
+  
+    const result = await graphql.execute({
+      document,
+      schema: composite.schema,
+      contextValue: {}
+    });
+  
+    t.deepEqual(result.data.bar.foos[0], { a: 'bar' }, 'first item of list resolved as expected');
+    t.deepEqual(result.data.bar.foos[2], { a: 'baz' }, 'third item of list resolved as expected');
+    t.equal(result.errors.length, 1, 'one error returned');
+    t.equal(result.errors[0].message, 'Cannot return null for non-nullable field Foo.a.');
+    t.deepEqual(result.errors[0].path, ['foos', 1, 'a']);
+    t.end();
+  }); 
 
   t.test('execute multiple query', async (t) => {
     t.plan(1);
