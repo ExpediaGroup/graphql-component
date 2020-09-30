@@ -1,3 +1,7 @@
+# 2.0.1
+
+- Fixed error merging to iteratively consider the merge path to properly merge errors in complex situations such as lists
+
 ### 2.0.0
 
 - [BREAKING] removed fragment helpers
