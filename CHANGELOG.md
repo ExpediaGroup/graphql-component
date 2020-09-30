@@ -1,3 +1,7 @@
+### v1.3.6
+
+- Fixed error merging in `execute()` to iteratively consider the merge path to properly merge errors in complex situations such as lists
+
 ### v1.3.5
 - Fixed handling of enum remapping resolvers introduced by changes in v1.3.4 around removal of proxy resolvers
 
