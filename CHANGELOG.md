@@ -1,3 +1,7 @@
+# 2.0.2
+
+- Fixed importing directives
+
 # 2.0.1
 
 - Fixed error merging to iteratively consider the merge path to properly merge errors in complex situations such as lists
