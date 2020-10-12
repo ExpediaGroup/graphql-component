@@ -1,3 +1,8 @@
+# 2.0.3
+
+- Fixed individual field exclusions during import - individual field exclusions will no longer modify the original resolver map that is being imported.
+- Fixed/tightened up argument forwarding when using `delegateToComponent()` - only arguments the target field is expecting   will be extracted from the calling resolver or from the `args` object provided to `delegateToComponent()` depending on the situation. Previously, there were some unintended argument leakage in certain edge cases.
+
 # 2.0.2
 
 - Fixed importing directives
