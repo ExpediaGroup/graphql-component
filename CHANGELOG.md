@@ -1,3 +1,8 @@
+# 2.0.4
+
+- Fixed the error path on errors surfaced through `delegateToComponent()` calls such that error path takes into account the already traversed path and exclusions
+- Variables from an outer operation are no longer forwarded to the sub operation created by `delegateToComponent()` this is to avoid passing along variables for types that dont exist in the schema being delegated to.
+
 # 2.0.3
 
 - Fixed individual field exclusions during import - individual field exclusions will no longer modify the original resolver map that is being imported.
