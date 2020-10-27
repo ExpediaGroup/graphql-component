@@ -1,3 +1,7 @@
+# 2.0.5
+
+- Reinstated variable passing to the sub-document created by `delegateToComponent()`. All variable values will be forwarded to the delegated operation, but only the variable definitions for input types or types that are in the target schema will be forwarded. This prevents errors in certain delegate situations while also allowing valid resolution of args passed as variables.
+
 # 2.0.4
 
 - Fixed the error path on errors surfaced through `delegateToComponent()` calls such that error path takes into account the already traversed path and exclusions
