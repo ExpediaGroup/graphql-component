@@ -1,24 +1,27 @@
+# 2.1.0
+- [FEATURE] `delegateToComponent()` - automatically prune fields from the delegated document selection set that are not defined in the schema (component) being delegated to. This will reduced potential down stream errors as well as ensures no unintended fields are forwarded and all fields forwarded can be resolved by the schema be delegated to. This feature addresses some edge cases around variable forwarding that were not addressed in prior patch releases `2.0.4` and `2.0.5`.
+
 # 2.0.5
 
-- Reinstated variable passing to the sub-document created by `delegateToComponent()`. All variable values will be forwarded to the delegated operation, but only the variable definitions for input types or types that are in the target schema will be forwarded. This prevents errors in certain delegate situations while also allowing valid resolution of args passed as variables.
+- [FIXED] Reinstated variable passing to the sub-document created by `delegateToComponent()`. All variable values will be forwarded to the delegated operation, but only the variable definitions for input types or types that are in the target schema will be forwarded. This prevents errors in certain delegate situations while also allowing valid resolution of args passed as variables.
 
 # 2.0.4
 
-- Fixed the error path on errors surfaced through `delegateToComponent()` calls such that error path takes into account the already traversed path and exclusions
-- Variables from an outer operation are no longer forwarded to the sub operation created by `delegateToComponent()` this is to avoid passing along variables for types that dont exist in the schema being delegated to.
+- [FIXED] the error path on errors surfaced through `delegateToComponent()` calls such that error path takes into account the already traversed path and exclusions
+- [FIXED] Variables from an outer operation are no longer forwarded to the sub operation created by `delegateToComponent()` this is to avoid passing along variables for types that dont exist in the schema being delegated to.
 
 # 2.0.3
 
-- Fixed individual field exclusions during import - individual field exclusions will no longer modify the original resolver map that is being imported.
-- Fixed/tightened up argument forwarding when using `delegateToComponent()` - only arguments the target field is expecting   will be extracted from the calling resolver or from the `args` object provided to `delegateToComponent()` depending on the situation. Previously, there were some unintended argument leakage in certain edge cases.
+- [FIXED] individual field exclusions during import - individual field exclusions will no longer modify the original resolver map that is being imported.
+- [FIXED] tightened up argument forwarding when using `delegateToComponent()` - only arguments the target field is expecting   will be extracted from the calling resolver or from the `args` object provided to `delegateToComponent()` depending on the situation. Previously, there were some unintended argument leakage in certain edge cases.
 
 # 2.0.2
 
-- Fixed importing directives
+- [FIXED] importing directives
 
 # 2.0.1
 
-- Fixed error merging to iteratively consider the merge path to properly merge errors in complex situations such as lists
+- [FIXED] error merging to iteratively consider the merge path to properly merge errors in complex situations such as lists
 
 ### 2.0.0
 
