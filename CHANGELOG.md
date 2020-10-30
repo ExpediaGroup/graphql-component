@@ -1,4 +1,9 @@
+# 2.1.1
+
+- update `@apollo/federation` to `^0.20.4`
+
 # 2.1.0
+
 - [FEATURE] `delegateToComponent()` - automatically prune fields from the delegated document selection set that are not defined in the schema (component) being delegated to. This will reduced potential down stream errors as well as ensures no unintended fields are forwarded and all fields forwarded can be resolved by the schema be delegated to. This feature addresses some edge cases around variable forwarding that were not addressed in prior patch releases `2.0.4` and `2.0.5`.
 
 # 2.0.5
