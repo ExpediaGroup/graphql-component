@@ -21,7 +21,7 @@
   "repository": "https://github.com/ExpediaGroup/graphql-component",
   "license": "MIT",
   "dependencies": {
-    "@apollo/federation": "^0.10.3",
+    "@apollo/federation": "^0.20.4",
     "cuid": "^2.1.8",
     "debug": "^4.1.1",
     "graphql-tools": "^6.0.10",
@@ -37,7 +37,7 @@
     "apollo-server": "^2.13.1",
     "casual": "^1.6.0",
     "eslint": "^6.5.1",
-    "graphql": "^14",
+    "graphql": "^14.0.0 ",
     "graphql-tag": "^2.10.3",
     "nyc": "^14.1.1",
     "tape": "^4.9.1"
