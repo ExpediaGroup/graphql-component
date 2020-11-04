@@ -1,3 +1,7 @@
+# 2.1.2
+- [FIXED] - non-root resolvers being executed twice in certain delegate situations
+- [FIXED] - resolver exclusion now works identical to type exclusion. Only root types (`Query`, `Mutation`, `Subscription`) and/or fields on root types can be excluded, which was not the case for resolver functions prior to this fix.
+
 # 2.1.1
 
 - update `@apollo/federation` to `^0.20.4`
