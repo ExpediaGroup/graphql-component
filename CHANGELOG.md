@@ -1,4 +1,9 @@
+# 2.1.3
+
+- [FIXED] - modified automatic pruning mechanism during delegation to use parent types/parent type fields instead of getFieldDef()
+
 # 2.1.2
+
 - [FIXED] - non-root resolvers being executed twice in certain delegate situations
 - [FIXED] - resolver exclusion now works identical to type exclusion. Only root types (`Query`, `Mutation`, `Subscription`) and/or fields on root types can be excluded, which was not the case for resolver functions prior to this fix.
 
