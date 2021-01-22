@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Build graphql schema with components",
   "keywords": [
     "graphql",

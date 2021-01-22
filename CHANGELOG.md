@@ -1,3 +1,7 @@
+# 2.1.5
+
+- [FIXED] - delegateToComponent()'s second parameter is an options object that supports an `args` key for passing arguments to the target GraphQL operation via JavaScript from the calling resolver. Previously, if you attempted to pass an array (wrapping any form of JavaScript scalar) a type coersion error would surface. delegateToComponent's options.args parameter now supports passing Array like arguments as expected.
+
 # 2.1.4
 
 - [REVERT] - reverting both fixes in [2.1.2](https://github.com/ExpediaGroup/graphql-component/releases/tag/v2.1.2). The change made to unify exclusions and return pre-computed results from non-root resolvers resulted in non-root resolvers not executing when they should have.  Being able to exclude non-root resolvers (not their types) is a valid work around in certain situations.
