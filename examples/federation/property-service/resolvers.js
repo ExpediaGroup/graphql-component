@@ -5,6 +5,11 @@ const resolvers = {
     property(_, { id }, { dataSources }) {
       return dataSources.PropertyDataSource.getPropertyById(id);
     }
+  },
+  Property: {
+    __resolveReference(ref, {dataSources}) {
+      return dataSources.PropertyDataSource.getPropertyById(ref.id);
+    }
   }
 };
 
