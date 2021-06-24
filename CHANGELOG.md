@@ -1,55 +1,59 @@
-### 2.1.6
+### v2.1.7
+
+- [FIXED] - Explicitly removed wrapping of the federation `__resolveReference()` resolver which was preventing `__resolveReference()` from running when using `graphql-component` to build federated schemas in seperate graphql services.
+
+### v2.1.6
 
 - [FIXED] - A bug with `graphql-component` being used in a federated schema was brought to our attention and was attributed to the non-root type field resolver wrapping performed to help prevent double execution of resolvers with local delegation. Effectively, the resolver wrapping functionality was causing a null value to be returned (by attempting to return a value from the root arg) when the wrapper should have been calling through to the actual resolver. To fix this, separate wrapper functions are used for fields that begin with `__` (such as `__resolveType()`) versus "normal" non-root type fields. These separated wrapper functions look for similar but slightly different conditions to determine whether to "short circuit" an already computed result which ensures that the wrapper functions are short circuiting or calling through to the actual resolver in the desired situations.
 
-### 2.1.5
+### v2.1.5
 
 - [FIXED] - delegateToComponent()'s second parameter is an options object that supports an `args` key for passing arguments to the target GraphQL operation via JavaScript from the calling resolver. Previously, if you attempted to pass an array (wrapping any form of JavaScript scalar) a type coersion error would surface. delegateToComponent's options.args parameter now supports passing Array like arguments as expected.
 
-### 2.1.4
+### v2.1.4
 
 - [REVERT] - reverting both fixes in [2.1.2](https://github.com/ExpediaGroup/graphql-component/releases/tag/v2.1.2). The change made to unify exclusions and return pre-computed results from non-root resolvers resulted in non-root resolvers not executing when they should have.  Being able to exclude non-root resolvers (not their types) is a valid work around in certain situations.
 
-### 2.1.3
+### v2.1.3
 
 - [FIXED] - modified automatic pruning mechanism during delegation to use parent types/parent type fields instead of getFieldDef()
 
-### 2.1.2
+### v2.1.2
 
 - [FIXED] - non-root resolvers being executed twice in certain delegate situations
 - [FIXED] - resolver exclusion now works identical to type exclusion. Only root types (`Query`, `Mutation`, `Subscription`) and/or fields on root types can be excluded, which was not the case for resolver functions prior to this fix.
 
-### 2.1.1
+### v2.1.1
 
 - update `@apollo/federation` to `^0.20.4`
 
-### 2.1.0
+### v2.1.0
 
 - [FEATURE] `delegateToComponent()` - automatically prune fields from the delegated document selection set that are not defined in the schema (component) being delegated to. This will reduced potential down stream errors as well as ensures no unintended fields are forwarded and all fields forwarded can be resolved by the schema be delegated to. This feature addresses some edge cases around variable forwarding that were not addressed in prior patch releases `2.0.4` and `2.0.5`.
 
-### 2.0.5
+### v2.0.5
 
 - [FIXED] Reinstated variable passing to the sub-document created by `delegateToComponent()`. All variable values will be forwarded to the delegated operation, but only the variable definitions for input types or types that are in the target schema will be forwarded. This prevents errors in certain delegate situations while also allowing valid resolution of args passed as variables.
 
-### 2.0.4
+### v2.0.4
 
 - [FIXED] the error path on errors surfaced through `delegateToComponent()` calls such that error path takes into account the already traversed path and exclusions
 - [FIXED] Variables from an outer operation are no longer forwarded to the sub operation created by `delegateToComponent()` this is to avoid passing along variables for types that dont exist in the schema being delegated to.
 
-### 2.0.3
+### v2.0.3
 
 - [FIXED] individual field exclusions during import - individual field exclusions will no longer modify the original resolver map that is being imported.
 - [FIXED] tightened up argument forwarding when using `delegateToComponent()` - only arguments the target field is expecting   will be extracted from the calling resolver or from the `args` object provided to `delegateToComponent()` depending on the situation. Previously, there were some unintended argument leakage in certain edge cases.
 
-### 2.0.2
+### v2.0.2
 
 - [FIXED] importing directives
 
-### 2.0.1
+### v2.0.1
 
 - [FIXED] error merging to iteratively consider the merge path to properly merge errors in complex situations such as lists
 
-### 2.0.0
+### v2.0.0
 
 - [BREAKING] removed fragment helpers
 - [BREAKING] `schemaDirectives` (which returned merged directives) removed from component api
