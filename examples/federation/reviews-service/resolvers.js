@@ -6,9 +6,9 @@ const resolvers = {
       return dataSources.ReviewsDataSource.getReviewsByPropertyId(propertyId);
     }
   },
-  Property: {
-    reviews(property, args, { dataSources }) {
-      return dataSources.ReviewsDataSource.getReviewsByPropertyId(property.id);
+  Review: {
+    property() {
+      return { __typename: 'Property', id: 1 };
     }
   }
 };

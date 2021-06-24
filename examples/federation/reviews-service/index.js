@@ -13,16 +13,21 @@ class ReviewsComponent extends GraphQLComponent {
   }
 }
 
-const { schema, context } = new ReviewsComponent();
+const startReviewsService = async () => {
+  const { schema, context } = new ReviewsComponent();
 
-const server = new ApolloServer({ 
-  schema,
-  context,
-  introspection: true,
-  subscriptions: false,
-  playground: false
-});
+  const server = new ApolloServer({
+    schema,
+    context,
+    introspection: true,
+    subscriptions: false,
+    playground: false
+  });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`)
-});
+  const { url } = await server.listen({port: 4002});
+  console.log(`🚀 reviews service ready at ${url}`);
+}
+
+module.exports = startReviewsService;
+
+

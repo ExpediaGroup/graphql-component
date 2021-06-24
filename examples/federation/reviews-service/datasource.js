@@ -3,8 +3,7 @@
 class ReviewsDataSource {
   getReviewsByPropertyId(context, propertyId) {
     return [{
-      id: 1,
-      propertyId: 1,
+      id: 'rev-id-1',
       content: 'content for review'
     }];
   }

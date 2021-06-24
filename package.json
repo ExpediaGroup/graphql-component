@@ -12,8 +12,9 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "tape lib/*/**/__tests__.js lib/__tests__.js",
-    "start": "DEBUG=graphql-component:* node examples/composition/server/index.js",
-    "start-mock": "DEBUG=graphql-component:* GRAPHQL_MOCK=1 node examples/composition/server/index.js",
+    "composition-example": "DEBUG=graphql-component:* node examples/composition/server/index.js",
+    "mock-composition-example": "DEBUG=graphql-component:* GRAPHQL_MOCK=1 node examples/composition/server/index.js",
+    "federation-example": "DEBUG=graphql-component:* node examples/federation/run-federation-example.js",
     "lint": "eslint lib",
     "cover": "nyc npm test"
   },

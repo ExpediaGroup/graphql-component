@@ -13,16 +13,21 @@ class PropertyComponent extends GraphQLComponent {
   }
 }
 
-const { schema, context } = new PropertyComponent();
+const startPropertyService = async () => {
+  const { schema, context } = new PropertyComponent();
 
-const server = new ApolloServer({ 
-  schema,
-  context,
-  introspection: true,
-  subscriptions: false,
-  playground: false
-});
+  const server = new ApolloServer({
+    schema,
+    context,
+    introspection: true,
+    subscriptions: false,
+    playground: false
+  });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`)
-});
+  const { url } = await server.listen({port: 4001});
+  console.log(`🚀 property service ready at ${url}`);
+}
+
+module.exports = startPropertyService;
+
+

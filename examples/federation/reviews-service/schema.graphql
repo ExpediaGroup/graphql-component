@@ -2,13 +2,12 @@
 # A review
 type Review @key(fields: "id") {
   id: ID!
-  propertyId: ID!
   content: String!
+  property: Property
 }
 
 extend type Property @key(fields: "id") {
   id: ID! @external
-  reviews: [Review]
 }
 
 type Query {
