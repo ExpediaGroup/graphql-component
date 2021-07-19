@@ -6,5 +6,6 @@
   "lines": 80,
   "exclude": [
     "**/__tests__.js"
-  ]
+  ],
+  "reporter": ["html", "text"]
 }

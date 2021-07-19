@@ -1,4 +1,5 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLSchema } from 'graphql';
+import { IDelegateToSchemaOptions } from 'graphql-tools';
 
 interface GraphQLComponentConfigObject {
   component: GraphQLComponent;
@@ -6,32 +7,22 @@ interface GraphQLComponentConfigObject {
 }
 
 interface GraphQLComponentOptions {
-  types?: string[];
+  types?: string | string[];
   resolvers?: object;
-  imports?: GraphQLComponent[] | GraphQLComponentConfigObject[];
-  mocks?: (importedMocks: any) => any;
+  mocks?: boolean | object;
   directives?: any;
+  federation?: boolean;
+  imports?: GraphQLComponent[] | GraphQLComponentConfigObject[];
   context?: any;
-  useMocks?: boolean;
-  preserveResolvers?: boolean;
   dataSources?: any[];
   dataSourceOverrides?: any;
-  federation?: boolean;
 }
 
 export default class GraphQLComponent {
   constructor(options?: GraphQLComponentOptions);
-  static isComponent(check: any): any;
-  static delegateToComponent(component: GraphQLComponent, options: {
-    info: GraphQLResolveInfo;
-    contextValue: any;
-    targetRootField?: string;
-    subPath?: string;
-    args?: object;
-  }): Promise<any>
+  static delegateToComponent(component: GraphQLComponent, options: IDelegateToSchemaOptions): Promise<any>
   readonly name: string;
-  readonly id: string;
-  readonly schema: any;
+  readonly schema: GraphQLSchema;
   readonly context: {
     (arg: any): Promise<any>;
     use(name: any, fn: any): void;

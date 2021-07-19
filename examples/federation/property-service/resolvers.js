@@ -7,8 +7,8 @@ const resolvers = {
     }
   },
   Property: {
-    __resolveReference(ref, {dataSources}) {
-      return dataSources.PropertyDataSource.getPropertyById(ref.id);
+    __resolveReference(ref, context) {
+      return context.dataSources.PropertyDataSource.getPropertyById(ref.id);
     }
   }
 };

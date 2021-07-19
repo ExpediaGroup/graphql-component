@@ -1,11 +1,8 @@
-
-# A review
 type Review {
   id: ID!
-  propertyId: ID!
   content: String!
 }
+
 type Query {
-  # Reviews by property id
   reviewsByPropertyId(propertyId: ID!) : [Review]
 }

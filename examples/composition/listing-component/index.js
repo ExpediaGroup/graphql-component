@@ -5,7 +5,6 @@ const Property = require('../property-component');
 const Reviews = require('../reviews-component');
 const resolvers = require('./resolvers');
 const types = require('./types');
-const mocks = require('./mocks');
 
 class ListingComponent extends GraphQLComponent {
   constructor(options) {
@@ -15,17 +14,7 @@ class ListingComponent extends GraphQLComponent {
     super ({
       types,
       resolvers,
-      mocks,
-      imports: [
-        {
-          component: propertyComponent,
-          //exclude: ['Query.*']
-        },
-        {
-          component: reviewsComponent,
-          //exclude: ['Query.*']
-        }
-      ] ,
+      imports: [propertyComponent, reviewsComponent],
       ...options
     });
 
