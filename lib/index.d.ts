@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
+import { IExecutableSchemaDefinition } from '@graphql-tools/schema';
 
 interface GraphQLComponentConfigObject {
   component: GraphQLComponent;
@@ -17,6 +18,16 @@ interface GraphQLComponentOptions {
   dataSources?: any[];
   dataSourceOverrides?: any;
   federation?: boolean;
+  makeExecutableSchema?: <TContext = any>({
+    typeDefs,
+    resolvers,
+    resolverValidationOptions,
+    parseOptions,
+    inheritResolversFromInterfaces,
+    pruningOptions,
+    updateResolversInPlace,
+    schemaExtensions
+  }) => IExecutableSchemaDefinition<TContext>;
 }
 
 export default class GraphQLComponent {

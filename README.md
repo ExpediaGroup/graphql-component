@@ -47,6 +47,7 @@ To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
   - `federation` - enable building a federated schema (default: `false`).
+  - `makeExecutableSchema` - an optional custom implementation of the function which builds the executable schema from the provided type definitions, imports and resolvers. Defaults to the version provided by the [`graphql-tools`](https://www.graphql-tools.com/docs/generate-schema) package. Not used when `federation` is set to `true`.
 - `GraphQLComponent.delegateToComponent(component, options)` - helper for delegating an operation to another component's schema and returning the GraphQL result. When called from a resolver, this function will examine the passed `info` object and will automatically forward the remaining operation selection set (or a limited subset of the selection set) to a root type field in the input component's schema. This function will automatically prune out fields in the delegated selection set that are not defined in the schema (component) being delegated to.
   - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
   - `options` (`Object`)
