@@ -1,3 +1,7 @@
+### v2.2.0
+
+- [FEATURE] - Add "hook" for custom `makeExecutableSchema` function
+
 ### v2.1.7
 
 - [FIXED] - Explicitly removed wrapping of the federation `__resolveReference()` resolver which was preventing `__resolveReference()` from running when using `graphql-component` to build federated schemas in seperate graphql services.
