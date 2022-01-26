@@ -1,5 +1,5 @@
 import { GraphQLSchema } from 'graphql';
-import { IDelegateToSchemaOptions } from 'graphql-tools';
+import { IDelegateToSchemaOptions } from 'graphql-tools'
 
 interface GraphQLComponentConfigObject {
   component: GraphQLComponent;

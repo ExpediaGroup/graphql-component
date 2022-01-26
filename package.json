@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "2.1.7",
+  "version": "3.0.0",
   "description": "Build, customize and compose GraphQL schemas in a componentized fashion",
   "keywords": [
     "graphql",
@@ -36,6 +36,7 @@
     "graphql": "^15.0.0",
     "graphql-tag": "^2.12.4",
     "nyc": "^14.1.1",
+    "sinon": "^12.0.1",
     "tape": "^4.9.1"
   }
 }
