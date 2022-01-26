@@ -1,5 +1,5 @@
 import { GraphQLSchema } from 'graphql';
-import { IDelegateToSchemaOptions } from 'graphql-tools'
+import { IDelegateToSchemaOptions, IExecutableSchemaDefinition } from 'graphql-tools'
 
 interface GraphQLComponentConfigObject {
   component: GraphQLComponent;
@@ -12,6 +12,16 @@ interface GraphQLComponentOptions {
   mocks?: boolean | object;
   directives?: any;
   federation?: boolean;
+  makeExecutableSchema?: <TContext = any>({
+    typeDefs,
+    resolvers,
+    resolverValidationOptions,
+    parseOptions,
+    inheritResolversFromInterfaces,
+    pruningOptions,
+    updateResolversInPlace,
+    schemaExtensions
+  }) => IExecutableSchemaDefinition<TContext>;
   imports?: GraphQLComponent[] | GraphQLComponentConfigObject[];
   context?: any;
   dataSources?: any[];

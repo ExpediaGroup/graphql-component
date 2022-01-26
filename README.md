@@ -51,6 +51,7 @@ federation (2 subschema services implemented via `GraphQLComponent` and a vanill
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
   - `federation` - make this component's schema an Apollo Federated schema (default: `false`).
+  - `makeExecutableSchema` - an optional custom implementation of the function which builds the executable schema from the provided type definitions, imports and resolvers. Defaults to the version provided by the [`graphql-tools`](https://www.graphql-tools.com/docs/generate-schema) package. Not used when `federation` is set to `true`.
 
 - `static GraphQLComponent.delegateToComponent(component, options)` - a wrapper function that utilizes `graphql-tools` `delegateToSchema()` to delegate the calling resolver's selection set to a root type field (`Query`, `Mutuation`) of another `GraphQLComponent`'s schema
   - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
