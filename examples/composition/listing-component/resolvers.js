@@ -1,19 +1,33 @@
 'use strict';
 
+const GraphQLComponent = require('../../../lib');
+
 const resolvers = {
   Query: {
-    async listing(_, { id }, { dataSources }) {
-      const [property, reviews] = await Promise.all([
-        dataSources.PropertyDataSource.getPropertyById(id),
-        dataSources.ReviewsDataSource.getReviewsByPropertyId(id)
-      ]);
-
-      return { 
-        id, 
-        propertyId: property.id,
-        geo: property.geo,
-        reviews
-      };
+    async listing(_, { id }) {
+      return { id };
+    }
+  },
+  Listing: {
+    property(root, args, context, info) {
+      return GraphQLComponent.delegateToComponent(this.propertyComponent, {
+        args: {
+          id: root.id
+        },
+        context,
+        info
+      })
+    },
+    reviews(root, args, context, info) {
+      return GraphQLComponent.delegateToComponent(this.reviewsComponent, {
+        operation: 'query',
+        fieldName: 'reviewsByPropertyId',
+        args: {
+          propertyId: root.id
+        },
+        context,
+        info
+      })
     }
   }
 };
