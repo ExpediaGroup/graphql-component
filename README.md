@@ -13,7 +13,7 @@ Generally speaking, each instance of `GraphQLComponent` has reference to an inst
 * when a `GraphQLComponent` instance has `imports` (ie. other `GraphQLComponent` instances or component configuration objects) [graphql-tools stitchSchemas()](https://www.graphql-tools.com/docs/schema-stitching/) is used to create a "gateway" or aggregate schema that is the combination of the underlying imported schemas, and the typeDefs/resolvers passed to the root or importing `GraphQLComponent`
 * when a `GraphQLComponent` has no imports, graphql-tools' `makeExecuteableSchema({typeDefs, resolvers})` is used to generate an executable GraphQL schema using the passed/required inputs.
 
-It's worth noting that `GraphQLComponent` can also be used to construct componentized Apollo Federated schemas. That is, if you pass the `federation: true` flag to a GraphQLComponent constructor, `@apollo/federation`'s [buildFederatedSchema()]() is used in lieu of graphql-tools `makeExecutableSchema({...})` and the above still schema construction rule applies. The general use case here might be to help modularize an individual federated subschema service implementation.
+It's worth noting that `GraphQLComponent` can also be used to construct componentized Apollo Federated schemas. That is, if you pass the `federation: true` flag to a GraphQLComponent constructor, `@apollo/federation`'s [buildSubgraphSchema()](https://www.apollographql.com/docs/federation/api/apollo-subgraph/) is used in lieu of graphql-tools `makeExecutableSchema({...})` and the above still schema construction rule applies. The general use case here might be to help modularize an individual federated subschema service implementation.
 
 ### Running the examples
 

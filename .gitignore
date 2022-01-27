@@ -84,3 +84,6 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 *.swp
+
+# Package lock
+package-lock.json
