@@ -1,7 +1,7 @@
 {
   "name": "graphql-component",
-  "version": "2.2.0",
-  "description": "Build graphql schema with components",
+  "version": "3.0.0",
+  "description": "Build, customize and compose GraphQL schemas in a componentized fashion",
   "keywords": [
     "graphql",
     "schema-stitching",
@@ -12,9 +12,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "tape lib/*/**/__tests__.js lib/__tests__.js",
-    "composition-example": "DEBUG=graphql-component:* node examples/composition/server/index.js",
-    "mock-composition-example": "DEBUG=graphql-component:* GRAPHQL_MOCK=1 node examples/composition/server/index.js",
-    "federation-example": "DEBUG=graphql-component:* node examples/federation/run-federation-example.js",
+    "start-composition": "DEBUG=graphql-component:* node examples/composition/server/index.js",
+    "start-federation": "DEBUG=graphql-component:* node examples/federation/run-federation-example.js",
     "lint": "eslint lib",
     "cover": "nyc npm test"
   },
@@ -22,24 +21,20 @@
   "repository": "https://github.com/ExpediaGroup/graphql-component",
   "license": "MIT",
   "dependencies": {
-    "@apollo/federation": "^0.20.4",
-    "cuid": "^2.1.8",
-    "debug": "^4.1.1",
-    "graphql-tools": "^6.0.10",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.get": "^4.4.2",
-    "lodash.set": "^4.3.2"
+    "@apollo/federation": "^0.28.0",
+    "debug": "^4.3.1",
+    "graphql-tools": "^7.0.5"
   },
   "peerDependencies": {
-    "graphql": "^14.0.0"
+    "graphql": "^15.0.0"
   },
   "devDependencies": {
-    "@apollo/gateway": "^0.10.8",
-    "apollo-server": "^2.13.1",
+    "@apollo/gateway": "^0.28.2",
+    "apollo-server": "^2.25.0",
     "casual": "^1.6.0",
     "eslint": "^6.5.1",
-    "graphql": "^14.0.0 ",
-    "graphql-tag": "^2.10.3",
+    "graphql": "^15.0.0",
+    "graphql-tag": "^2.12.4",
     "nyc": "^14.1.1",
     "sinon": "^12.0.1",
     "tape": "^4.9.1"

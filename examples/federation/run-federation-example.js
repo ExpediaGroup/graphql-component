@@ -1,11 +1,11 @@
-const startReviewsService = require('./reviews-service');
-const startPropertyService = require('./property-service');
-const startGateway = require('./gateway');
+const { run: runReviewsService } = require('./reviews-service');
+const { run: runPropertyService } = require('./property-service');
+const { run: runGateway } = require('./gateway');
 
 const start = async () => {
-  await startReviewsService();
-  await startPropertyService();
-  await startGateway();
+  await runReviewsService();
+  await runPropertyService();
+  await runGateway();
 }
 
 start();

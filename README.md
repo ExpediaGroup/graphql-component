@@ -2,68 +2,76 @@
 
 # GraphQL schema components.
 
-This project is designed to make npm module or component based Node.js development of graphql schemas easy.
+This project is designed to faciliate componentized or modularized development of GraphQL schemas.
 
 Read more about the idea [here](https://medium.com/expedia-group-tech/graphql-component-architecture-principles-homeaway-ede8a58d6fde).
 
-`graphql-component` lets you built a schema progressively through a tree of graphql schema dependencies.
+`graphql-component` lets you build a schema progressively through a tree (faciliated through `imports`) of GraphQLComponent instances. Each GraphQLComponent instance encapsulates an executable GraphQL schema, specifically a `graphql-js` GraphQLSchema object. See the API below, but the encapsulated schema is accessible through a simple `schema` getter on a given `GraphQLComponent` instance.
+
+Generally speaking, each instance of `GraphQLComponent` has reference to an instance of [`GraphQLSchema`](https://graphql.org/graphql-js/type/#graphqlschema). This instance of `GraphQLSchema` is built in a several ways, depending on the options passed to a given `GraphQLComponent`'s constructor.
+
+* when a `GraphQLComponent` instance has `imports` (ie. other `GraphQLComponent` instances or component configuration objects) [graphql-tools stitchSchemas()](https://www.graphql-tools.com/docs/schema-stitching/) is used to create a "gateway" or aggregate schema that is the combination of the underlying imported schemas, and the typeDefs/resolvers passed to the root or importing `GraphQLComponent`
+* when a `GraphQLComponent` has no imports, graphql-tools' `makeExecuteableSchema({typeDefs, resolvers})` is used to generate an executable GraphQL schema using the passed/required inputs.
+
+It's worth noting that `GraphQLComponent` can also be used to construct componentized Apollo Federated schemas. That is, if you pass the `federation: true` flag to a GraphQLComponent constructor, `@apollo/federation`'s [buildSubgraphSchema()](https://www.apollographql.com/docs/federation/api/apollo-subgraph/) is used in lieu of graphql-tools `makeExecutableSchema({...})` and the above still schema construction rule applies. The general use case here might be to help modularize an individual federated subschema service implementation.
+
+### Running the examples
+
+local schema composition:
+  * can be run with `npm run start-composition`
+
+federation (2 subschema services implemented via `GraphQLComponent` and a vanilla Apollo Gateway):
+  * can be run with `npm run start-federation`
 
 ### Repository structure
 
 - `lib` - the graphql-component code.
-- `test/examples/example-listing/property-component` - a component implementation for `Property`.
-- `test/examples/example-listing/reviews-component` - a component implementation for `Reviews`.
-- `test/examples/example-listing/listing-component` - a component implementation composing `Property` and `Reviews` into a new `Listing`.
-- `test/examples/example-listing/server` - the "application".
+- `examples/composition` - a simple example of composition using `graphql-component`
+- `examples/federation` - a simple example of building a federated schema using `graphql-component`
 
-### Running the examples
-
-composition:
-  * can be run with `npm run composition-example`
-  * can be run with mocks with `npm run mock-composition-example`
-
-federation:
-  * can be run with `npm run federation-example`
+### Running examples:
+* composition: `npm run start-composition`
+* fedration: `npm run start-federation`
+* go to `localhost:4000/graphql`
+  * for composition this will bring up the GraphQL Playground for a plain old Apollo Server
+  * for the federation example this will bring up the GraphQL Playground for an Apollo Federated Gateway
 
 ### Debug output
 
-Generally enable debug logging with `DEBUG=graphql-component:*`
-
-### Activating mocks
-
-To intercept resolvers with mocks execute this app with `GRAPHQL_MOCK=1` enabled or simply run `npm start-mock`.
+`GraphQLComponent` uses [debug]() for local stdout based debug logging. Enable all debug logging with the node environment variable `DEBUG=graphql-component:*`. Generally speaking, most debug output occurs during `GraphQLComponent` construction.
 
 # API
-
 - `GraphQLComponent(options)` - the component class, which may also be extended. Its options include:
-  - `types` - a string or array of strings representing typeDefs and rootTypes.
-  - `resolvers` - an object containing resolver functions.
+  - `types` - a string or array of strings of GraphQL SDL defining the type definitions for this component
+  - `resolvers` - a resolver map (ie. a two level map whose first level keys are types from the SDL, mapped to objects, whose keys are fields on those types and values are resolver functions)
   - `imports` - an optional array of imported components for the schema to be merged with.
   - `context` - an optional object { namespace, factory } for contributing to context.
   - `directives` - an optional object containing custom schema directives.
-  - `useMocks` - enable mocks.
-  - `preserveResolvers` - dont replace provided actual resolvers with mocks (custom or default), enables mocking parts of a schema
-  - `mocks` - an optional object containing mock types.
+  - `mocks` - a boolean (to enable default mocks) or an object to pass in custom mocks
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
-  - `federation` - enable building a federated schema (default: `false`).
+  - `federation` - make this component's schema an Apollo Federated schema (default: `false`).
   - `makeExecutableSchema` - an optional custom implementation of the function which builds the executable schema from the provided type definitions, imports and resolvers. Defaults to the version provided by the [`graphql-tools`](https://www.graphql-tools.com/docs/generate-schema) package. Not used when `federation` is set to `true`.
-- `GraphQLComponent.delegateToComponent(component, options)` - helper for delegating an operation to another component's schema and returning the GraphQL result. When called from a resolver, this function will examine the passed `info` object and will automatically forward the remaining operation selection set (or a limited subset of the selection set) to a root type field in the input component's schema. This function will automatically prune out fields in the delegated selection set that are not defined in the schema (component) being delegated to.
+
+- `static GraphQLComponent.delegateToComponent(component, options)` - a wrapper function that utilizes `graphql-tools` `delegateToSchema()` to delegate the calling resolver's selection set to a root type field (`Query`, `Mutuation`) of another `GraphQLComponent`'s schema
   - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
-  - `options` (`Object`)
-    - `contextValue` (required) - the `context` object from resolver that calls `delegateToComponent`
+  - `options` (`object`)
+    - `operation` (optional, can be inferred from `info`): `query` or `mutation`
+    - `fieldName` (optional, can be inferred if target field has same name as calling resolver's field): the target root type (`Query`, `Mutation`) field in the target `GraphQLComponent`'s schema
+    - `context` (required) - the `context` object from resolver that calls `delegateToComponent`
     - `info` (required) - the `info` object from the resolver that calls `delegateToComponent`
-    - `targetRootField` (`string`, optional) - if the calling resolver's field name is different from the root field name on the delegatee, you can specify the desired root field on the delegatee that you want to execute
-    - `subPath` (`string`, optional)- a dot separated path into the incoming selection set (from the calling resolver) that represents the root of the delegated selection set (limits delegated selection set)
-    - `args` (`object`, optional) -  an object literal whose keys/values are passed as args to the delegatee's target field resolver. By default, the resolver's args from which `delegateToComponent` is called will be passed if the target field has an argument of the same name. Otherwise, arguments passed via the `args` object will override the calling resolver's args of the same name.
+    - `args` (`object`, optional) - an object literal whose keys/values are passed as args to the delegatee's target field resolver. By default, the resolver's args from which `delegateToComponent` is called will be passed if the target field has an argument of the same name. Otherwise, arguments passed via the `args` object will override the calling resolver's args of the same name.
+    - `transforms` (optional `Array<Transform>`): Transform being a valid `graphql-tools` transform
 
-A new GraphQLComponent instance has the following API:
+  - please see `graphql-tools` [delegateToSchema](https://www.graphql-tools.com/docs/schema-delegation/#delegatetoschema) documentation for more details on available `options` since the delegateToComponent fuctions is simply an adapter for the `GraphQLComponent` API.
 
-- `schema` - getter that returns an executable schema representing the entire component tree.
-- `context` - context function that build context for all components in the tree.
+A GraphQLComponent instance (ie, `new GraphQLComponent({...})`) has the following API:
+
+- `schema` - getter that this component's `GraphQLSchema` object (ie. the "executable" schema that is constructed as described above)
+- `context` - context function that builds context for all components in the tree.
 - `types` - this component's types.
 - `resolvers` - this component's resolvers.
-- `imports` - this component's imported components or a import configuration.
+- `imports` - this component's imported components in the form of import configuration objects
 - `mocks` - custom mocks for this component.
 - `directives` - this component's directives.
 - `dataSources` - this component's data source(s), if any.
@@ -89,15 +97,13 @@ const types = require('./types');
 const mocks = require('./mocks');
 
 class PropertyComponent extends GraphQLComponent {
-  constructor({ useMocks, preserveResolvers }) {
-    super({ types, resolvers, mocks, useMocks, preserveResolvers });
+  constructor({ types, resolvers }) {
+    super({ types, resolvers });
   }
 }
 
 module.exports = PropertyComponent;
 ```
-
-This will allow for configuration (in this example, `useMocks` and `preserveResolvers`) as well as instance data per component (such as data base clients, etc).
 
 ### Aggregation
 
@@ -122,11 +128,11 @@ const server = new ApolloServer({
 Imports can be a configuration object supplying the following properties:
 
 - `component` - the component instance to import.
-- `exclude` - fields, if any, to exclude.
+- `exclude` - fields on types to exclude from the component being imported, if any.
 
 ### Exclude
 
-You can exclude root fields from imported components:
+You can exclude whole types or individual fields on types.
 
 ```javascript
 const { schema, context } = new GraphQLComponent({
@@ -143,7 +149,7 @@ const { schema, context } = new GraphQLComponent({
 });
 ```
 
-This will keep from leaking unintended surface area. But you can still delegate calls to the component's schema to enable it from the API you do expose.
+The excluded types will not appear in the aggregate or gateway schema exposed by the root component, but are still present in the schema encapsulated by the underlying component. This can keep from leaking unintended API surface area, if desired. You can still delegate calls to imported component's schema to utilize the excluded field under the covers.
 
 ### Data Source support
 

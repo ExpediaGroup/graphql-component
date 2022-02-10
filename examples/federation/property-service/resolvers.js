@@ -7,7 +7,7 @@ const resolvers = {
     }
   },
   Property: {
-    __resolveReference(ref, {dataSources}) {
+    __resolveReference(ref, { dataSources }) {
       return dataSources.PropertyDataSource.getPropertyById(ref.id);
     }
   }

@@ -1,12 +1,10 @@
 
-# A listing
 type Listing {
   id: ID!
-  propertyId: ID!
-  geo: [String]
+  property: Property
   reviews: [Review]
 }
+
 type Query {
-  # Listing by id
   listing(id: ID!) : Listing
 }
