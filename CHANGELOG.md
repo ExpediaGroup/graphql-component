@@ -1,3 +1,13 @@
+
+### v3.0.1
+
+- [FIXED] - if `exclude` is undefined in a component config
+
+### v3.0.0
+
+- Modernized to utilize new graphql-tools
+- [BREAKING] - directives are not imported and maintained throughout the tree : top level component is responsible for directive implementations
+
 ### v2.2.0
 
 - [FEATURE] - Add "hook" for custom `makeExecutableSchema` function
