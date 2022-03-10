@@ -51,8 +51,8 @@ federation (2 subschema services implemented via `GraphQLComponent` and a vanill
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
   - `federation` - make this component's schema an Apollo Federated schema (default: `false`).
-  - `pruneSchema` - prune the schema according to [pruneSchema in graphql-tools](https://www.graphql-tools.com/docs/api/modules/utils_src#pruneschema)
-  - `pruneSchemaOptions` - schema options as per [PruneSchemaOptions in graphql-tools](https://www.graphql-tools.com/docs/api/interfaces/utils_src.PruneSchemaOptions)
+  - `pruneSchema` - (optional) prune the schema according to [pruneSchema in graphql-tools](https://www.graphql-tools.com/docs/api/modules/utils_src#pruneschema) (default: false)
+  - `pruneSchemaOptions` - (optional) schema options as per [PruneSchemaOptions in graphql-tools](https://www.graphql-tools.com/docs/api/interfaces/utils_src.PruneSchemaOptions)
 
 - `static GraphQLComponent.delegateToComponent(component, options)` - a wrapper function that utilizes `graphql-tools` `delegateToSchema()` to delegate the calling resolver's selection set to a root type field (`Query`, `Mutuation`) of another `GraphQLComponent`'s schema
   - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
