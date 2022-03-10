@@ -1,16 +1,32 @@
-import { GraphQLSchema } from 'graphql';
-import { IDelegateToSchemaOptions, IExecutableSchemaDefinition } from 'graphql-tools'
+import { DocumentNode, GraphQLSchema, Source } from 'graphql';
+import { DirectiveUseMap, IDelegateToSchemaOptions, IExecutableSchemaDefinition, IResolvers, IMocks, PruneSchemaOptions } from 'graphql-tools'
 
-interface GraphQLComponentConfigObject {
+interface IGraphQLComponentConfigObject {
   component: GraphQLComponent;
   excludes?: string[];
 }
 
-interface GraphQLComponentOptions {
-  types?: string | string[];
-  resolvers?: object;
-  mocks?: boolean | object;
-  directives?: any;
+type ContextFunction = ((ctx: any) => any);
+
+interface IContextMiddleware {
+  name: string
+  fn: ContextFunction
+}
+
+interface IContextConfig {
+  namespace: string
+  factory: ContextFunction
+}
+
+interface IContextWrapper extends ContextFunction {
+  use: (name: string|ContextFunction|null, fn?: ContextFunction|string) => void
+}
+
+interface IGraphQLComponentOptions {
+  types?: (string | Source | DocumentNode)[] | (string | Source | DocumentNode);
+  resolvers?: IResolvers<any, any>;
+  mocks?: boolean | MocksConfigFunction;
+  directives?: DirectiveUseMap;
   federation?: boolean;
   makeExecutableSchema?: <TContext = any>({
     typeDefs,
@@ -22,14 +38,18 @@ interface GraphQLComponentOptions {
     updateResolversInPlace,
     schemaExtensions
   }) => IExecutableSchemaDefinition<TContext>;
-  imports?: GraphQLComponent[] | GraphQLComponentConfigObject[];
-  context?: any;
+  imports?: GraphQLComponent[] | IGraphQLComponentConfigObject[];
+  context?: IContextConfig;
   dataSources?: any[];
   dataSourceOverrides?: any;
+  pruneSchema?: boolean;
+  pruneSchemaOptions?: PruneSchemaOptions
 }
 
+type MocksConfigFunction = (IMocks) => IMocks;
+
 export default class GraphQLComponent {
-  constructor(options?: GraphQLComponentOptions);
+  constructor(options?: IGraphQLComponentOptions);
   static delegateToComponent(component: GraphQLComponent, options: IDelegateToSchemaOptions): Promise<any>
   readonly name: string;
   readonly schema: GraphQLSchema;
@@ -39,7 +59,7 @@ export default class GraphQLComponent {
   };
   readonly types: string[];
   readonly resolvers: object;
-  readonly imports: GraphQLComponentConfigObject[];
+  readonly imports: IGraphQLComponentConfigObject[];
   readonly mocks: any;
   readonly directives: any;
   readonly dataSources: any[];
