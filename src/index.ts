@@ -212,7 +212,8 @@ export default class GraphQLComponent implements IGraphQLComponent {
         subschemas,
         typeDefs: this._types,
         resolvers: this._resolvers,
-        schemaDirectives: this._directives
+        schemaDirectives: this._directives,
+        mergeDirectives: true
       });
     }
     else {

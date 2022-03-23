@@ -107,6 +107,28 @@ test('getters tests', (t) => {
 
 });
 
+test('component directives imports', (t) => {
+
+  t.test('include all', (t) => {
+    const component = new GraphQLComponent({
+      types: `
+        directive @parent_directive on OBJECT
+      `,
+      imports: [new GraphQLComponent({
+        types: `
+        directive @child_directive on OBJECT
+        `
+      })]
+    });
+  
+    t.ok(component.schema.getDirective('parent_directive'), `child component directives exist in merged`);
+    t.ok(component.schema.getDirective('child_directive'), `parent component directives exist in merged`);
+  
+    t.end();
+  });
+
+});
+
 test('federation', (t) => {
 
   t.test('federated schema can include custom directive', (t) => {
