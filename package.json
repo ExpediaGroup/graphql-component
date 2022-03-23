@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "3.0.1",
+  "version": "4.0.0-alpha.1",
   "description": "Build, customize and compose GraphQL schemas in a componentized fashion",
   "keywords": [
     "graphql",
@@ -13,9 +13,9 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
-    "test": "ts-node node_modules/.bin/tape lib/*/**/__tests__.ts lib/__tests__.ts",
-    "start-composition": "DEBUG=graphql-component:* node examples/composition/server/index.js",
-    "start-federation": "DEBUG=graphql-component:* node examples/federation/run-federation-example.js",
+    "test": "ts-node node_modules/.bin/tape test/**.ts",
+    "start-composition": "DEBUG=graphql-component node examples/composition/server/index.js",
+    "start-federation": "DEBUG=graphql-component node examples/federation/run-federation-example.js",
     "lint": "eslint lib",
     "cover": "nyc npm test"
   },
