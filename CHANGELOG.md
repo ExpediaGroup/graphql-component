@@ -1,4 +1,8 @@
 
+### v3.0.2
+
+- [FIXED] - imported components directives are merged into final schema
+
 ### v3.0.1
 
 - [FIXED] - if `exclude` is undefined in a component config
