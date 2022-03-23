@@ -1,7 +1,11 @@
 
-### v3.0.2
+### v3.0.3
 
 - [FIXED] - imported components directives are merged into final schema
+
+### v3.0.2 
+
+- schema pruning and remove broken makeExecutableSchema override
 
 ### v3.0.1
 
