@@ -54,17 +54,19 @@ federation (2 subschema services implemented via `GraphQLComponent` and a vanill
   - `pruneSchema` - (optional) prune the schema according to [pruneSchema in graphql-tools](https://www.graphql-tools.com/docs/api/modules/utils_src#pruneschema) (default: false)
   - `pruneSchemaOptions` - (optional) schema options as per [PruneSchemaOptions in graphql-tools](https://www.graphql-tools.com/docs/api/interfaces/utils_src.PruneSchemaOptions)
 
-- `static GraphQLComponent.delegateToComponent(component, options)` - a wrapper function that utilizes `graphql-tools` `delegateToSchema()` to delegate the calling resolver's selection set to a root type field (`Query`, `Mutuation`) of another `GraphQLComponent`'s schema
-  - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
-  - `options` (`object`)
-    - `operation` (optional, can be inferred from `info`): `query` or `mutation`
-    - `fieldName` (optional, can be inferred if target field has same name as calling resolver's field): the target root type (`Query`, `Mutation`) field in the target `GraphQLComponent`'s schema
-    - `context` (required) - the `context` object from resolver that calls `delegateToComponent`
-    - `info` (required) - the `info` object from the resolver that calls `delegateToComponent`
-    - `args` (`object`, optional) - an object literal whose keys/values are passed as args to the delegatee's target field resolver. By default, the resolver's args from which `delegateToComponent` is called will be passed if the target field has an argument of the same name. Otherwise, arguments passed via the `args` object will override the calling resolver's args of the same name.
-    - `transforms` (optional `Array<Transform>`): Transform being a valid `graphql-tools` transform
-
-  - please see `graphql-tools` [delegateToSchema](https://www.graphql-tools.com/docs/schema-delegation/#delegatetoschema) documentation for more details on available `options` since the delegateToComponent fuctions is simply an adapter for the `GraphQLComponent` API.
+- `static GraphQLComponent.delegateToComponent(component, options)` - DEPRECATED
+- `static GraphQLComponent.utils` - returns an object containing
+  - `static GraphQLComponent.delegateToComponent(component, options)` a wrapper function that utilizes `graphql-tools` `delegateToSchema()` to delegate the calling resolver's selection set to a root type field (`Query`, `Mutuation`) of another `GraphQLComponent`'s schema
+    - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
+    - `options` (`object`)
+      - `operation` (optional, can be inferred from `info`): `query` or `mutation`
+      - `fieldName` (optional, can be inferred if target field has same name as calling resolver's field): the target root type (`Query`, `Mutation`) field in the target `GraphQLComponent`'s schema
+      - `context` (required) - the `context` object from resolver that calls `delegateToComponent`
+      - `info` (required) - the `info` object from the resolver that calls `delegateToComponent`
+      - `args` (`object`, optional) - an object literal whose keys/values are passed as args to the delegatee's target field resolver. By default, the resolver's args from which `delegateToComponent` is called will be passed if the target field has an argument of the same name. Otherwise, arguments passed via the `args` object will override the calling resolver's args of the same name.
+      - `transforms` (optional `Array<Transform>`): Transform being a valid `graphql-tools` transform
+    - please see `graphql-tools` [delegateToSchema](https://www.graphql-tools.com/docs/schema-delegation/#delegatetoschema) documentation for more details on available `options` since the delegateToComponent fuctions is simply an adapter for the `GraphQLComponent` API.
+  - `pruneSchema(schema, options)` - an alternative to `graphql-tools` [pruneSchema](https://www.graphql-tools.com/docs/api/modules/utils_src#pruneschema).
 
 A GraphQLComponent instance (ie, `new GraphQLComponent({...})`) has the following API:
 
