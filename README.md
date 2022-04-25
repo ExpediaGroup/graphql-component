@@ -2,11 +2,11 @@
 
 # GraphQL schema components.
 
-This project is designed to faciliate componentized or modularized development of GraphQL schemas.
+This project is designed to facilitate componentized or modularized development of GraphQL schemas.
 
 Read more about the idea [here](https://medium.com/expedia-group-tech/graphql-component-architecture-principles-homeaway-ede8a58d6fde).
 
-`graphql-component` lets you build a schema progressively through a tree (faciliated through `imports`) of GraphQLComponent instances. Each GraphQLComponent instance encapsulates an executable GraphQL schema, specifically a `graphql-js` GraphQLSchema object. See the API below, but the encapsulated schema is accessible through a simple `schema` getter on a given `GraphQLComponent` instance.
+`graphql-component` lets you build a schema progressively through a tree (facilitated through `imports`) of GraphQLComponent instances. Each GraphQLComponent instance encapsulates an executable GraphQL schema, specifically a `graphql-js` GraphQLSchema object. See the API below, but the encapsulated schema is accessible through a simple `schema` getter on a given `GraphQLComponent` instance.
 
 Generally speaking, each instance of `GraphQLComponent` has reference to an instance of [`GraphQLSchema`](https://graphql.org/graphql-js/type/#graphqlschema). This instance of `GraphQLSchema` is built in a several ways, depending on the options passed to a given `GraphQLComponent`'s constructor.
 
@@ -31,7 +31,7 @@ federation (2 subschema services implemented via `GraphQLComponent` and a vanill
 
 ### Running examples:
 * composition: `npm run start-composition`
-* fedration: `npm run start-federation`
+* federation: `npm run start-federation`
 * go to `localhost:4000/graphql`
   * for composition this will bring up the GraphQL Playground for a plain old Apollo Server
   * for the federation example this will bring up the GraphQL Playground for an Apollo Federated Gateway
@@ -64,7 +64,7 @@ federation (2 subschema services implemented via `GraphQLComponent` and a vanill
     - `args` (`object`, optional) - an object literal whose keys/values are passed as args to the delegatee's target field resolver. By default, the resolver's args from which `delegateToComponent` is called will be passed if the target field has an argument of the same name. Otherwise, arguments passed via the `args` object will override the calling resolver's args of the same name.
     - `transforms` (optional `Array<Transform>`): Transform being a valid `graphql-tools` transform
 
-  - please see `graphql-tools` [delegateToSchema](https://www.graphql-tools.com/docs/schema-delegation/#delegatetoschema) documentation for more details on available `options` since the delegateToComponent fuctions is simply an adapter for the `GraphQLComponent` API.
+  - please see `graphql-tools` [delegateToSchema](https://www.graphql-tools.com/docs/schema-delegation/#delegatetoschema) documentation for more details on available `options` since the delegateToComponent functions is simply an adapter for the `GraphQLComponent` API.
 
 A GraphQLComponent instance (ie, `new GraphQLComponent({...})`) has the following API:
 
@@ -159,7 +159,7 @@ Data sources in `graphql-component` do not extend `apollo-datasource`'s `DataSou
 Instead, data sources in components will be injected into the context, but wrapped in a proxy such that the global
 context will be injected as the first argument of any function implemented in a data source class.
 
-This allows there to exist one instance of a data source for caching or other statefullness (like circuit breakers),
+This allows there to exist one instance of a data source for caching or other statefulness (like circuit breakers),
 while still ensuring that a data source will have the current context.
 
 For example, a data source should be implemented like:
