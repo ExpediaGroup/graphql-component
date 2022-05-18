@@ -23,21 +23,11 @@ interface IContextWrapper extends ContextFunction {
 }
 
 interface IGraphQLComponentOptions {
-  types?: (string | Source | DocumentNode)[] | (string | Source | DocumentNode);
+  types?: (string | Source | DocumentNode | GraphQLSchema)[] | (string | Source | DocumentNode | GraphQLSchema);
   resolvers?: IResolvers<any, any>;
   mocks?: boolean | MocksConfigFunction;
   directives?: DirectiveUseMap;
   federation?: boolean;
-  makeExecutableSchema?: <TContext = any>({
-    typeDefs,
-    resolvers,
-    resolverValidationOptions,
-    parseOptions,
-    inheritResolversFromInterfaces,
-    pruningOptions,
-    updateResolversInPlace,
-    schemaExtensions
-  }) => IExecutableSchemaDefinition<TContext>;
   imports?: GraphQLComponent[] | IGraphQLComponentConfigObject[];
   context?: IContextConfig;
   dataSources?: any[];
