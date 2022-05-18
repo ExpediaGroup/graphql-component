@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Build, customize and compose GraphQL schemas in a componentized fashion",
   "keywords": [
     "graphql",
