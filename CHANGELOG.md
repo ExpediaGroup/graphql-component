@@ -1,3 +1,6 @@
+### v3.0.4
+
+- Updated schema pruning dependency and TS definitions
 
 ### v3.0.3
 
