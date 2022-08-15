@@ -1,3 +1,7 @@
+### v3.1.0
+
+- Updated graphql-tools dependency to fix security vulnerabilities
+
 ### v3.0.4
 
 - Updated schema pruning dependency and TS definitions
