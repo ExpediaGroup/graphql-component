@@ -1,5 +1,9 @@
 import { DocumentNode, GraphQLSchema, Source } from 'graphql';
-import { DirectiveUseMap, IDelegateToSchemaOptions, IExecutableSchemaDefinition, IResolvers, IMocks, PruneSchemaOptions } from 'graphql-tools'
+import { IDelegateToSchemaOptions } from '@graphql-tools/delegate';
+import { IResolvers, PruneSchemaOptions } from '@graphql-tools/utils';
+import { IMocks } from '@graphql-tools/mock';
+
+type DirectiveUseMap = { [key: string]: any };
 
 interface IGraphQLComponentConfigObject {
   component: GraphQLComponent;
