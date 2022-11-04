@@ -4,20 +4,19 @@ const debug = require('debug')('graphql-component');
 import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
 
+import { mergeTypeDefs } from '@graphql-tools/merge';
 import {
-  stitchSchemas,
-  mergeTypeDefs,
-  addMocksToSchema,
-  makeExecutableSchema,
   pruneSchema,
-  SchemaDirectiveVisitor,
   IResolvers,
-  DirectiveUseMap,
-  SubschemaConfig,
   PruneSchemaOptions,
-  ITypedef,
-  IMocks
-} from 'graphql-tools';
+  TypeSource,
+  mapSchema,
+  SchemaMapper
+} from '@graphql-tools/utils';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { stitchSchemas } from '@graphql-tools/stitch';
+import { addMocksToSchema, IMocks } from '@graphql-tools/mock';
+import { SubschemaConfig } from '@graphql-tools/delegate';
 
 export type ResolverFunction = (_: any, args: any, ctx: any, info: GraphQLResolveInfo) => any;
 
@@ -30,6 +29,10 @@ export type ContextFunction = ((ctx: any) => any);
 
 export interface IDataSource {
   name: string
+}
+
+export type DataSource<T> = {
+  [P in keyof T]: T[P] extends (ctx: any, ...p: infer P) => infer R ? (...p: P) => R : never
 }
 
 export type DataSourceMap = {[key: string]: IDataSource};
@@ -46,27 +49,26 @@ export interface IContextWrapper extends ContextFunction {
 }
 
 export interface IGraphQLComponentOptions {
-  types?: ITypedef | ITypedef[]
+  types?: TypeSource
   resolvers?: IResolvers<any, any>;
   mocks?: IMocks;
-  directives?: DirectiveUseMap;
   imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
   context?: IContextConfig;
-  dataSources?: any[];
-  dataSourceOverrides?: any;
+  dataSources?: IDataSource[];
+  dataSourceOverrides?: IDataSource[];
   pruneSchema?: boolean;
   pruneSchemaOptions?: PruneSchemaOptions
   federation?: boolean;
+  transforms?: SchemaMapper[]
 }
 
 export interface IGraphQLComponent {
   readonly name: string;
   readonly schema: GraphQLSchema;
   readonly context: IContextWrapper;
-  readonly types: ITypedef[];
+  readonly types: TypeSource;
   readonly resolvers: IResolvers<any, any>;
   readonly imports?: IGraphQLComponentConfigObject[];
-  readonly directives?: DirectiveUseMap;
   readonly dataSources?: IDataSource[];
   federation?: boolean;
   overrideDataSources: (dataSources: DataSourceMap, context: any) => void
@@ -74,10 +76,9 @@ export interface IGraphQLComponent {
 
 export default class GraphQLComponent implements IGraphQLComponent {
   _schema: GraphQLSchema;
-  _types: ITypedef[];
+  _types: TypeSource;
   _resolvers: IResolvers<any, any>;
   _mocks: IMocks;
-  _directives: DirectiveUseMap;
   _imports: IGraphQLComponentConfigObject[];
   _context: ContextFunction;
   _dataSources: IDataSource[];
@@ -86,19 +87,20 @@ export default class GraphQLComponent implements IGraphQLComponent {
   _pruneSchemaOptions: PruneSchemaOptions
   _federation: boolean;
   _dataSourceInjection: DataSourceInjectionFunction;
+  _transforms: SchemaMapper[]
 
   constructor({
     types,
     resolvers,
     mocks,
-    directives,
     imports,
     context,
     dataSources,
     dataSourceOverrides,
     pruneSchema,
     pruneSchemaOptions,
-    federation  
+    federation,
+    transforms  
   }: IGraphQLComponentOptions) {
     
     this._types = Array.isArray(types) ? types : [types];
@@ -106,10 +108,10 @@ export default class GraphQLComponent implements IGraphQLComponent {
     this._resolvers = bindResolvers(this, resolvers);
     
     this._mocks = mocks;
-    
-    this._directives = directives;
 
     this._federation = federation;
+
+    this._transforms = transforms;
 
     this._dataSources = dataSources;
 
@@ -181,14 +183,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
     if (this._federation) {
       makeSchema = (schemaConfig): GraphQLSchema => {
-        const schema = buildFederatedSchema(schemaConfig);
-
-        // allows a federated schema to have custom directives using the old class based directive implementation
-        if (this._directives) {
-          SchemaDirectiveVisitor.visitSchemaDirectives(schema, this._directives);
-        }
-        
-        return schema;
+        return buildFederatedSchema(schemaConfig); //TODO: custom schema directives (alternative to SchemaDirectiveVisitor)
       };
     }
     else {
@@ -212,18 +207,21 @@ export default class GraphQLComponent implements IGraphQLComponent {
         subschemas,
         typeDefs: this._types,
         resolvers: this._resolvers,
-        schemaDirectives: this._directives,
         mergeDirectives: true
       });
     }
     else {
       const schemaConfig = {
         typeDefs: mergeTypeDefs(this._types),
-        resolvers: this._resolvers,
-        schemaDirectives: this._directives
+        resolvers: this._resolvers
       }
 
       this._schema = makeSchema(schemaConfig);
+    }
+
+    //TODO: add documentation
+    if (this._transforms) {
+      this._schema = transformSchema(this._schema, this._transforms);
     }
 
     if (this._mocks !== undefined && typeof this._mocks === 'boolean' && this._mocks === true) {
@@ -253,46 +251,46 @@ export default class GraphQLComponent implements IGraphQLComponent {
     const contextFunction = this.context;
     
     //TODO: FIX THIS 
-    // const dataSourceInject = (context: any = {}) : DataSourceMap => {
-    //   const intercept = (instance: IDataSource, context: any) => {
-    //     debug(`intercepting ${instance.constructor.name}`);
+    const dataSourceInject = (context: any = {}) : DataSourceMap => {
+      const intercept = (instance: IDataSource, context: any) => {
+        debug(`intercepting ${instance.constructor.name}`);
 
-    //     return new Proxy(instance, {
-    //       get(target, key) {
-    //         if (typeof target[key] !== 'function' || key === instance.constructor.name) {
-    //           return target[key];
-    //         }
-    //         const original = target[key];
+        return new Proxy(instance, {
+          get(target, key) {
+            if (typeof target[key] !== 'function' || key === instance.constructor.name) {
+              return target[key];
+            }
+            const original = target[key];
 
-    //         return function (...args) {
-    //           return original.call(instance, context, ...args);
-    //         };
-    //       }
-    //     });
-    //   };
+            return function (...args) {
+              return original.call(instance, context, ...args);
+            };
+          }
+        }) as any as DataSource<typeof instance>;
+      };
       
-    //   const dataSources = {};
+      const dataSources = {};
   
-    //   for (const { component } of this.imports) {
-    //     component.overrideDataSources(dataSources, dataSourceInject(context));
-    //   }
+      for (const { component } of this.imports) {
+        component.overrideDataSources(dataSources, dataSourceInject(context));
+      }
   
-    //   for (const override of this._dataSourceOverrides) {
-    //     debug(`overriding datasource ${override.constructor.name}`);
-    //     dataSources[override.constructor.name] = intercept(override, context);
-    //   }
+      for (const override of this._dataSourceOverrides) {
+        debug(`overriding datasource ${override.constructor.name}`);
+        dataSources[override.constructor.name] = intercept(override, context);
+      }
   
-    //   if (this.dataSources && this.dataSources.length > 0) {
-    //     for (const dataSource of this.dataSources) {
-    //       const name = dataSource.constructor.name;
-    //       if (!dataSources[name]) {
-    //         dataSources[name] = intercept(dataSource, context);
-    //       }
-    //     }
-    //   }
+      if (this.dataSources && this.dataSources.length > 0) {
+        for (const dataSource of this.dataSources) {
+          const name = dataSource.constructor.name;
+          if (!dataSources[name]) {
+            dataSources[name] = intercept(dataSource, context);
+          }
+        }
+      }
   
-    //   return dataSources;
-    // };
+      return dataSources;
+    };
 
     const context = async (context): Promise<any> => {
       debug(`building root context`);
@@ -326,7 +324,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
     return context;
   }
 
-  get types(): ITypedef[] {
+  get types(): TypeSource {
     return this._types;
   }
 
@@ -336,10 +334,6 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
   get imports(): IGraphQLComponentConfigObject[] {
     return this._imports;
-  }
-
-  get directives(): DirectiveUseMap {
-    return this._directives;
   }
 
   get dataSources(): IDataSource[] {
@@ -448,4 +442,30 @@ const bindResolvers = function (bindContext: IGraphQLComponent, resolvers: IReso
   }
 
   return boundResolvers;
+};
+
+const transformSchema = function (schema: GraphQLSchema, transforms: SchemaMapper[]) {
+  const functions = {};
+  const mapping = {};
+
+  for (const transform of transforms) {
+      for (const [key, fn] of Object.entries(transform)) {
+        if (!mapping[key]) {
+          functions[key] = [];          
+          mapping[key] = function  (arg) {
+            while (functions[key].length) {
+              const mapper = functions[key].shift();
+              arg = mapper(arg);
+              if (!arg) {
+                break;
+              }
+            }
+            return arg;
+          }
+        }
+        functions[key].push(fn);
+      }
+  }
+
+  return mapSchema(schema, mapping);
 }

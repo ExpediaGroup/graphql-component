@@ -1,5 +1,7 @@
 
+import { MapperKind } from '@graphql-tools/utils';
 import { SchemaDirectiveVisitor } from 'apollo-server';
+import { GraphQLFieldConfig, GraphQLSchema } from 'graphql';
 import { test } from 'tape';
 import GraphQLComponent from '../src';
 
@@ -79,26 +81,17 @@ test('getters tests', (t) => {
     t.equals(root.imports.length, 1, `only component's own imports are returned`);
   });
 
-  t.test('component directives', (t) => {
-    t.plan(1);
-
-    const component = new GraphQLComponent({
-      directives: { parentDirective: () => {}},
-      imports: [new GraphQLComponent({
-        directives: { childDirective: () => {}}
-      })]
-    });
-
-    t.equals(Object.keys(component.directives).length, 1, `only component's own directives are returned`);
-  });
-
   t.test('component datasources', (t) => {
     t.plan(1);
 
     const component = new GraphQLComponent({
-      dataSources: ['parentDataSourcePlaceHolder'],
+      dataSources: [new class ParentDataSource {
+        name: 'ParentDataSource'
+      }],
       imports: [new GraphQLComponent({
-        dataSources: ['childDataSourcePlaceHolder']
+        dataSources: [new class ChildDataSource {
+        name: 'ChildDataSource'
+      }]
       })]
     });
 
@@ -164,7 +157,11 @@ test('federation', (t) => {
           }
         },
       },
-      directives: { custom: CustomDirective },
+      transforms: [{
+        [MapperKind.OBJECT_FIELD]: (fieldConfig) => {
+          return fieldConfig;
+        }
+      }],
       federation: true
     });
   
@@ -184,16 +181,6 @@ test('federation', (t) => {
       t.equals(schemaDirectives.filter((directive) => directive.name === 'custom').length, 1, `federated schema has '@custom' directive`);
     });
   
-    t.test('extended properties maintained after adding custom directive', (t) => {
-      t.plan(2);
-      const { schema } = component;
-      const Extended = schema.getTypeMap().Extended;
-      const astNodes = Extended.extensionASTNodes[0] as any;
-
-      t.equals(Extended.extensionASTNodes.length, 1, 'Extension AST Nodes is defined');
-      t.equals(astNodes.fields.filter((field) => field.name.value === "id" && field.directives[0].name.value === "external").length, 1, `id field marked external`);
-      
-    });
   });
 
 });
