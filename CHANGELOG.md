@@ -1,3 +1,7 @@
+### v3.1.1
+
+- Updated @apollo/federation dependency for Node 18 compatibility
+
 ### v3.1.0
 
 - Updated graphql-tools dependency to fix security vulnerabilities
@@ -10,7 +14,7 @@
 
 - [FIXED] - imported components directives are merged into final schema
 
-### v3.0.2 
+### v3.0.2
 
 - schema pruning and remove broken makeExecutableSchema override
 
@@ -41,7 +45,7 @@
 
 ### v2.1.4
 
-- [REVERT] - reverting both fixes in [2.1.2](https://github.com/ExpediaGroup/graphql-component/releases/tag/v2.1.2). The change made to unify exclusions and return pre-computed results from non-root resolvers resulted in non-root resolvers not executing when they should have.  Being able to exclude non-root resolvers (not their types) is a valid work around in certain situations.
+- [REVERT] - reverting both fixes in [2.1.2](https://github.com/ExpediaGroup/graphql-component/releases/tag/v2.1.2). The change made to unify exclusions and return pre-computed results from non-root resolvers resulted in non-root resolvers not executing when they should have. Being able to exclude non-root resolvers (not their types) is a valid work around in certain situations.
 
 ### v2.1.3
 
@@ -72,7 +76,7 @@
 ### v2.0.3
 
 - [FIXED] individual field exclusions during import - individual field exclusions will no longer modify the original resolver map that is being imported.
-- [FIXED] tightened up argument forwarding when using `delegateToComponent()` - only arguments the target field is expecting   will be extracted from the calling resolver or from the `args` object provided to `delegateToComponent()` depending on the situation. Previously, there were some unintended argument leakage in certain edge cases.
+- [FIXED] tightened up argument forwarding when using `delegateToComponent()` - only arguments the target field is expecting will be extracted from the calling resolver or from the `args` object provided to `delegateToComponent()` depending on the situation. Previously, there were some unintended argument leakage in certain edge cases.
 
 ### v2.0.2
 

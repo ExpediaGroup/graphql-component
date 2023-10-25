@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Build, customize and compose GraphQL schemas in a componentized fashion",
   "keywords": [
     "graphql",
@@ -21,7 +21,7 @@
   "repository": "https://github.com/ExpediaGroup/graphql-component",
   "license": "MIT",
   "dependencies": {
-    "@apollo/federation": "^0.28.0",
+    "@apollo/federation": "^0.38.1",
     "@graphql-tools/delegate": "^8.8.1",
     "@graphql-tools/merge": "^8.3.1",
     "@graphql-tools/mock": "^8.7.1",
