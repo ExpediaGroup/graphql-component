@@ -1,6 +1,7 @@
-### v3.1.1
+### v4.0.0
 
-- Updated @apollo/federation dependency for Node 18 compatibility
+- Updated @apollo/federation dependency for Node 18 compatibility.
+- Drop Node 12 compatibility.
 
 ### v3.1.0
 
