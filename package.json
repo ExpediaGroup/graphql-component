@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Build, customize and compose GraphQL schemas in a componentized fashion",
   "keywords": [
     "graphql",
@@ -32,7 +32,7 @@
     "debug": "^4.3.1"
   },
   "peerDependencies": {
-    "graphql": "^15.0.0"
+    "graphql": "^16.0.0"
   },
   "devDependencies": {
     "@apollo/gateway": "^0.28.2",
