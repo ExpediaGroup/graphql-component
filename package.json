@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@apollo/gateway": "^0.28.2",
-    "apollo-server": "^2.25.0",
+    "apollo-server": "^3.13.0",
     "casual": "^1.6.0",
     "eslint": "^6.5.1",
     "graphql": "^15.0.0",
