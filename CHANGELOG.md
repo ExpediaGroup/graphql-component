@@ -1,3 +1,7 @@
+### v5.0.0
+
+- Update graphql peer-dependency for Apollo server v3.
+
 ### v4.0.0
 
 - Updated @apollo/federation dependency for Node 18 compatibility.
