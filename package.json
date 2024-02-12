@@ -39,7 +39,7 @@
     "apollo-server": "^3.13.0",
     "casual": "^1.6.0",
     "eslint": "^6.5.1",
-    "graphql": "^16.0.0",
+    "graphql": "^16.8.1",
     "graphql-tag": "^2.12.4",
     "nyc": "^14.1.1",
     "sinon": "^12.0.1",
