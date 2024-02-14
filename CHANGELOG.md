@@ -1,3 +1,7 @@
+### v5.0.1
+
+- Update @graphql-tools/utils dependency and fix samples for Apollo server v3.
+
 ### v5.0.0
 
 - Update graphql peer-dependency for Apollo server v3.
