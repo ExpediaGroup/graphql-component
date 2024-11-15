@@ -202,7 +202,6 @@ test('context', async (t) => {
 
   t.equals(context.test.value, 'local', 'context namespaced value is correct');
   t.equals(context.globalValue, 'global', 'context.globalValue is correct');
-  
 
 });
 

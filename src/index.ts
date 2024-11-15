@@ -69,7 +69,6 @@ export interface IGraphQLComponent {
   readonly resolvers: IResolvers<any, any>;
   readonly imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
   readonly dataSources?: IDataSource[];
-  overrideDataSources: (dataSources: DataSourceMap, context: any) => void
   federation?: boolean;
 }
 
@@ -85,7 +84,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
   _pruneSchema: boolean;
   _pruneSchemaOptions: PruneSchemaOptions
   _federation: boolean;
-  _dataSourceInjection: DataSourceInjectionFunction;
+  _dataSourceContextInject: DataSourceInjectionFunction;
   _transforms: SchemaMapper[]
 
   constructor({
@@ -116,6 +115,8 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
     this._dataSourceOverrides = dataSourceOverrides || [];
 
+    this._dataSourceContextInject = createDataSourceContextInjector(this._dataSources, this._dataSourceOverrides);
+
     this._pruneSchema = pruneSchema;
 
     this._pruneSchemaOptions = pruneSchemaOptions;
@@ -138,24 +139,24 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
 
     this._context = async (globalContext: any): Promise<any> => {
-      const ctx = Object.assign({}, globalContext);
+      const ctx = {
+        dataSources: this._dataSourceContextInject({ globalContext })
+      };
   
       for (const { component } of this.imports) {
-        Object.assign(ctx, await component.context(ctx));
+        const { dataSources, ...importedContext } = await component.context(globalContext);
+        Object.assign(ctx.dataSources, dataSources);
+        Object.assign(ctx, importedContext);
       }
-  
+
       if (context) {
         debug(`building ${context.namespace} context`);
 
         if (!ctx[context.namespace]) {
           ctx[context.namespace] = {};
         }
-
-        if (ctx[context.namespace]) {
-
-        }
   
-        Object.assign(ctx[context.namespace], await context.factory.call(this, ctx));
+        Object.assign(ctx[context.namespace], await context.factory.call(this, globalContext));
       }
   
       return ctx;
@@ -163,9 +164,39 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
   }
 
-  overrideDataSources(dataSources: DataSourceMap, context: any): void {
-    Object.assign(dataSources, this._dataSourceInjection(context));
-    return;
+  get context(): IContextWrapper {
+    const middleware = [];
+
+    const contextFn = async (context): Promise<any> => {
+      debug(`building root context`);
+  
+      for (let { name, fn } of middleware) {
+        debug(`applying ${name} middleware`);
+        context = await fn(context);
+      }
+  
+      const componentContext = await this._context(context);
+  
+      const globalContext = {
+        ...context,
+        ...componentContext
+      };
+      
+      //globalContext.dataSources = this._dataSourceContextInject({ globalContext });
+      
+      return globalContext;
+    };
+  
+    contextFn.use = function (name, fn) {
+      if (typeof name === 'function') {
+        fn = name;
+        name = 'unknown';
+      }
+      debug(`adding ${name} middleware`);
+      middleware.push({ name, fn });
+    };
+  
+    return contextFn;
   }
 
   get name(): string {
@@ -243,75 +274,6 @@ export default class GraphQLComponent implements IGraphQLComponent {
     return this._schema;
   }
 
-  get context(): IContextWrapper {
-    const middleware = [];
-    const contextFunction = this._context;
-  
-    const dataSourceInject = (context: any = {}): DataSourceMap => {
-      const intercept = (instance: IDataSource, context: any) => {
-        debug(`intercepting ${instance.constructor.name}`);
-  
-        return new Proxy(instance, {
-          get(target, key) {
-            if (typeof target[key] !== 'function' || key === instance.constructor.name) {
-              return target[key];
-            }
-            const original = target[key];
-  
-            return function (...args) {
-              return original.call(instance, context, ...args);
-            };
-          }
-        }) as any as DataSource<typeof instance>;
-      };
-  
-      const dataSources = {};
-  
-      // Inject data sources
-      for (const dataSource of this._dataSources) {
-        dataSources[dataSource.name] = intercept(dataSource, context);
-      }
-  
-      // Override data sources
-      for (const dataSourceOverride of this._dataSourceOverrides) {
-        dataSources[dataSourceOverride.name] = intercept(dataSourceOverride, context);
-      }
-  
-      return dataSources;
-    };
-
-    const context = async (context): Promise<any> => {
-      debug(`building root context`);
-  
-      for (let { name, fn } of middleware) {
-        debug(`applying ${name} middleware`);
-        context = await fn(context);
-      }
-  
-      const componentContext = await contextFunction(context);
-  
-      const globalContext = {
-        ...context,
-        ...componentContext
-      };
-      
-      globalContext.dataSources = dataSourceInject(globalContext);
-      
-      return globalContext;
-    };
-  
-    context.use = function (name, fn) {
-      if (typeof name === 'function') {
-        fn = name;
-        name = 'unknown';
-      }
-      debug(`adding ${name} middleware`);
-      middleware.push({ name, fn });
-    };
-  
-    return context;
-  }
-
   get types(): TypeSource {
     return this._types;
   }
@@ -337,11 +299,45 @@ export default class GraphQLComponent implements IGraphQLComponent {
   }
 
   get dataSourceInjection(): DataSourceInjectionFunction {
-    return this._dataSourceInjection;
+    return this._dataSourceContextInject;
   }
 
 }
 
+const createDataSourceContextInjector = (dataSources: IDataSource[], dataSourceOverrides: IDataSource[]): DataSourceInjectionFunction => {
+  const intercept = (instance: IDataSource, context: any) => {
+    debug(`intercepting ${instance.constructor.name}`);
+
+    return new Proxy(instance, {
+      get(target, key) {
+        if (typeof target[key] !== 'function' || key === instance.constructor.name) {
+          return target[key];
+        }
+        const original = target[key];
+
+        return function (...args) {
+          return original.call(instance, context, ...args);
+        };
+      }
+    }) as any as DataSource<typeof instance>;
+  };
+
+  return (context: any = {}): DataSourceMap => {
+    const proxiedDataSources = {};
+
+    // Inject data sources
+    for (const dataSource of dataSources) {
+      proxiedDataSources[dataSource.name] = intercept(dataSource, context);
+    }
+
+    // Override data sources
+    for (const dataSourceOverride of dataSourceOverrides) {
+      proxiedDataSources[dataSourceOverride.name] = intercept(dataSourceOverride, context);
+    }
+
+    return proxiedDataSources;
+  };
+};
 
 /**
  * memoizes resolver functions such that calls of an identical resolver (args/context/path) within the same request context are avoided
