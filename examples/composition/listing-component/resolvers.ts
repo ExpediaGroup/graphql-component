@@ -1,8 +1,8 @@
 'use strict';
 
-const GraphQLComponent = require('../../../lib');
+import { delegateToSchema } from '@graphql-tools/delegate';
 
-const resolvers = {
+export const resolvers = {
   Query: {
     async listing(_, { id }) {
       return { id };
@@ -10,16 +10,18 @@ const resolvers = {
   },
   Listing: {
     property(root, args, context, info) {
-      return GraphQLComponent.delegateToComponent(this.propertyComponent, {
+      return delegateToSchema({
+        schema: this.propertyComponent.schema,
         args: {
           id: root.id
         },
         context,
         info
-      })
+      });
     },
     reviews(root, args, context, info) {
-      return GraphQLComponent.delegateToComponent(this.reviewsComponent, {
+      return delegateToSchema({
+        schema: this.reviewsComponent.schema,
         operation: 'query',
         fieldName: 'reviewsByPropertyId',
         args: {
@@ -27,9 +29,7 @@ const resolvers = {
         },
         context,
         info
-      })
+      });
     }
   }
 };
-
-module.exports = resolvers;

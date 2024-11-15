@@ -1,9 +1,9 @@
 
-import { MapperKind } from '@graphql-tools/utils';
-import { SchemaDirectiveVisitor } from 'apollo-server';
-import { GraphQLFieldConfig, GraphQLSchema } from 'graphql';
+import { DirectiveLocation, MapperKind, mapSchema } from '@graphql-tools/utils';
+import { RenameTypes, SchemaDirectiveVisitor } from 'apollo-server';
+import { graphql, GraphQLDirective, GraphQLFieldConfig, GraphQLSchema, GraphQLString } from 'graphql';
 import { test } from 'tape';
-import GraphQLComponent from '../src';
+import GraphQLComponent, { IDataSource } from '../src';
 
 test('component names', (t) => {
 
@@ -183,4 +183,132 @@ test('federation', (t) => {
   
   });
 
+});
+
+test('context', async (t) => {
+  t.plan(3);
+
+  const component = new GraphQLComponent({
+    context: {
+      namespace: 'test',
+      factory: (ctx) => {
+        t.equals(ctx.globalValue, 'global', 'context factory receives global context');
+        return { value: 'local' }; 
+      }
+    }
+  });
+
+  const context = await component.context({ globalValue: 'global' });
+
+  t.equals(context.test.value, 'local', 'context namespaced value is correct');
+  t.equals(context.globalValue, 'global', 'context.globalValue is correct');
+  
+
+});
+
+test('data source injection', async (t) => {
+  t.plan(2);
+
+  const dataSource = new class TestDataSource implements IDataSource {
+    name = 'TestDataSource';
+    value = 'original';
+  };
+
+  const component = new GraphQLComponent({
+    dataSources: [
+      dataSource
+    ]
+  });
+
+  const context = await component.context({ globalValue: 'global' });
+
+  t.ok(context.dataSources.TestDataSource, 'data source is correctly injected');
+  t.equal(context.dataSources.TestDataSource.value, 'original', 'data source is correctly injected');
+});
+
+test('data source injection', async (t) => {
+  t.plan(2);
+
+  const dataSource = new class TestDataSource implements IDataSource {
+    name = 'TestDataSource';
+    value = 'original';
+  };
+
+  const dataSourceOverride = new class MockTestDataSource implements IDataSource {
+    name = 'TestDataSource';
+    value = 'override';
+  };
+
+  const component = new GraphQLComponent({
+    dataSources: [
+      dataSource
+    ],
+    dataSourceOverrides: [
+      dataSourceOverride
+    ]
+  });
+
+  const context = await component.context({ globalValue: 'global' });
+
+  t.ok(context.dataSources.TestDataSource, 'data source is correctly injected');
+  t.equal(context.dataSources.TestDataSource.value, 'override', 'data source is correctly injected');
+});
+
+test('transform with custom directive', async (t) => {
+  t.plan(1);
+
+  const types = `
+    directive @customDirective(argName: String) on FIELD_DEFINITION
+
+    type Query {
+      hello: String @customDirective(argName: "example")
+    }
+  `;
+
+  const resolvers = {
+    Query: {
+      hello: () => 'Hello world!'
+    }
+  };
+
+  const customDirective = new GraphQLDirective({
+    name: 'customDirective',
+    locations: [DirectiveLocation.FIELD_DEFINITION],
+    args: {
+      argName: { type: GraphQLString }
+    }
+  });
+
+  const component = new GraphQLComponent({
+    types,
+    resolvers,
+    transforms: [
+      {
+        [MapperKind.FIELD]: (fieldConfig) => {
+          const directives = fieldConfig.astNode?.directives || [];
+          if (directives.some(directive => directive.name.value === 'customDirective')) {
+            fieldConfig.description = 'This field has a custom directive';
+          }
+          return fieldConfig;
+        }
+      }
+    ]
+  });
+
+  const transformedSchema = component.schema;
+
+  const query = `
+    {
+      __type(name: "Query") {
+        fields {
+          name
+          description
+        }
+      }
+    }
+  `;
+
+  const result = await graphql(transformedSchema, query);
+
+  t.equal(result.data?.__type?.fields.find(field => field.name === 'hello')?.description, 'This field has a custom directive', 'custom directive is correctly applied');
 });

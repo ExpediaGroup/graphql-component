@@ -1,4 +1,3 @@
-
 const debug = require('debug')('graphql-component');
 
 import { buildFederatedSchema } from '@apollo/federation';
@@ -22,7 +21,7 @@ export type ResolverFunction = (_: any, args: any, ctx: any, info: GraphQLResolv
 
 export interface IGraphQLComponentConfigObject {
   component: IGraphQLComponent;
-  configuration?: SubschemaConfig; //TODO README
+  configuration?: SubschemaConfig; 
 }
 
 export type ContextFunction = ((ctx: any) => any);
@@ -68,10 +67,10 @@ export interface IGraphQLComponent {
   readonly context: IContextWrapper;
   readonly types: TypeSource;
   readonly resolvers: IResolvers<any, any>;
-  readonly imports?: IGraphQLComponentConfigObject[];
+  readonly imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
   readonly dataSources?: IDataSource[];
-  federation?: boolean;
   overrideDataSources: (dataSources: DataSourceMap, context: any) => void
+  federation?: boolean;
 }
 
 export default class GraphQLComponent implements IGraphQLComponent {
@@ -113,28 +112,23 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
     this._transforms = transforms;
 
-    this._dataSources = dataSources;
+    this._dataSources = dataSources || [];
 
-    this._dataSourceOverrides = dataSourceOverrides;
+    this._dataSourceOverrides = dataSourceOverrides || [];
 
     this._pruneSchema = pruneSchema;
 
     this._pruneSchemaOptions = pruneSchemaOptions;
 
-    this._imports = imports && imports.length > 0 ? imports.map((i) => {
-      // check for a GraphQLComponent instance to construct a configuration object from it
+    this._imports = imports && imports.length > 0 ? imports.map((i: GraphQLComponent | IGraphQLComponentConfigObject) => {
       if (i instanceof GraphQLComponent) {
-        // if the importing component (ie. this component) has federation set to true - set federation: true
-        // for all of its imported components
         if (this._federation === true) {
           i.federation = true;
         }
-
         return { component: i };
-      }
+      } 
       else {
         const importConfiguration = i as IGraphQLComponentConfigObject;
-
         if (this._federation === true) {
           importConfiguration.component.federation = true;
         }
@@ -143,21 +137,25 @@ export default class GraphQLComponent implements IGraphQLComponent {
     }) : [];
 
 
-    this._context = async (): Promise<any> => {
-      const ctx = {};
+    this._context = async (globalContext: any): Promise<any> => {
+      const ctx = Object.assign({}, globalContext);
   
       for (const { component } of this.imports) {
-        Object.assign(ctx, await component.context(context));
+        Object.assign(ctx, await component.context(ctx));
       }
   
       if (context) {
         debug(`building ${context.namespace} context`);
-        
+
         if (!ctx[context.namespace]) {
           ctx[context.namespace] = {};
         }
+
+        if (ctx[context.namespace]) {
+
+        }
   
-        Object.assign(ctx[context.namespace], await context.factory.call(this, context));
+        Object.assign(ctx[context.namespace], await context.factory.call(this, ctx));
       }
   
       return ctx;
@@ -183,7 +181,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
     if (this._federation) {
       makeSchema = (schemaConfig): GraphQLSchema => {
-        return buildFederatedSchema(schemaConfig); //TODO: custom schema directives (alternative to SchemaDirectiveVisitor)
+        return buildFederatedSchema(schemaConfig);
       };
     }
     else {
@@ -219,7 +217,6 @@ export default class GraphQLComponent implements IGraphQLComponent {
       this._schema = makeSchema(schemaConfig);
     }
 
-    //TODO: add documentation
     if (this._transforms) {
       this._schema = transformSchema(this._schema, this._transforms);
     }
@@ -246,47 +243,38 @@ export default class GraphQLComponent implements IGraphQLComponent {
     return this._schema;
   }
 
-  get context() : IContextWrapper {
+  get context(): IContextWrapper {
     const middleware = [];
-    const contextFunction = this.context;
-    
-    //TODO: FIX THIS 
-    const dataSourceInject = (context: any = {}) : DataSourceMap => {
+    const contextFunction = this._context;
+  
+    const dataSourceInject = (context: any = {}): DataSourceMap => {
       const intercept = (instance: IDataSource, context: any) => {
         debug(`intercepting ${instance.constructor.name}`);
-
+  
         return new Proxy(instance, {
           get(target, key) {
             if (typeof target[key] !== 'function' || key === instance.constructor.name) {
               return target[key];
             }
             const original = target[key];
-
+  
             return function (...args) {
               return original.call(instance, context, ...args);
             };
           }
         }) as any as DataSource<typeof instance>;
       };
-      
+  
       const dataSources = {};
   
-      for (const { component } of this.imports) {
-        component.overrideDataSources(dataSources, dataSourceInject(context));
+      // Inject data sources
+      for (const dataSource of this._dataSources) {
+        dataSources[dataSource.name] = intercept(dataSource, context);
       }
   
-      for (const override of this._dataSourceOverrides) {
-        debug(`overriding datasource ${override.constructor.name}`);
-        dataSources[override.constructor.name] = intercept(override, context);
-      }
-  
-      if (this.dataSources && this.dataSources.length > 0) {
-        for (const dataSource of this.dataSources) {
-          const name = dataSource.constructor.name;
-          if (!dataSources[name]) {
-            dataSources[name] = intercept(dataSource, context);
-          }
-        }
+      // Override data sources
+      for (const dataSourceOverride of this._dataSourceOverrides) {
+        dataSources[dataSourceOverride.name] = intercept(dataSourceOverride, context);
       }
   
       return dataSources;

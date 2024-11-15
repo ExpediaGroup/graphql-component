@@ -6,10 +6,10 @@ const reviewsDB = {
   2: [ { id: 'rev-id-2-a', content: 'This property was amazing for our extended family'}, { id: 'rev-id-2-b', content: 'I loved the proximity to the beach'}, { id: 'rev-id-2-c', content: 'The bed was not comfortable at all'}]
 }
 
-class ReviewsDataSource {
+export default class ReviewsDataSource {
+  name = 'ReviewsDataSource';
+
   getReviewsByPropertyId(context, propertyId) {
     return reviewsDB[propertyId]
   }
 };
-
-module.exports = ReviewsDataSource;

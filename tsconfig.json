@@ -5,7 +5,6 @@
     "target": "esnext",
     "lib": ["esnext"],
     "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "inlineSourceMap": true,

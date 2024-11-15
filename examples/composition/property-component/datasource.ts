@@ -5,10 +5,10 @@ const propertiesDB = {
   2: { id: 2, geo: ['111.1111', '222.2222']}
 }
 
-class PropertyDataSource {
+export default class PropertyDataSource {
+  name = 'PropertyDataSource';
+
   getPropertyById(context, id) {
     return propertiesDB[id];
   }
 }
-
-module.exports = PropertyDataSource;

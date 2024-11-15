@@ -1,12 +1,16 @@
 'use strict';
 
-const GraphQLComponent = require('../../../lib/index');
-const Property = require('../property-component');
-const Reviews = require('../reviews-component');
-const resolvers = require('./resolvers');
-const types = require('./types');
+import { types } from "./types";
+import { resolvers } from "./resolvers";
+import GraphQLComponent from "../../../src";
+import Property from "../property-component";
+import Reviews from "../reviews-component";
 
-class ListingComponent extends GraphQLComponent {
+
+export default class ListingComponent extends GraphQLComponent {
+  propertyComponent: Property;
+  reviewsComponent: Reviews;
+  
   constructor(options) {
     const propertyComponent = new Property();
     const reviewsComponent = new Reviews();

@@ -46,13 +46,13 @@ federation (2 subschema services implemented via `GraphQLComponent` and a vanill
   - `resolvers` - a resolver map (ie. a two level map whose first level keys are types from the SDL, mapped to objects, whose keys are fields on those types and values are resolver functions)
   - `imports` - an optional array of imported components for the schema to be merged with.
   - `context` - an optional object { namespace, factory } for contributing to context.
-  - `directives` - an optional object containing custom schema directives.
   - `mocks` - a boolean (to enable default mocks) or an object to pass in custom mocks
   - `dataSources` - an array of data sources instances to make available on `context.dataSources` .
   - `dataSourceOverrides` - overrides for data sources in the component tree.
   - `federation` - make this component's schema an Apollo Federated schema (default: `false`).
   - `pruneSchema` - (optional) prune the schema according to [pruneSchema in graphql-tools](https://www.graphql-tools.com/docs/api/modules/utils_src#pruneschema) (default: false)
   - `pruneSchemaOptions` - (optional) schema options as per [PruneSchemaOptions in graphql-tools](https://www.graphql-tools.com/docs/api/interfaces/utils_src.PruneSchemaOptions)
+  - `transforms` - An array of schema transforms to apply to the component's schema.
 
 - `static GraphQLComponent.delegateToComponent(component, options)` - a wrapper function that utilizes `graphql-tools` `delegateToSchema()` to delegate the calling resolver's selection set to a root type field (`Query`, `Mutuation`) of another `GraphQLComponent`'s schema
   - `component` (instance of `GraphQLComponent`) - the component's whose schema will be the target of the delegated operation
