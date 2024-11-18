@@ -44,10 +44,10 @@ export interface IGraphQLComponent {
     readonly context: IContextWrapper;
     readonly types: TypeSource;
     readonly resolvers: IResolvers<any, any>;
-    readonly imports?: IGraphQLComponentConfigObject[];
+    readonly imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
     readonly dataSources?: IDataSource[];
+    readonly dataSourcesOverrides?: IDataSource[];
     federation?: boolean;
-    overrideDataSources: (dataSources: DataSourceMap, context: any) => void;
 }
 export default class GraphQLComponent implements IGraphQLComponent {
     _schema: GraphQLSchema;
@@ -61,18 +61,17 @@ export default class GraphQLComponent implements IGraphQLComponent {
     _pruneSchema: boolean;
     _pruneSchemaOptions: PruneSchemaOptions;
     _federation: boolean;
-    _dataSourceInjection: DataSourceInjectionFunction;
+    _dataSourceContextInject: DataSourceInjectionFunction;
     _transforms: SchemaMapper[];
     constructor({ types, resolvers, mocks, imports, context, dataSources, dataSourceOverrides, pruneSchema, pruneSchemaOptions, federation, transforms }: IGraphQLComponentOptions);
-    overrideDataSources(dataSources: DataSourceMap, context: any): void;
+    get context(): IContextWrapper;
     get name(): string;
     get schema(): GraphQLSchema;
-    get context(): IContextWrapper;
     get types(): TypeSource;
     get resolvers(): IResolvers;
     get imports(): IGraphQLComponentConfigObject[];
     get dataSources(): IDataSource[];
+    get dataSourcesOverrides(): IDataSource[];
     set federation(flag: boolean);
     get federation(): boolean;
-    get dataSourceInjection(): DataSourceInjectionFunction;
 }

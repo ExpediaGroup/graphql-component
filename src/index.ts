@@ -69,6 +69,7 @@ export interface IGraphQLComponent {
   readonly resolvers: IResolvers<any, any>;
   readonly imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
   readonly dataSources?: IDataSource[];
+  readonly dataSourcesOverrides?: IDataSource[];
   federation?: boolean;
 }
 
@@ -182,8 +183,6 @@ export default class GraphQLComponent implements IGraphQLComponent {
         ...componentContext
       };
       
-      //globalContext.dataSources = this._dataSourceContextInject({ globalContext });
-      
       return globalContext;
     };
   
@@ -290,6 +289,10 @@ export default class GraphQLComponent implements IGraphQLComponent {
     return this._dataSources;
   }
 
+  get dataSourcesOverrides(): IDataSource[] {
+    return this._dataSourceOverrides;
+  }
+
   set federation(flag) {
     this._federation = flag;
   }
@@ -298,12 +301,14 @@ export default class GraphQLComponent implements IGraphQLComponent {
     return this._federation;
   }
 
-  get dataSourceInjection(): DataSourceInjectionFunction {
-    return this._dataSourceContextInject;
-  }
-
 }
 
+/**
+ * Wraps data sources with a proxy that intercepts calls to data source methods and injects the current context
+ * @param {IDataSource[]} dataSources 
+ * @param {IDataSource[]} dataSourceOverrides 
+ * @returns {DataSourceInjectionFunction} a function that returns a map of data sources with methods that have been intercepted
+ */
 const createDataSourceContextInjector = (dataSources: IDataSource[], dataSourceOverrides: IDataSource[]): DataSourceInjectionFunction => {
   const intercept = (instance: IDataSource, context: any) => {
     debug(`intercepting ${instance.constructor.name}`);
@@ -428,6 +433,12 @@ const bindResolvers = function (bindContext: IGraphQLComponent, resolvers: IReso
   return boundResolvers;
 };
 
+/**
+ * Transforms a schema using the provided transforms
+ * @param {GraphQLSchema} schema The schema to transform
+ * @param {SchemaMapper[]} transforms An array of schema transforms
+ * @returns {GraphQLSchema} The transformed schema
+ */
 const transformSchema = function (schema: GraphQLSchema, transforms: SchemaMapper[]) {
   const functions = {};
   const mapping = {};
