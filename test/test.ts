@@ -370,3 +370,42 @@ test('schema pruning', async (t) => {
   t.ok(!schema.getType('UnusedType'), 'unused type is pruned from the schema');
 });
 
+test('resolver binding', async (t) => {
+  t.plan(1);
+
+  class MyComponent extends GraphQLComponent {
+    value: string;
+
+    constructor(options) {
+      super(options);
+      this.value = 'Hello world!';
+    }
+  };
+
+  const component = new MyComponent({
+    types: `
+      type Query {
+        hello: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello() {
+          return this.value;
+        }
+      }
+    }
+  });
+
+  const schema = component.schema;
+
+  const query = `
+    {
+      hello
+    }
+  `;
+
+  const result = await graphql(schema, query, null, {});
+
+  t.equal(result.data?.hello, 'Hello world!', 'resolver correctly binds to context');
+});
