@@ -1,7 +1,7 @@
 'use strict';
 
 const { ApolloServer } = require('apollo-server');
-const GraphQLComponent = require('../../../lib');
+const GraphQLComponent = require('../../../dist').default;
 const PropertyDataSource = require('./datasource');
 const resolvers = require('./resolvers');
 const types = require('./types');

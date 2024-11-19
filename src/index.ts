@@ -332,12 +332,12 @@ const createDataSourceContextInjector = (dataSources: IDataSource[], dataSourceO
 
     // Inject data sources
     for (const dataSource of dataSources) {
-      proxiedDataSources[dataSource.name] = intercept(dataSource, context);
+      proxiedDataSources[dataSource.name || dataSource.constructor.name] = intercept(dataSource, context);
     }
 
     // Override data sources
     for (const dataSourceOverride of dataSourceOverrides) {
-      proxiedDataSources[dataSourceOverride.name] = intercept(dataSourceOverride, context);
+      proxiedDataSources[dataSourceOverride.name || dataSourceOverride.constructor.name] = intercept(dataSourceOverride, context);
     }
 
     return proxiedDataSources;

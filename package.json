@@ -15,7 +15,7 @@
     "prepublish": "npm run build",
     "test": "ts-node node_modules/.bin/tape test/**.ts",
     "start-composition": "DEBUG=graphql-component ts-node examples/composition/server/index.ts",
-    "start-federation": "DEBUG=graphql-component ts-node examples/federation/run-federation-example.ts",
+    "start-federation": "DEBUG=graphql-component node examples/federation/run-federation-example.js",
     "lint": "eslint lib",
     "cover": "nyc npm test"
   },
