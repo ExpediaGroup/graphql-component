@@ -166,12 +166,11 @@ export default class GraphQLComponent implements IGraphQLComponent {
   }
 
   get context(): IContextWrapper {
-    const middleware = [];
 
     const contextFn = async (context): Promise<any> => {
       debug(`building root context`);
   
-      for (let { name, fn } of middleware) {
+      for (let { name, fn } of contextFn._middleware) {
         debug(`applying ${name} middleware`);
         context = await fn(context);
       }
@@ -186,13 +185,17 @@ export default class GraphQLComponent implements IGraphQLComponent {
       return globalContext;
     };
   
-    contextFn.use = function (name, fn) {
+    contextFn._middleware = [];
+
+    contextFn.use = function (name: string, fn: ContextFunction): IContextWrapper {
       if (typeof name === 'function') {
         fn = name;
         name = 'unknown';
       }
       debug(`adding ${name} middleware`);
-      middleware.push({ name, fn });
+      contextFn._middleware.push({ name, fn });
+      
+      return contextFn;
     };
   
     return contextFn;

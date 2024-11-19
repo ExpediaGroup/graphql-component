@@ -1,6 +1,6 @@
 import { DirectiveLocation, MapperKind, mapSchema } from '@graphql-tools/utils';
 import { RenameTypes, SchemaDirectiveVisitor } from 'apollo-server';
-import { graphql, GraphQLDirective, GraphQLFieldConfig, GraphQLSchema, GraphQLString, printSchema } from 'graphql';
+import { graphql, GraphQLDirective, GraphQLFieldConfig, GraphQLObjectType, GraphQLSchema, GraphQLString, printSchema } from 'graphql';
 import { test } from 'tape';
 import GraphQLComponent, { IDataSource } from '../src';
 
@@ -23,6 +23,21 @@ test('component names', (t) => {
 
     t.equals(component.name, 'Named', `named constructor reflects class name`);
   });
+
+});
+
+test('component types as array', (t) => {
+
+  t.plan(2);
+
+  const component = new GraphQLComponent({
+    types: [
+      `type Query { hello: String }`
+    ]
+  });
+
+  t.ok(component.schema, 'component with types as array can be created');
+  t.ok(component.schema.getQueryType(), 'component with types as array can be created');
 
 });
 
@@ -124,13 +139,7 @@ test('component directives imports', (t) => {
 test('federation', (t) => {
 
   t.test('federated schema can include custom directive', (t) => {
-    class CustomDirective extends SchemaDirectiveVisitor {
-      // required for our dummy "custom" directive (ie. implement the SchemaDirectiveVisitor interface)
-      visitFieldDefinition() {
-        return;
-      }
-    }
-  
+
     const component = new GraphQLComponent({
       types: `
         directive @custom on FIELD_DEFINITION
@@ -182,6 +191,52 @@ test('federation', (t) => {
   
   });
 
+  t.test('imported federated components will merge correctly', (t) => {
+
+    t.plan(1);
+
+    const component = new GraphQLComponent({
+      types: `
+        type Outer {
+          id: ID!
+        }
+      `,
+      federation: true,
+      pruneSchema: false,
+      imports: [
+        new GraphQLComponent({
+          types: `
+            type Inner {
+              id: ID!
+            }
+          `,
+          pruneSchema: false
+        })
+      ]
+    });
+
+    t.ok(component.imports[0].component.federation, 'imported federated component types are merged');
+
+  });
+
+});
+
+test('imports as configuration', (t) => {
+
+  t.plan(1);
+
+  const component = new GraphQLComponent({
+    imports: [
+      {
+        component: new GraphQLComponent({
+          types: `type Query { hello: String }`
+        })
+      }
+    ]
+  });
+
+  t.ok(component.schema.getQueryType(), 'component with imports as configuration can be created');
+
 });
 
 test('context', async (t) => {
@@ -202,6 +257,69 @@ test('context', async (t) => {
   t.equals(context.test.value, 'local', 'context namespaced value is correct');
   t.equals(context.globalValue, 'global', 'context.globalValue is correct');
 
+});
+
+test('context with subcontext', async (t) => {
+  t.plan(1);
+
+  const component = new GraphQLComponent({
+    types: `type Query { hello: String }`,
+    context: {
+      namespace: 'test',
+      factory: (ctx) => {
+        return { value: 'local' }; 
+      }
+    },
+    imports: [
+      new GraphQLComponent({
+        types: `type Query { subhello: String }`,
+        context: {
+          namespace: 'subtest',
+          factory: (ctx) => {
+            return { value: 'sublocal' };
+          }
+        }
+      })
+    ]
+  });
+
+  const context = await component.context({});
+
+  t.equals(context.subtest.value, 'sublocal', 'subcontext value is correct');
+});
+
+test('middleware', async (t) => {
+
+  t.plan(3);
+
+  const component = new GraphQLComponent({
+    types: `type Query { hello: String }`,
+    resolvers: {
+      Query: {
+        hello() {
+          return 'Hello world!';
+        }
+      }
+    },
+    context: {
+      namespace: 'componentContext',
+      factory: (ctx) => {
+        return { value: 'local' }; 
+      }
+    }
+  });
+
+  const context = component.context;
+
+  context.use((ctx) => {
+    t.ok(ctx, 'middleware executed');
+    return { middlware: 'middleware' };
+  });
+
+  const { componentContext, middlware } = await context({});
+
+  t.equals(componentContext.value, 'local', 'component context added');
+  t.equals(middlware, 'middleware', 'middleware context added');
 });
 
 test('data source injection', async (t) => {
