@@ -1,7 +1,6 @@
-
 import { DirectiveLocation, MapperKind, mapSchema } from '@graphql-tools/utils';
 import { RenameTypes, SchemaDirectiveVisitor } from 'apollo-server';
-import { graphql, GraphQLDirective, GraphQLFieldConfig, GraphQLSchema, GraphQLString } from 'graphql';
+import { graphql, GraphQLDirective, GraphQLFieldConfig, GraphQLSchema, GraphQLString, printSchema } from 'graphql';
 import { test } from 'tape';
 import GraphQLComponent, { IDataSource } from '../src';
 
@@ -311,3 +310,63 @@ test('transform with custom directive', async (t) => {
 
   t.equal(result.data?.__type?.fields.find(field => field.name === 'hello')?.description, 'This field has a custom directive', 'custom directive is correctly applied');
 });
+
+test('schema composition', async (t) => {
+  t.plan(2);
+
+  const component = new GraphQLComponent({
+    imports: [
+      new GraphQLComponent({
+        types: `
+          type Property {
+            id: ID!
+            name: String
+          }
+        `
+      }),
+      new GraphQLComponent({
+        types: `
+          type Review {
+            id: ID!
+            content: String
+          }
+        `
+      })
+    ]
+  });
+
+  const schema = component.schema;
+
+  t.ok(schema.getType('Property'), 'Property type is present in the composed schema');
+  t.ok(schema.getType('Review'), 'Review type is present in the composed schema');
+});
+
+test('schema pruning', async (t) => {
+  t.plan(2);
+
+  const component = new GraphQLComponent({
+    types: `
+      type Query {
+        hello: UsedType
+      }
+      type UsedType {
+        id: ID!
+      }
+      type UnusedType {
+        id: ID!
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello: () => 'Hello world!'
+      }
+    },
+    pruneSchema: true
+  });
+
+  const schema = component.schema;
+
+  t.ok(schema.getType('UsedType'), 'UsedType type is present in the composed schema');
+  t.ok(!schema.getType('UnusedType'), 'unused type is pruned from the schema');
+});
+
