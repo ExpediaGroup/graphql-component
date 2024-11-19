@@ -409,3 +409,40 @@ test('resolver binding', async (t) => {
 
   t.equal(result.data?.hello, 'Hello world!', 'resolver correctly binds to context');
 });
+
+test('resolve memoization', async (t) => {
+  t.plan(1);
+
+  let count = 0;
+
+  const component = new GraphQLComponent({
+    types: `
+      type Query {
+        hello: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello: () => {
+          count++;
+          return 'Hello world!';
+        }
+      }
+    }
+  });
+
+  const schema = component.schema;
+
+  const query = `
+    {
+      hello
+    }
+  `;
+
+  const ctx = {};
+
+  const result1 = await graphql(schema, query, null, ctx, { operationName: 'first' });
+  const result2 = await graphql(schema, query, null, ctx, { operationName: 'second' });
+
+  t.equal(count, 1, 'resolver is memoized');
+});
