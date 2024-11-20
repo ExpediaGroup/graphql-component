@@ -17,38 +17,40 @@
     "start-composition": "DEBUG=graphql-component ts-node examples/composition/server/index.ts",
     "start-federation": "DEBUG=graphql-component node examples/federation/run-federation-example.js",
     "lint": "eslint lib",
-    "cover": "nyc npm test"
+    "cover": "nyc npm test",
+    "update-deps": "ncu -u && npm install"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
   "repository": "https://github.com/ExpediaGroup/graphql-component",
   "license": "MIT",
   "dependencies": {
-    "@apollo/federation": "^0.28.0",
-    "@graphql-tools/delegate": "^8.7.6",
-    "@graphql-tools/merge": "^8.2.9",
-    "@graphql-tools/mock": "^8.6.7",
-    "@graphql-tools/schema": "^8.3.9",
-    "@graphql-tools/stitch": "^8.6.8",
-    "@graphql-tools/utils": "^8.6.8",
+    "@apollo/federation": "^0.38.1",
+    "@graphql-tools/delegate": "^10.2.0",
+    "@graphql-tools/merge": "^9.0.9",
+    "@graphql-tools/mock": "^9.0.6",
+    "@graphql-tools/schema": "^10.0.8",
+    "@graphql-tools/stitch": "^9.4.0",
+    "@graphql-tools/utils": "^10.5.6",
     "@types/graphql": "^14.5.0",
-    "@types/node": "^17.0.21",
-    "debug": "^4.3.1"
+    "@types/node": "^22.9.1",
+    "debug": "^4.3.7"
   },
   "peerDependencies": {
-    "graphql": "^15.0.0"
+    "graphql": "^16.0.0"
   },
   "devDependencies": {
-    "typescript": "^4.6.2",
-    "@apollo/gateway": "^0.28.2",
-    "apollo-server": "^2.25.0",
-    "casual": "^1.6.0",
-    "eslint": "^6.5.1",
-    "graphql": "^15.0.0",
-    "graphql-tag": "^2.12.4",
-    "nyc": "^14.1.1",
-    "sinon": "^12.0.1",
-    "tape": "^4.9.1",
-    "ts-node": "^10.6.0"
+    "@apollo/gateway": "^2.9.3",
+    "apollo-server": "^3.13.0",
+    "casual": "^1.6.2",
+    "eslint": "^9.15.0",
+    "graphql": "^16.9.0",
+    "graphql-tag": "^2.12.6",
+    "nyc": "^17.1.0",
+    "sinon": "^19.0.2",
+    "tape": "^5.9.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "npm-check-updates": "^17.1.11"
   },
   "nyc": {
     "include": [

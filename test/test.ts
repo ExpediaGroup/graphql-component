@@ -1,6 +1,5 @@
-import { DirectiveLocation, MapperKind, mapSchema } from '@graphql-tools/utils';
-import { RenameTypes, SchemaDirectiveVisitor } from 'apollo-server';
-import { graphql, GraphQLDirective, GraphQLFieldConfig, GraphQLObjectType, GraphQLSchema, GraphQLString, printSchema } from 'graphql';
+import { DirectiveLocation, MapperKind } from '@graphql-tools/utils';
+import { graphql, GraphQLDirective, GraphQLString } from 'graphql';
 import { test } from 'tape';
 import GraphQLComponent, { IDataSource } from '../src';
 
@@ -434,9 +433,9 @@ test('transform with custom directive', async (t) => {
     }
   `;
 
-  const result = await graphql(transformedSchema, query);
-
-  t.equal(result.data?.__type?.fields.find(field => field.name === 'hello')?.description, 'This field has a custom directive', 'custom directive is correctly applied');
+  const result = await graphql({ schema: transformedSchema, source: query }) as any;
+  
+  t.equal(result.data?.__type?.fields?.find(field => field.name === 'hello')?.description, 'This field has a custom directive', 'custom directive is correctly applied');
 });
 
 test('schema composition', async (t) => {
@@ -533,7 +532,7 @@ test('resolver binding', async (t) => {
     }
   `;
 
-  const result = await graphql(schema, query, null, {});
+  const result = await graphql({ schema, source: query, contextValue: {} });
 
   t.equal(result.data?.hello, 'Hello world!', 'resolver correctly binds to context');
 });
@@ -567,10 +566,10 @@ test('resolve memoization', async (t) => {
     }
   `;
 
-  const ctx = {};
+  const ctx = { v: 1 };
 
-  const result1 = await graphql(schema, query, null, ctx, { operationName: 'first' });
-  const result2 = await graphql(schema, query, null, ctx, { operationName: 'second' });
+  const result1 = await graphql({ schema, source: query, contextValue: ctx });
+  const result2 = await graphql({ schema, source: query, contextValue: ctx });
 
   t.equal(count, 1, 'resolver is memoized');
 });

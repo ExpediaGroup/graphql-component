@@ -28,7 +28,7 @@ export interface IContextWrapper extends ContextFunction {
 export interface IGraphQLComponentOptions {
     types?: TypeSource;
     resolvers?: IResolvers<any, any>;
-    mocks?: IMocks;
+    mocks?: boolean | IMocks;
     imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
     context?: IContextConfig;
     dataSources?: IDataSource[];
@@ -53,7 +53,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
     _schema: GraphQLSchema;
     _types: TypeSource;
     _resolvers: IResolvers<any, any>;
-    _mocks: IMocks;
+    _mocks: boolean | IMocks;
     _imports: IGraphQLComponentConfigObject[];
     _context: ContextFunction;
     _dataSources: IDataSource[];
