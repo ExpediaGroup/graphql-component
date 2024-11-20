@@ -140,6 +140,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
 
     this._context = async (globalContext: any): Promise<any> => {
+      //TODO: currently the context injected into data sources won't have data sources on it
       const ctx = {
         dataSources: this._dataSourceContextInject(globalContext)
       };

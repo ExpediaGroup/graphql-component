@@ -362,10 +362,13 @@ test('data source injection', async (t) => {
     value = 'override';
   };
 
-  const component = new GraphQLComponent({
-    dataSources: [
-      dataSource
-    ],
+  class MyComponent extends GraphQLComponent {
+    constructor(options) {
+      super({ dataSources: [dataSource], ...options });
+    }
+  }
+
+  const component = new MyComponent({
     dataSourceOverrides: [
       dataSourceOverride
     ]
