@@ -24,19 +24,21 @@ export interface IGraphQLComponentConfigObject {
   configuration?: SubschemaConfig; 
 }
 
-export type ContextFunction = ((ctx: any) => any);
+type GlobalContext = { [key: string]: unknown };
+
+export type ContextFunction = ((ctx: GlobalContext) => any);
 
 export interface IDataSource {
   name: string
 }
 
 export type DataSource<T> = {
-  [P in keyof T]: T[P] extends (ctx: any, ...p: infer P) => infer R ? (...p: P) => R : never
+  [P in keyof T]: T[P] extends (ctx: GlobalContext, ...p: infer P) => infer R ? (...p: P) => R : never
 }
 
 export type DataSourceMap = {[key: string]: IDataSource};
 
-export type DataSourceInjectionFunction = ((ctx: any) => DataSourceMap);
+export type DataSourceInjectionFunction = ((ctx: GlobalContext) => DataSourceMap);
 
 export interface IContextConfig {
   namespace: string;
@@ -139,7 +141,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
     }) : [];
 
 
-    this._context = async (globalContext: any): Promise<any> => {
+    this._context = async (globalContext: GlobalContext): Promise<GlobalContext> => {
       //TODO: currently the context injected into data sources won't have data sources on it
       const ctx = {
         dataSources: this._dataSourceContextInject(globalContext)
@@ -168,7 +170,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
   get context(): IContextWrapper {
 
-    const contextFn = async (context): Promise<any> => {
+    const contextFn = async (context): Promise<GlobalContext> => {
       debug(`building root context`);
   
       for (let { name, fn } of contextFn._middleware) {

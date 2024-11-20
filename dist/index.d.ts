@@ -7,17 +7,20 @@ export interface IGraphQLComponentConfigObject {
     component: IGraphQLComponent;
     configuration?: SubschemaConfig;
 }
-export type ContextFunction = ((ctx: any) => any);
+type GlobalContext = {
+    [key: string]: unknown;
+};
+export type ContextFunction = ((ctx: GlobalContext) => any);
 export interface IDataSource {
     name: string;
 }
 export type DataSource<T> = {
-    [P in keyof T]: T[P] extends (ctx: any, ...p: infer P) => infer R ? (...p: P) => R : never;
+    [P in keyof T]: T[P] extends (ctx: GlobalContext, ...p: infer P) => infer R ? (...p: P) => R : never;
 };
 export type DataSourceMap = {
     [key: string]: IDataSource;
 };
-export type DataSourceInjectionFunction = ((ctx: any) => DataSourceMap);
+export type DataSourceInjectionFunction = ((ctx: GlobalContext) => DataSourceMap);
 export interface IContextConfig {
     namespace: string;
     factory: ContextFunction;
@@ -75,3 +78,4 @@ export default class GraphQLComponent implements IGraphQLComponent {
     set federation(flag: boolean);
     get federation(): boolean;
 }
+export {};
