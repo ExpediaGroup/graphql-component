@@ -50,7 +50,7 @@ export interface IContextWrapper extends ContextFunction {
 export interface IGraphQLComponentOptions {
   types?: TypeSource
   resolvers?: IResolvers<any, any>;
-  mocks?: IMocks;
+  mocks?: boolean | IMocks;
   imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
   context?: IContextConfig;
   dataSources?: IDataSource[];
@@ -77,7 +77,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
   _schema: GraphQLSchema;
   _types: TypeSource;
   _resolvers: IResolvers<any, any>;
-  _mocks: IMocks;
+  _mocks: boolean | IMocks;
   _imports: IGraphQLComponentConfigObject[];
   _context: ContextFunction;
   _dataSources: IDataSource[];
@@ -141,7 +141,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
 
     this._context = async (globalContext: any): Promise<any> => {
       const ctx = {
-        dataSources: this._dataSourceContextInject({ globalContext })
+        dataSources: this._dataSourceContextInject(globalContext)
       };
   
       for (const { component } of this.imports) {

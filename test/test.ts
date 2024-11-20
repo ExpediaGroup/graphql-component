@@ -323,11 +323,18 @@ test('middleware', async (t) => {
 });
 
 test('data source injection', async (t) => {
-  t.plan(2);
+  t.plan(5);
 
   const dataSource = new class TestDataSource implements IDataSource {
     name = 'TestDataSource';
     value = 'original';
+
+    getTestValue(ctx, arg) {
+      t.ok(ctx, 'context is correctly injected');
+      t.equal(ctx.globalValue, 'global', 'context is correctly injected');
+      t.equal(arg, 1, 'arguments are correctly injected');
+      return this.value;
+    }
   };
 
   const component = new GraphQLComponent({
@@ -339,7 +346,7 @@ test('data source injection', async (t) => {
   const context = await component.context({ globalValue: 'global' });
 
   t.ok(context.dataSources.TestDataSource, 'data source is correctly injected');
-  t.equal(context.dataSources.TestDataSource.value, 'original', 'data source is correctly injected');
+  t.equal(context.dataSources.TestDataSource.getTestValue(1), 'original', 'data source is correctly injected');
 });
 
 test('data source injection', async (t) => {
