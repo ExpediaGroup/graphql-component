@@ -2,4 +2,4 @@
 
 - Converted to TS
 - BREAKING excludes removed as an option in import configuration. Transforms used instead as part of a `SubschemaConfig`.
-- BREAKING 
+- BREAKING upgraded to graphql 16.9+ peer
