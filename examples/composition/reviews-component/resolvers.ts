@@ -7,5 +7,3 @@ export const resolvers = {
     }
   }
 };
-
-module.exports = resolvers;

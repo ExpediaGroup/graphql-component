@@ -1,6 +1,6 @@
 'use strict';
 
-import { delegateToSchema, IDelegateToSchemaOptions } from '@graphql-tools/delegate';
+import { delegateToSchema } from '@graphql-tools/delegate';
 
 export const resolvers = {
   Query: {
@@ -12,6 +12,7 @@ export const resolvers = {
     property(root, args, context, info) {
       return delegateToSchema({
         schema: this.propertyComponent.schema,
+        fieldName: 'propertyById',
         args: {
           id: root.id
         },
@@ -22,7 +23,6 @@ export const resolvers = {
     reviews(root, args, context, info) {;
       return delegateToSchema({
         schema: this.reviewsComponent.schema,
-        operationName: 'query',
         fieldName: 'reviewsByPropertyId',
         args: {
           propertyId: root.id

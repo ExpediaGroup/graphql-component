@@ -2,8 +2,8 @@
 
 export const resolvers = {
   Query: {
-    property(_, { id }, context) {
-      return context.dataSources.PropertyDataSource.getPropertyById(id);
+    propertyById(_, { id }, { dataSources}) {
+      return dataSources.PropertyDataSource.getPropertyById(id);
     }
   }
 };
