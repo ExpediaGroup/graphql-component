@@ -49,7 +49,7 @@ export interface IGraphQLComponent {
     readonly resolvers: IResolvers<any, any>;
     readonly imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
     readonly dataSources?: IDataSource[];
-    readonly dataSourcesOverrides?: IDataSource[];
+    readonly dataSourceOverrides?: IDataSource[];
     federation?: boolean;
 }
 export default class GraphQLComponent implements IGraphQLComponent {
@@ -74,7 +74,7 @@ export default class GraphQLComponent implements IGraphQLComponent {
     get resolvers(): IResolvers;
     get imports(): IGraphQLComponentConfigObject[];
     get dataSources(): IDataSource[];
-    get dataSourcesOverrides(): IDataSource[];
+    get dataSourceOverrides(): IDataSource[];
     set federation(flag: boolean);
     get federation(): boolean;
 }
