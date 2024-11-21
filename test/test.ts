@@ -573,3 +573,61 @@ test('resolve memoization', async (t) => {
 
   t.equal(count, 1, 'resolver is memoized');
 });
+
+test('mocks', async (t) => {
+
+  t.test('default mocks', async (t) => {
+    t.plan(1);
+
+    const component = new GraphQLComponent({
+      types: `
+        type Query {
+          hello: String
+        }
+      `,
+      mocks: true
+    });
+
+    const schema = component.schema;
+
+    const query = `
+      {
+        hello
+      }
+    `;
+
+    const result = await graphql({ schema, source: query });
+
+    t.ok(result.data?.hello, 'default mocks are used');
+  });
+
+  t.test('custom mocks applied', async (t) => {
+    t.plan(1);
+
+    const component = new GraphQLComponent({
+      types: `
+        type Query {
+          hello: String
+        }
+      `,
+      mocks: {
+        Query: () => ({
+          hello: 'Custom hello world!'
+        })
+      }
+    });
+
+    const schema = component.schema;
+
+    const query = `
+      {
+        hello
+      }
+    `;
+
+    const result = await graphql({ schema, source: query });
+
+    t.equal(result.data?.hello, 'Custom hello world!', 'custom mocks are used');
+  });
+
+});
