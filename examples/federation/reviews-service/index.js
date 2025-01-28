@@ -5,6 +5,7 @@ const GraphQLComponent = require('../../../dist').default;
 const ReviewsDataSource = require('./datasource');
 const resolvers = require('./resolvers');
 const types = require('./types');
+const toUppercaseDirective = require('./toUppercaseDirective')
 
 class ReviewsComponent extends GraphQLComponent {
   constructor(options) {
@@ -17,6 +18,9 @@ const run = async function () {
     types,
     resolvers,
     dataSources: [new ReviewsDataSource()],
+    directives: {
+      toUppercase: toUppercaseDirective
+    },
     federation: true
   });
 
