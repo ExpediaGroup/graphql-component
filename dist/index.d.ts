@@ -7,20 +7,20 @@ export interface IGraphQLComponentConfigObject {
     component: IGraphQLComponent;
     configuration?: SubschemaConfig;
 }
-type GlobalContext = {
-    [key: string]: unknown;
-};
-export type ContextFunction = ((ctx: GlobalContext) => any);
+export interface ComponentContext extends Record<string, unknown> {
+    dataSources: DataSourceMap;
+}
+export type ContextFunction = ((context: Record<string, unknown>) => any);
 export interface IDataSource {
     name: string;
 }
 export type DataSource<T> = {
-    [P in keyof T]: T[P] extends (ctx: GlobalContext, ...p: infer P) => infer R ? (...p: P) => R : never;
+    [P in keyof T]: T[P] extends (context: ComponentContext, ...p: infer P) => infer R ? (...p: P) => R : never;
 };
 export type DataSourceMap = {
     [key: string]: IDataSource;
 };
-export type DataSourceInjectionFunction = ((ctx: GlobalContext) => DataSourceMap);
+export type DataSourceInjectionFunction = ((context: Record<string, unknown>) => DataSourceMap);
 export interface IContextConfig {
     namespace: string;
     factory: ContextFunction;
@@ -28,9 +28,9 @@ export interface IContextConfig {
 export interface IContextWrapper extends ContextFunction {
     use: (name: string | ContextFunction | null, fn?: ContextFunction | string) => void;
 }
-export interface IGraphQLComponentOptions {
+export interface IGraphQLComponentOptions<TContextType extends ComponentContext = ComponentContext> {
     types?: TypeSource;
-    resolvers?: IResolvers<any, any>;
+    resolvers?: IResolvers<any, TContextType>;
     mocks?: boolean | IMocks;
     imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
     context?: IContextConfig;
@@ -41,21 +41,21 @@ export interface IGraphQLComponentOptions {
     federation?: boolean;
     transforms?: SchemaMapper[];
 }
-export interface IGraphQLComponent {
+export interface IGraphQLComponent<TContextType extends ComponentContext = ComponentContext> {
     readonly name: string;
     readonly schema: GraphQLSchema;
     readonly context: IContextWrapper;
     readonly types: TypeSource;
-    readonly resolvers: IResolvers<any, any>;
+    readonly resolvers: IResolvers<any, TContextType>;
     readonly imports?: (IGraphQLComponent | IGraphQLComponentConfigObject)[];
     readonly dataSources?: IDataSource[];
     readonly dataSourceOverrides?: IDataSource[];
     federation?: boolean;
 }
-export default class GraphQLComponent implements IGraphQLComponent {
+export default class GraphQLComponent<TContextType extends ComponentContext = ComponentContext> implements IGraphQLComponent {
     _schema: GraphQLSchema;
     _types: TypeSource;
-    _resolvers: IResolvers<any, any>;
+    _resolvers: IResolvers<any, TContextType>;
     _mocks: boolean | IMocks;
     _imports: IGraphQLComponentConfigObject[];
     _context: ContextFunction;
@@ -71,11 +71,10 @@ export default class GraphQLComponent implements IGraphQLComponent {
     get name(): string;
     get schema(): GraphQLSchema;
     get types(): TypeSource;
-    get resolvers(): IResolvers;
+    get resolvers(): IResolvers<any, TContextType>;
     get imports(): IGraphQLComponentConfigObject[];
     get dataSources(): IDataSource[];
     get dataSourceOverrides(): IDataSource[];
     set federation(flag: boolean);
     get federation(): boolean;
 }
-export {};
