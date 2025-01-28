@@ -16,7 +16,7 @@
     "test": "tape -r ts-node/register test/**.ts",
     "start-composition": "DEBUG=graphql-component ts-node examples/composition/server/index.ts",
     "start-federation": "DEBUG=graphql-component node examples/federation/run-federation-example.js",
-    "lint": "eslint lib",
+    "lint": "npx eslint src/index.ts",
     "cover": "nyc npm test",
     "update-deps": "ncu -u && npm install"
   },
@@ -40,17 +40,21 @@
   },
   "devDependencies": {
     "@apollo/gateway": "^2.9.3",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
     "apollo-server": "^3.13.0",
     "casual": "^1.6.2",
-    "eslint": "^9.15.0",
+    "eslint": "^9.19.0",
+    "globals": "^15.14.0",
     "graphql": "^16.9.0",
     "graphql-tag": "^2.12.6",
+    "npm-check-updates": "^17.1.11",
     "nyc": "^17.1.0",
     "sinon": "^19.0.2",
     "tape": "^5.9.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "npm-check-updates": "^17.1.11"
+    "typescript-eslint": "^8.22.0"
   },
   "nyc": {
     "include": [
