@@ -1,6 +1,8 @@
+directive @toUppercase on FIELD_DEFINITION
+
 type Review {
   id: ID!
-  content: String!
+  content: String! @toUppercase
 }
 
 extend type Property @key(fields: "id") {
