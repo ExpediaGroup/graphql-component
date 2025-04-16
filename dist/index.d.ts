@@ -52,6 +52,11 @@ export interface IGraphQLComponent<TContextType extends ComponentContext = Compo
     readonly dataSourceOverrides?: IDataSource[];
     federation?: boolean;
 }
+/**
+ * GraphQLComponent class for building modular GraphQL schemas
+ * @template TContextType - The type of the context object
+ * @implements {IGraphQLComponent}
+ */
 export default class GraphQLComponent<TContextType extends ComponentContext = ComponentContext> implements IGraphQLComponent {
     _schema: GraphQLSchema;
     _types: TypeSource;
@@ -66,6 +71,7 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
     _federation: boolean;
     _dataSourceContextInject: DataSourceInjectionFunction;
     _transforms: SchemaMapper[];
+    private _transformedSchema;
     constructor({ types, resolvers, mocks, imports, context, dataSources, dataSourceOverrides, pruneSchema, pruneSchemaOptions, federation, transforms }: IGraphQLComponentOptions);
     get context(): IContextWrapper;
     get name(): string;
@@ -77,4 +83,7 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
     get dataSourceOverrides(): IDataSource[];
     set federation(flag: boolean);
     get federation(): boolean;
+    dispose(): void;
+    private transformSchema;
+    private validateConfig;
 }

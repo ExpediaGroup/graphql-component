@@ -78,6 +78,11 @@ export interface IGraphQLComponent<TContextType extends ComponentContext = Compo
   federation?: boolean;
 }
 
+/**
+ * GraphQLComponent class for building modular GraphQL schemas
+ * @template TContextType - The type of the context object
+ * @implements {IGraphQLComponent}
+ */
 export default class GraphQLComponent<TContextType extends ComponentContext = ComponentContext> implements IGraphQLComponent {
   _schema: GraphQLSchema;
   _types: TypeSource;
@@ -92,6 +97,7 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
   _federation: boolean;
   _dataSourceContextInject: DataSourceInjectionFunction;
   _transforms: SchemaMapper[]
+  private _transformedSchema: GraphQLSchema;
 
   constructor({
     types,
@@ -169,14 +175,18 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
       return ctx as TContextType;
     };
 
+    this.validateConfig({ types, imports, mocks, federation });
+
   }
 
   get context(): IContextWrapper {
 
-    const contextFn = async (context): Promise<ComponentContext> => {
+    const contextFn = async (context: Record<string, unknown>): Promise<ComponentContext> => {
       debug(`building root context`);
-
-      for (const { name, fn } of contextFn._middleware) {
+      
+      const middleware: MiddlewareEntry[] = (contextFn as any)._middleware || [];
+      
+      for (const { name, fn } of middleware) {
         debug(`applying ${name} middleware`);
         context = await fn(context);
       }
@@ -212,74 +222,76 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
   }
 
   get schema(): GraphQLSchema {
-    if (this._schema) {
-      return this._schema;
-    }
-
-    let makeSchema: (schemaConfig: any) => GraphQLSchema = undefined;
-
-    if (this._federation) {
-      makeSchema = (schemaConfig): GraphQLSchema => {
-        return buildFederatedSchema(schemaConfig);
-      };
-    }
-    else {
-      makeSchema = makeExecutableSchema;
-    }
-
-    if (this._imports.length > 0) {
-      // iterate through the imports and construct subschema configuration objects
-      const subschemas = this._imports.map((imp) => {
-        const { component, configuration = {} } = imp;
-
-        return {
-          schema: component.schema,
-          ...configuration
-        };
-      });
-
-      // construct an aggregate schema from the schemas of imported
-      // components and this component's types/resolvers (if present)
-      this._schema = stitchSchemas({
-        subschemas,
-        typeDefs: this._types,
-        resolvers: this._resolvers,
-        mergeDirectives: true
-      });
-    }
-    else {
-      const schemaConfig = {
-        typeDefs: mergeTypeDefs(this._types),
-        resolvers: this._resolvers
+    try {
+      if (this._schema) {
+        return this._schema;
       }
 
-      this._schema = makeSchema(schemaConfig);
-    }
+      let makeSchema: (schemaConfig: any) => GraphQLSchema;
 
-    if (this._transforms) {
-      this._schema = transformSchema(this._schema, this._transforms);
-    }
+      if (this._federation) {
+        makeSchema = buildFederatedSchema;
+      } else {
+        makeSchema = makeExecutableSchema;
+      }
 
-    if (this._mocks !== undefined && typeof this._mocks === 'boolean' && this._mocks === true) {
-      debug(`adding default mocks to the schema for ${this.name}`);
-      // if mocks are a boolean support simply applying default mocks
-      this._schema = addMocksToSchema({ schema: this._schema, preserveResolvers: true });
-    }
-    else if (this._mocks !== undefined && typeof this._mocks === 'object') {
-      debug(`adding custom mocks to the schema for ${this.name}`);
-      // else if mocks is an object, that means the user provided
-      // custom mocks, with which we pass them to addMocksToSchema so they are applied
-      this._schema = addMocksToSchema({ schema: this._schema, mocks: this._mocks, preserveResolvers: true });
-    }
+      if (this._imports.length > 0) {
+        // iterate through the imports and construct subschema configuration objects
+        const subschemas = this._imports.map((imp) => {
+          const { component, configuration = {} } = imp;
 
-    if (this._pruneSchema) {
-      debug(`pruning the schema for ${this.name}`);
-      this._schema = pruneSchema(this._schema, this._pruneSchemaOptions);
+          return {
+            schema: component.schema,
+            ...configuration
+          };
+        });
+
+        // construct an aggregate schema from the schemas of imported
+        // components and this component's types/resolvers (if present)
+        this._schema = stitchSchemas({
+          subschemas,
+          typeDefs: this._types,
+          resolvers: this._resolvers,
+          mergeDirectives: true
+        });
+      }
+      else {
+        const schemaConfig = {
+          typeDefs: mergeTypeDefs(this._types),
+          resolvers: this._resolvers
+        }
+
+        this._schema = makeSchema(schemaConfig);
+      }
+
+      if (this._transforms) {
+        this._schema = this.transformSchema(this._schema, this._transforms);
+      }
+
+      if (this._mocks !== undefined && typeof this._mocks === 'boolean' && this._mocks === true) {
+        debug(`adding default mocks to the schema for ${this.name}`);
+        // if mocks are a boolean support simply applying default mocks
+        this._schema = addMocksToSchema({ schema: this._schema, preserveResolvers: true });
+      }
+      else if (this._mocks !== undefined && typeof this._mocks === 'object') {
+        debug(`adding custom mocks to the schema for ${this.name}`);
+        // else if mocks is an object, that means the user provided
+        // custom mocks, with which we pass them to addMocksToSchema so they are applied
+        this._schema = addMocksToSchema({ schema: this._schema, mocks: this._mocks, preserveResolvers: true });
+      }
+
+      if (this._pruneSchema) {
+        debug(`pruning the schema for ${this.name}`);
+        this._schema = pruneSchema(this._schema, this._pruneSchemaOptions);
+      }
+
+      debug(`created schema for ${this.name}`);
+
+      return this._schema;
+    } catch (error) {
+      debug(`Error creating schema for ${this.name}: ${error}`);
+      throw new Error(`Failed to create schema for component ${this.name}: ${error.message}`);
     }
-
-    debug(`created schema for ${this.name}`);
-
-    return this._schema;
   }
 
   get types(): TypeSource {
@@ -308,6 +320,57 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
 
   get federation(): boolean {
     return this._federation;
+  }
+
+  public dispose(): void {
+    this._schema = null;
+    this._types = null;
+    this._resolvers = null;
+    this._imports = null;
+    this._dataSources = null;
+    this._dataSourceOverrides = null;
+  }
+
+  private transformSchema(schema: GraphQLSchema, transforms: SchemaMapper[]): GraphQLSchema {
+    if (this._transformedSchema) {
+      return this._transformedSchema;
+    }
+
+    const functions = {};
+    const mapping = {};
+
+    for (const transform of transforms) {
+      for (const [key, fn] of Object.entries(transform)) {
+        if (!mapping[key]) {
+          functions[key] = [];
+          let result = undefined;
+          mapping[key] = function (...args) {
+            while (functions[key].length) {
+              const mapper = functions[key].shift();
+              result = mapper(...args);
+              if (!result) {
+                break;
+              }
+            }
+            return result;
+          }
+        }
+        functions[key].push(fn);
+      }
+    }
+
+    this._transformedSchema = mapSchema(schema, mapping);
+    return this._transformedSchema;
+  }
+
+  private validateConfig(options: IGraphQLComponentOptions): void {
+    if (options.federation && !options.types) {
+      throw new Error('Federation requires type definitions');
+    }
+
+    if (options.mocks && typeof options.mocks !== 'boolean' && typeof options.mocks !== 'object') {
+      throw new Error('mocks must be either boolean or object');
+    }
   }
 
 }
@@ -442,34 +505,7 @@ const bindResolvers = function (bindContext: IGraphQLComponent, resolvers: IReso
   return boundResolvers;
 };
 
-/**
- * Transforms a schema using the provided transforms
- * @param {GraphQLSchema} schema The schema to transform
- * @param {SchemaMapper[]} transforms An array of schema transforms
- * @returns {GraphQLSchema} The transformed schema
- */
-const transformSchema = function (schema: GraphQLSchema, transforms: SchemaMapper[]) {
-  const functions = {};
-  const mapping = {};
-
-  for (const transform of transforms) {
-    for (const [key, fn] of Object.entries(transform)) {
-      if (!mapping[key]) {
-        functions[key] = [];
-        mapping[key] = function (arg) {
-          while (functions[key].length) {
-            const mapper = functions[key].shift();
-            arg = mapper(arg);
-            if (!arg) {
-              break;
-            }
-          }
-          return arg;
-        }
-      }
-      functions[key].push(fn);
-    }
-  }
-
-  return mapSchema(schema, mapping);
+interface MiddlewareEntry {
+  name: string;
+  fn: ContextFunction;
 }

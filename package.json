@@ -13,12 +13,15 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
-    "test": "tape -r ts-node/register test/**.ts",
+    "test": "tape -r ts-node/register \"test/**/*.ts\"",
     "start-composition": "DEBUG=graphql-component ts-node examples/composition/server/index.ts",
     "start-federation": "DEBUG=graphql-component node examples/federation/run-federation-example.js",
     "lint": "npx eslint src/index.ts",
     "cover": "nyc npm test",
-    "update-deps": "ncu -u && npm install"
+    "update-deps": "ncu -u && npm install",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "precommit": "npm run lint && npm run test",
+    "prepare": "husky install"
   },
   "author": "Trevor Livingston <tlivings@gmail.com>",
   "repository": "https://github.com/ExpediaGroup/graphql-component",
@@ -31,8 +34,6 @@
     "@graphql-tools/schema": "^10.0.8",
     "@graphql-tools/stitch": "^9.4.0",
     "@graphql-tools/utils": "^10.5.6",
-    "@types/graphql": "^14.5.0",
-    "@types/node": "^22.9.1",
     "debug": "^4.3.7"
   },
   "peerDependencies": {
@@ -40,6 +41,8 @@
   },
   "devDependencies": {
     "@apollo/gateway": "^2.9.3",
+    "@types/graphql": "^14.5.0",
+    "@types/node": "^22.9.1",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
     "apollo-server": "^3.13.0",
@@ -54,7 +57,9 @@
     "tape": "^5.9.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.22.0"
+    "typescript-eslint": "^8.22.0",
+    "husky": "^8.0.0",
+    "prettier": "^2.8.8"
   },
   "nyc": {
     "include": [
@@ -73,5 +78,8 @@
     "sourceMap": true,
     "instrument": true,
     "all": true
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
