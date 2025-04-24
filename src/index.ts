@@ -18,6 +18,22 @@ import { SubschemaConfig } from '@graphql-tools/delegate';
 
 const debug = debugConfig('graphql-component');
 
+// Re-export the context utility types
+/**
+ * Utility type to extract and merge contexts from multiple components
+ * @template TContexts - Array of component context types to merge
+ */
+export type MergeComponentContexts<TContexts extends ComponentContext[]> = ComponentContext & {
+  dataSources: UnionToIntersection<TContexts[number]['dataSources']>
+};
+
+/**
+ * Utility type to convert a union type to an intersection type
+ * This allows multiple component dataSources to be merged correctly
+ */
+export type UnionToIntersection<U> = 
+  (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never; 
+
 export type ResolverFunction = (_: any, args: any, ctx: any, info: GraphQLResolveInfo) => any;
 
 export interface IGraphQLComponentConfigObject {
