@@ -48,11 +48,41 @@ export interface ComponentContext extends Record<string, unknown> {
 export type ContextFunction = ((context: Record<string, unknown>) => any);
 
 export interface IDataSource {
-  name: string
+  name: string;
+  [key: string | symbol]: any;
 }
 
+/**
+ * Type for implementing data sources
+ * When defining a data source class, methods should accept context as their first parameter
+ * @example
+ * class MyDataSource {
+ *   name = 'MyDataSource';
+ *   
+ *   // Context is required as first parameter when implementing
+ *   getData(context: ComponentContext, id: string) {
+ *     return { id };
+ *   }
+ * }
+ */
+export type DataSourceDefinition<T> = {
+  [P in keyof T]: T[P] extends Function ? (context: ComponentContext, ...args: any[]) => any : T[P];
+}
+
+/**
+ * Type for consuming data sources in resolvers
+ * When using a data source method, the context is automatically injected
+ * @example
+ * // In a resolver:
+ * Query: {
+ *   getData(_, { id }, context) {
+ *     // Context is automatically injected, so you don't pass it
+ *     return context.dataSources.MyDataSource.getData(id);
+ *   }
+ * }
+ */
 export type DataSource<T> = {
-  [P in keyof T]: T[P] extends (context: ComponentContext, ...p: infer P) => infer R ? (...p: P) => R : never
+  [P in keyof T]: T[P] extends (context: ComponentContext, ...p: infer P) => infer R ? (...p: P) => R : T[P];
 }
 
 export type DataSourceMap = { [key: string]: IDataSource };
