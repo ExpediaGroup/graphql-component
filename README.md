@@ -127,29 +127,141 @@ const server = new ApolloServer({ schema, context });
 
 ### Data Sources
 
-Data sources in `graphql-component` use a proxy-based approach for context injection:
+Data sources in `graphql-component` use a proxy-based approach for context injection. The library provides two key types to assist with correct implementation:
 
-```javascript
-class PropertyDataSource {
-  async getPropertyById(context, id) {
-    // context is automatically injected
-    return await this.fetchProperty(id);
+```typescript
+// When implementing a data source:
+class MyDataSource implements DataSourceDefinition<MyDataSource> {
+  name = 'MyDataSource';
+  
+  // Context must be the first parameter when implementing
+  async getUserById(context: ComponentContext, id: string) {
+    // Use context for auth, config, etc.
+    return { id, name: 'User Name' };
   }
 }
 
-// Usage in resolvers
+// In resolvers, context is automatically injected:
 const resolvers = {
   Query: {
-    property(_, { id }, { dataSources }) {
-      return dataSources.PropertyDataSource.getPropertyById(id);
+    user(_, { id }, context) {
+      // Don't need to pass context - it's injected automatically
+      return context.dataSources.MyDataSource.getUserById(id);
     }
   }
 }
 
-// Component configuration
+// Add to component:
 new GraphQLComponent({
-  dataSources: [new PropertyDataSource()]
+  types,
+  resolvers,
+  dataSources: [new MyDataSource()]
 });
+```
+
+#### Data Source Types
+
+- `DataSourceDefinition<T>`: Interface for implementing data sources - methods must accept context as first parameter
+- `DataSource<T>`: Type representing data sources after proxy wrapping - context is automatically injected
+
+This type system ensures proper context handling while providing a clean API for resolver usage.
+
+#### TypeScript Example
+
+```typescript
+import { 
+  GraphQLComponent, 
+  DataSourceDefinition, 
+  ComponentContext 
+} from 'graphql-component';
+
+// Define your data source with proper types
+class UsersDataSource implements DataSourceDefinition<UsersDataSource> {
+  name = 'users';
+  
+  // Static property
+  defaultRole = 'user';
+  
+  // Context is required as first parameter when implementing
+  async getUserById(context: ComponentContext, id: string): Promise<User> {
+    // Access context properties (auth, etc.)
+    const apiKey = context.config?.apiKey;
+    
+    // Implementation details...
+    return { id, name: 'User Name', role: this.defaultRole };
+  }
+  
+  async getUsersByRole(context: ComponentContext, role: string): Promise<User[]> {
+    // Implementation details...
+    return [
+      { id: '1', name: 'User 1', role },
+      { id: '2', name: 'User 2', role }
+    ];
+  }
+}
+
+// In resolvers, the context is automatically injected
+const resolvers = {
+  Query: {
+    user: (_, { id }, context) => {
+      // No need to pass context - it's injected by the proxy
+      return context.dataSources.users.getUserById(id);
+    },
+    usersByRole: (_, { role }, context) => {
+      // No need to pass context - it's injected by the proxy
+      return context.dataSources.users.getUsersByRole(role);
+    }
+  }
+};
+
+// Component configuration
+const usersComponent = new GraphQLComponent({
+  types: `
+    type User {
+      id: ID!
+      name: String!
+      role: String!
+    }
+    
+    type Query {
+      user(id: ID!): User
+      usersByRole(role: String!): [User]
+    }
+  `,
+  resolvers,
+  dataSources: [new UsersDataSource()]
+});
+```
+
+#### Data Source Overrides
+
+You can override data sources when needed (for testing or extending functionality). The override must follow the same interface:
+
+```typescript
+// For testing - create a mock data source
+class MockUsersDataSource implements DataSourceDefinition<UsersDataSource> {
+  name = 'users';
+  defaultRole = 'admin';
+  
+  async getUserById(context: ComponentContext, id: string) {
+    return { id, name: 'Mock User', role: this.defaultRole };
+  }
+  
+  async getUsersByRole(context: ComponentContext, role: string) {
+    return [{ id: 'mock', name: 'Mock User', role }];
+  }
+}
+
+// Use the component with overrides
+const testComponent = new GraphQLComponent({
+  imports: [usersComponent],
+  dataSourceOverrides: [new MockUsersDataSource()]
+});
+
+// In tests
+const context = await testComponent.context({});
+const mockUser = await context.dataSources.users.getUserById('any-id');
+// mockUser will be { id: 'any-id', name: 'Mock User', role: 'admin' }
 ```
 
 ## Examples
