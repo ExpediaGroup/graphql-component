@@ -1,8 +1,7 @@
+import { ApolloServer } from 'apollo-server';
+import { ApolloGateway } from '@apollo/gateway';
 
-const { ApolloServer } = require('apollo-server');
-const { ApolloGateway } = require('@apollo/gateway');
-
-const startGateway = async () => {
+const run = async function(): Promise<void> {
   const gateway = new ApolloGateway({
     serviceList: [
       { name: 'property', url: 'http://localhost:4001' },
@@ -11,13 +10,11 @@ const startGateway = async () => {
   });
 
   const server = new ApolloServer({
-    gateway,
-    subscriptions: false
+    gateway
   });
 
   const { url } = await server.listen({port: 4000});
   console.log(`🚀 Gateway ready at ${url}`);
 }
 
-module.exports = startGateway;
-
+export { run }; 

@@ -1,18 +1,22 @@
 'use strict';
 
-const { ApolloServer } = require('apollo-server');
-const GraphQLComponent = require('../../../dist').default;
-const PropertyDataSource = require('./datasource');
-const resolvers = require('./resolvers');
-const types = require('./types');
+import { ApolloServer } from 'apollo-server';
+import GraphQLComponent from '../../../dist';
+import PropertyDataSource from './datasource';
+import resolvers from './resolvers';
+import types from './types';
+
+interface PropertyComponentOptions {
+  [key: string]: any;
+}
 
 class PropertyComponent extends GraphQLComponent {
-  constructor(options) {
+  constructor(options: PropertyComponentOptions) {
     super(options);
   }
 }
 
-const run = async function () {
+const run = async function (): Promise<void> {
   const { schema, context } = new PropertyComponent({
     types,
     resolvers,
@@ -22,12 +26,11 @@ const run = async function () {
 
   const server = new ApolloServer({
     schema,
-    context,
-    subscriptions: false,
+    context
   });
 
   const { url } = await server.listen({port: 4001})
   console.log(`🚀 Property service ready at ${url}`)
 }
 
-module.exports = { run };
+export { run }; 

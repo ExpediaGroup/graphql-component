@@ -50,6 +50,7 @@ export interface IDataSource {
  * }
  */
 export type DataSourceDefinition<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [P in keyof T]: T[P] extends Function ? (context: ComponentContext, ...args: any[]) => any : T[P];
 }
 
