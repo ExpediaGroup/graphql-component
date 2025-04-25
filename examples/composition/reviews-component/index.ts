@@ -1,4 +1,3 @@
-'use strict';
 
 import { types } from "./types";
 import GraphQLComponent from "../../../src";
