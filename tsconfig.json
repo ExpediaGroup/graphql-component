@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "types" : ["node", "graphql"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./src"
   },
   "exclude": ["node_modules"],
   "include": [
