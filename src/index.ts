@@ -32,7 +32,7 @@ export interface ComponentContext extends Record<string, unknown> {
 export type ContextFunction = ((context: Record<string, unknown>) => any);
 
 export interface IDataSource {
-  name: string;
+  name?: string;
   [key: string | symbol]: any;
 }
 
@@ -114,7 +114,7 @@ export interface IGraphQLComponent<TContextType extends ComponentContext = Compo
  * @template TContextType - The type of the context object
  * @implements {IGraphQLComponent}
  */
-export default class GraphQLComponent<TContextType extends ComponentContext = ComponentContext> implements IGraphQLComponent {
+export default class GraphQLComponent<TContextType extends ComponentContext = ComponentContext> implements IGraphQLComponent<TContextType>  {
   _schema: GraphQLSchema;
   _types: TypeSource;
   _resolvers: IResolvers<any, TContextType>;
@@ -405,6 +405,9 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
   }
 
 }
+
+// For backward compatibility
+module.exports = GraphQLComponent;
 
 /**
  * Wraps data sources with a proxy that intercepts calls to data source methods and injects the current context
