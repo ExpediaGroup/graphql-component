@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "inlineSourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "types" : ["node", "graphql"],
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "exclude": ["node_modules"],
+  "include": [
+    "./src"
+  ],
+  "sourceMap": true
+}

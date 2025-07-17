@@ -4,5 +4,5 @@ type Property {
 }
 
 type Query {
-  property(id: ID!) : Property
+  propertyById(id: ID!) : Property
 }

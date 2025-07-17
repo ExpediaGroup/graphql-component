@@ -1,3 +1,12 @@
+### v6.0.0
+
+- Converted to TS
+- BREAKING removed `delegateToComponent`
+- BREAKING excludes removed as an option in import configuration. Transforms used instead as part of a `SubschemaConfig`.
+- BREAKING upgraded to graphql 16.9+ peer
+
+===
+
 ### v5.0.1
 
 - Update @graphql-tools/utils dependency and fix samples for Apollo server v3.
@@ -179,4 +188,4 @@
 
 - Fixed .npmignore to not include misc files that added to the package size
 
-### v1.0.0 — promoted from alpha.23
+### v1.0.0 — promoted from alpha.23
