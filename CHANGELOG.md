@@ -1,9 +1,19 @@
+### v6.0.2
+
+- [PERFORMANCE] Enhanced context building with parallel import processing, and middleware optimization
+- [TESTS] Added comprehensive performance regression tests to validate optimization correctness and prevent breaking changes
+
+### v6.0.1
+
+- Re-release after merge
+
 ### v6.0.0
 
 - Converted to TS
 - BREAKING removed `delegateToComponent`
 - BREAKING excludes removed as an option in import configuration. Transforms used instead as part of a `SubschemaConfig`.
 - BREAKING upgraded to graphql 16.9+ peer
+- BREAKING datasource injected context does not contain `datasources`
 
 ===
 

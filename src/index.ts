@@ -129,6 +129,7 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
   _dataSourceContextInject: DataSourceInjectionFunction;
   _transforms: SchemaMapper[]
   private _transformedSchema: GraphQLSchema;
+  private _middleware: MiddlewareEntry[] = [];
 
   constructor({
     types,
@@ -180,19 +181,30 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
       }
     }) : [];
 
-
     this._context = async (globalContext: Record<string, unknown>): Promise<TContextType> => {
-      //TODO: currently the context injected into data sources won't have data sources on it
+      //BREAKING: The context injected into data sources won't have data sources on it
       const ctx = {
         dataSources: this._dataSourceContextInject(globalContext)
       };
 
-      for (const { component } of this.imports) {
-        const { dataSources, ...importedContext } = await component.context(globalContext);
-        Object.assign(ctx.dataSources, dataSources);
-        Object.assign(ctx, importedContext);
+      // Only process imports if they exist
+      if (this._imports.length > 0) {
+        // Process imports in parallel if they're independent
+        const importPromises = this._imports.map(async ({ component }) => {
+          const importContext = await component.context(globalContext);
+          return importContext;
+        });
+
+        const importResults = await Promise.all(importPromises);
+        
+        // Merge results efficiently
+        for (const { dataSources, ...importedContext } of importResults) {
+          Object.assign(ctx.dataSources, dataSources);
+          Object.assign(ctx, importedContext);
+        }
       }
 
+      // Handle namespace context if present
       if (context) {
         debug(`building ${context.namespace} context`);
 
@@ -200,7 +212,8 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
           ctx[context.namespace] = {};
         }
 
-        Object.assign(ctx[context.namespace], await context.factory.call(this, globalContext));
+        const namespaceContext = await context.factory.call(this, globalContext);
+        Object.assign(ctx[context.namespace], namespaceContext);
       }
 
       return ctx as TContextType;
@@ -211,42 +224,41 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
   }
 
   get context(): IContextWrapper {
-
+    // Cache middleware array to avoid recreation
     const contextFn = async (context: Record<string, unknown>): Promise<ComponentContext> => {
       debug(`building root context`);
       
-      const middleware: MiddlewareEntry[] = (contextFn as any)._middleware || [];
+      let processedContext = context;
       
-      for (const { name, fn } of middleware) {
-        debug(`applying ${name} middleware`);
-        context = await fn(context);
+      // Apply middleware more efficiently
+      if (this._middleware.length > 0) {
+        for (const { name, fn } of this._middleware) {
+          debug(`applying ${name} middleware`);
+          processedContext = await fn(processedContext);
+        }
       }
 
-      const componentContext = await this._context(context);
+      const componentContext = await this._context(processedContext);
 
-      const globalContext = {
-        ...context,
-        ...componentContext
-      };
-
-      return globalContext;
+      // More efficient object composition
+      return Object.assign({}, processedContext, componentContext);
     };
 
-    contextFn._middleware = [];
-
-    contextFn.use = function (name: string, fn: ContextFunction): IContextWrapper {
+    contextFn.use = (name: string | ContextFunction, fn?: ContextFunction): IContextWrapper => {
       if (typeof name === 'function') {
         fn = name;
         name = 'unknown';
       }
       debug(`adding ${name} middleware`);
-      contextFn._middleware.push({ name, fn });
+      this._middleware.push({ name: name as string, fn: fn! });
 
       return contextFn;
     };
 
     return contextFn;
   }
+
+
 
   get name(): string {
     return this.constructor.name;
@@ -374,8 +386,8 @@ export default class GraphQLComponent<TContextType extends ComponentContext = Co
       for (const [key, fn] of Object.entries(transform)) {
         if (!mapping[key]) {
           functions[key] = [];
-          let result = undefined;
           mapping[key] = function (...args) {
+            let result;
             while (functions[key].length) {
               const mapper = functions[key].shift();
               result = mapper(...args);

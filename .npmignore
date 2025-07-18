@@ -1,11 +1,81 @@
+# Source files (only publish compiled dist/)
+src/
+*.ts
+!*.d.ts
+
+# Development and testing
 test/
+tests/
+__tests__/
 examples/
-.vscode
 coverage/
 .nyc_output/
-azure-pipelines.yml 
-.eslintrc
-.github
-.nycrc
+
+# Configuration files
+tsconfig.json
+eslint.config.mjs
+.eslintrc*
+.prettier*
+jest.config.*
+.babelrc*
+webpack.config.*
+rollup.config.*
+
+# CI/CD and deployment
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+.travis.yml
+.circleci/
+Dockerfile
 .dockerignore
-__tests__.js
+.deployment/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# AI coding assistants
+.cursor/
+.copilot/
+
+# Package manager files
+.npmrc
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# Environment and secrets
+.env*
+.secrets
+
+# Documentation development
+docs/
+*.md
+!README.md
+
+# Logs and temporary files
+logs/
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Development scripts
+scripts/dev/
+scripts/build/
+scripts/test/
+
+# Linting and formatting
+.eslintcache
+
+# Miscellaneous
+.gitignore
+.gitattributes
+.editorconfig
+.commitlintrc*
+.husky/
