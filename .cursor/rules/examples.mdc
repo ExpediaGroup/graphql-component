@@ -1,0 +1,273 @@
+# Example Creation Patterns
+
+## Example Structure
+
+### Directory Organization
+- Create examples under `/examples` directory
+- Use descriptive folder names (composition, federation, etc.)
+- Include working server implementations
+
+```
+examples/
+├── composition/           # Schema stitching example
+│   ├── server/           # Server implementation
+│   ├── listing-component/
+│   ├── property-component/
+│   └── reviews-component/
+└── federation/           # Federation example
+    ├── gateway/          # Federation gateway
+    ├── property-service/
+    └── reviews-service/
+```
+
+### Component Structure
+- Follow standard component file organization
+- Use realistic data and schemas
+- Include proper TypeScript types
+
+```
+example-component/
+├── index.ts         # Component class
+├── types.ts         # Schema loader
+├── resolvers.ts     # Resolvers with business logic
+├── schema.graphql   # GraphQL schema definition
+└── datasource.ts    # Mock/example data source
+```
+
+## Server Examples
+
+### Composition Server
+- Use ApolloServer for GraphQL endpoint
+- Import main component for schema
+- Keep configuration minimal but functional
+
+```typescript
+const { ApolloServer } = require('apollo-server');
+const ListingComponent = require('../listing-component');
+
+const { schema, context } = new ListingComponent();
+
+const server = new ApolloServer({ 
+  schema, 
+  context, 
+  tracing: false 
+});
+
+server.listen().then(({ url }) => {
+  console.log(`🚀 Server ready at ${url}`);
+});
+```
+
+### Federation Services
+- Create separate services for each domain
+- Use distinct ports (4001, 4002, etc.)
+- Include federation gateway
+
+```typescript
+// Property service
+const run = async function (): Promise<void> => {
+  const { schema, context } = new PropertyComponent({
+    types,
+    resolvers,
+    dataSources: [new PropertyDataSource()],
+    federation: true
+  });
+
+  const server = new ApolloServer({ schema, context });
+  const { url } = await server.listen({port: 4001});
+  console.log(`🚀 Property service ready at ${url}`);
+};
+```
+
+### Federation Gateway
+- Use ApolloGateway for service composition
+- List all federated services
+- Standard port 4000 for gateway
+
+```typescript
+import { ApolloServer } from 'apollo-server';
+import { ApolloGateway } from '@apollo/gateway';
+
+const gateway = new ApolloGateway({
+  serviceList: [
+    { name: 'property', url: 'http://localhost:4001' },
+    { name: 'reviews', url: 'http://localhost:4002' }
+  ]
+});
+
+const server = new ApolloServer({ gateway });
+const { url } = await server.listen({port: 4000});
+```
+
+## Data Source Examples
+
+### Mock Data Pattern
+- Use in-memory objects for demo data
+- Include realistic structure and relationships
+- Comment data relationships
+
+```typescript
+// reviews indexed by property id
+const reviewsDB: Record<number, Review[]> = {
+  1: [
+    { id: 'rev-id-1-a', content: 'this property was great'},
+    { id: 'rev-id-1-b', content: 'this property was terrible'}
+  ],
+  2: [
+    { id: 'rev-id-2-a', content: 'This property was amazing'},
+    { id: 'rev-id-2-b', content: 'I loved the proximity to the beach'}
+  ]
+};
+```
+
+### Proper TypeScript Interfaces
+- Define interfaces for data structures
+- Use in data source implementations
+- Export for reuse in resolvers
+
+```typescript
+interface Property {
+  id: number;
+  geo: string[];
+}
+
+interface Review {
+  id: string;
+  content: string;
+}
+```
+
+## Schema Examples
+
+### Composition Schemas
+- Show realistic business domains
+- Include relationships between components
+- Use meaningful field names
+
+```graphql
+# Listing schema - aggregates other components
+type Listing {
+  id: ID!
+  property: Property    # From property component
+  reviews: [Review]     # From reviews component
+}
+
+type Query {
+  listing(id: ID!): Listing
+}
+```
+
+### Federation Schemas  
+- Include proper federation directives
+- Show entity extensions
+- Use @key, @external, @requires properly
+
+```graphql
+# Property service
+type Property @key(fields: "id") {
+  id: ID!
+  geo: [String]
+}
+
+# Reviews service extending Property
+extend type Property @key(fields: "id") {
+  id: ID! @external
+  reviews: [Review] @requires(fields: "id")
+}
+```
+
+## Resolver Examples
+
+### Delegation Patterns
+- Show proper use of delegateToSchema
+- Include error handling
+- Pass context and info correctly
+
+```typescript
+export const resolvers = {
+  Listing: {
+    property(root, args, context, info) {
+      return delegateToSchema({
+        schema: this.propertyComponent.schema,
+        fieldName: 'propertyById',
+        args: { id: root.id },
+        context,
+        info
+      });
+    }
+  }
+};
+```
+
+### Federation Resolvers
+- Include __resolveReference implementations
+- Show proper typing
+- Use context for data source access
+
+```typescript
+const resolvers = {
+  Property: {
+    __resolveReference(ref: { id: string }, { dataSources }: ComponentContext) {
+      return dataSources.PropertyDataSource.getPropertyById(ref.id);
+    }
+  }
+};
+```
+
+## Package Scripts
+
+### Example Scripts
+- Add npm scripts for running examples
+- Use DEBUG environment variable
+- Include clear naming
+
+```json
+{
+  "scripts": {
+    "start-composition": "DEBUG=graphql-component ts-node examples/composition/server/index.ts",
+    "start-federation": "DEBUG=graphql-component ts-node examples/federation/run-federation-example.ts"
+  }
+}
+```
+
+## Documentation
+
+### Example README Sections
+- Include clear instructions to run examples
+- Explain what each example demonstrates
+- Provide GraphQL playground URLs
+
+```markdown
+## Examples
+
+### Local Schema Composition
+```bash
+npm run start-composition
+```
+This example shows how to compose multiple GraphQL components into a single schema using schema stitching.
+
+### Federation Example  
+```bash
+npm run start-federation
+```
+This example demonstrates building Apollo Federation subgraphs using GraphQL components.
+
+Both examples are accessible at `http://localhost:4000/graphql` when running.
+```
+
+## Best Practices
+
+### Keep Examples Simple
+- Focus on demonstrating specific concepts
+- Avoid unnecessary complexity
+- Use realistic but minimal data
+
+### Make Examples Runnable
+- Include all necessary dependencies
+- Provide clear setup instructions
+- Test examples regularly
+
+### Show Real-World Patterns
+- Use meaningful business domains
+- Include proper error handling
+- Demonstrate best practices

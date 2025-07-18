@@ -15,7 +15,7 @@ Read more about the architecture principles in our [blog post](https://medium.co
 - 🔧 **Modular Schema Design**: Build schemas through composable components
 - 🔄 **Schema Stitching**: Merge multiple component schemas seamlessly
 - 🚀 **Apollo Federation Support**: Build federated subgraphs with component architecture
-- 📦 **Data Source Management**: Simplified data source injection and overrides
+- 📦 **Data Source Management**: Simplified data source injection and overrides ([guide](./DATASOURCES.md))
 - 🛠️ **Flexible Configuration**: Extensive options for schema customization
 
 ## Installation
@@ -27,12 +27,18 @@ npm install graphql-component
 ## Quick Start
 
 ```javascript
+// CommonJS
 const GraphQLComponent = require('graphql-component');
 
-const { schema, context } = new GraphQLComponent({ 
+// ES Modules / TypeScript
+import GraphQLComponent from 'graphql-component';
+
+const component = new GraphQLComponent({ 
   types,
   resolvers 
 });
+
+const { schema, context } = component;
 ```
 
 ## Core Concepts
@@ -56,7 +62,7 @@ const component = new GraphQLComponent({
 });
 ```
 
-This uses `@apollo/federation`'s `buildSubgraphSchema()` instead of `makeExecutableSchema()`.
+This uses `@apollo/federation`'s `buildFederatedSchema()` instead of `makeExecutableSchema()`.
 
 ## API Reference
 
@@ -78,7 +84,7 @@ new GraphQLComponent(options: IGraphQLComponentOptions)
 - `federation`: `boolean` - Enable Apollo Federation support (default: `false`)
 - `pruneSchema`: `boolean` - Enable schema pruning (default: `false`)
 - `pruneSchemaOptions`: `object` - Schema pruning options
-- `transforms`: `Array<Transform>` - Schema transformation functions
+- `transforms`: `Array<SchemaMapper>` - Schema transformation functions using `@graphql-tools/utils`
 
 ### Component Instance Properties
 
@@ -95,6 +101,40 @@ interface IGraphQLComponent {
   federation?: boolean;
 }
 ```
+
+### Component Instance Methods
+
+#### dispose()
+
+Cleans up internal references and resources. Call this method when you're done with a component instance to help with garbage collection:
+
+```typescript
+component.dispose();
+```
+
+## Migration from v5.x to v6.x
+
+### delegateToComponent Removal
+
+In v6.0.0, `delegateToComponent` was removed. Use `@graphql-tools/delegate`'s `delegateToSchema` instead:
+
+```javascript
+// Before (v5.x - removed)
+// return delegateToComponent(targetComponent, { targetRootField: 'fieldName', args, context, info });
+
+// After (v6.x+)
+import { delegateToSchema } from '@graphql-tools/delegate';
+
+return delegateToSchema({
+  schema: targetComponent.schema,
+  fieldName: 'fieldName', 
+  args,
+  context,
+  info
+});
+```
+
+For more complex delegation scenarios, refer to the [`@graphql-tools/delegate` documentation](https://the-guild.dev/graphql/tools/docs/schema-delegation).
 
 ## Usage Examples
 
@@ -127,158 +167,103 @@ const server = new ApolloServer({ schema, context });
 
 ### Data Sources
 
-Data sources in `graphql-component` use a proxy-based approach for context injection. The library provides two key types to assist with correct implementation:
+Data sources in `graphql-component` provide automatic context injection and type-safe data access. The library uses a proxy system to seamlessly inject context into your data source methods.
 
 ```typescript
-// When implementing a data source:
-class MyDataSource implements DataSourceDefinition<MyDataSource> {
-  name = 'MyDataSource';
+import GraphQLComponent, { 
+  DataSourceDefinition, 
+  ComponentContext,
+  IDataSource
+} from 'graphql-component';
+
+// Define your data source
+class UsersDataSource implements DataSourceDefinition<UsersDataSource>, IDataSource {
+  name = 'users';
   
-  // Context must be the first parameter when implementing
+  // Context is automatically injected as first parameter
   async getUserById(context: ComponentContext, id: string) {
-    // Use context for auth, config, etc.
-    return { id, name: 'User Name' };
+    // Access context for auth, config, etc.
+    const token = context.auth?.token;
+    return fetchUser(id, token);
   }
 }
 
-// In resolvers, context is automatically injected:
+// Use in resolvers - context injection is automatic
 const resolvers = {
   Query: {
     user(_, { id }, context) {
-      // Don't need to pass context - it's injected automatically
-      return context.dataSources.MyDataSource.getUserById(id);
-    }
-  }
-}
-
-// Add to component:
-new GraphQLComponent({
-  types,
-  resolvers,
-  dataSources: [new MyDataSource()]
-});
-```
-
-#### Data Source Types
-
-- `DataSourceDefinition<T>`: Interface for implementing data sources - methods must accept context as first parameter
-- `DataSource<T>`: Type representing data sources after proxy wrapping - context is automatically injected
-
-This type system ensures proper context handling while providing a clean API for resolver usage.
-
-#### TypeScript Example
-
-```typescript
-import { 
-  GraphQLComponent, 
-  DataSourceDefinition, 
-  ComponentContext 
-} from 'graphql-component';
-
-// Define your data source with proper types
-class UsersDataSource implements DataSourceDefinition<UsersDataSource> {
-  name = 'users';
-  
-  // Static property
-  defaultRole = 'user';
-  
-  // Context is required as first parameter when implementing
-  async getUserById(context: ComponentContext, id: string): Promise<User> {
-    // Access context properties (auth, etc.)
-    const apiKey = context.config?.apiKey;
-    
-    // Implementation details...
-    return { id, name: 'User Name', role: this.defaultRole };
-  }
-  
-  async getUsersByRole(context: ComponentContext, role: string): Promise<User[]> {
-    // Implementation details...
-    return [
-      { id: '1', name: 'User 1', role },
-      { id: '2', name: 'User 2', role }
-    ];
-  }
-}
-
-// In resolvers, the context is automatically injected
-const resolvers = {
-  Query: {
-    user: (_, { id }, context) => {
-      // No need to pass context - it's injected by the proxy
+      // No need to pass context manually - it's injected automatically
       return context.dataSources.users.getUserById(id);
-    },
-    usersByRole: (_, { role }, context) => {
-      // No need to pass context - it's injected by the proxy
-      return context.dataSources.users.getUsersByRole(role);
     }
   }
 };
 
-// Component configuration
-const usersComponent = new GraphQLComponent({
-  types: `
-    type User {
-      id: ID!
-      name: String!
-      role: String!
-    }
-    
-    type Query {
-      user(id: ID!): User
-      usersByRole(role: String!): [User]
-    }
-  `,
+// Add to component
+const component = new GraphQLComponent({
+  types,
   resolvers,
   dataSources: [new UsersDataSource()]
 });
 ```
 
-#### Data Source Overrides
+**Key Concepts:**
+- **Two Patterns**: Injected data sources (via context) or private data sources (via `this`)
+- **Implementation**: Context must be the first parameter in injected data source methods
+- **Usage**: Context is automatically injected for injected data sources
+- **Resolver Binding**: Resolvers are bound to component instances, enabling `this` access
+- **Testing**: Use `dataSourceOverrides` for injected sources, class extension for private sources
+- **Type Safety**: TypeScript interfaces ensure correct implementation
 
-You can override data sources when needed (for testing or extending functionality). The override must follow the same interface:
+For comprehensive documentation including both patterns, advanced usage, testing strategies, and common gotchas, see the **[Data Sources Guide](./DATASOURCES.md)**.
+
+### Context Middleware
+
+Components support context middleware that runs before the component's context is built. This is useful for authentication, logging, or transforming context:
 
 ```typescript
-// For testing - create a mock data source
-class MockUsersDataSource implements DataSourceDefinition<UsersDataSource> {
-  name = 'users';
-  defaultRole = 'admin';
-  
-  async getUserById(context: ComponentContext, id: string) {
-    return { id, name: 'Mock User', role: this.defaultRole };
-  }
-  
-  async getUsersByRole(context: ComponentContext, role: string) {
-    return [{ id: 'mock', name: 'Mock User', role }];
-  }
-}
-
-// Use the component with overrides
-const testComponent = new GraphQLComponent({
-  imports: [usersComponent],
-  dataSourceOverrides: [new MockUsersDataSource()]
+const component = new GraphQLComponent({
+  types,
+  resolvers
 });
 
-// In tests
-const context = await testComponent.context({});
-const mockUser = await context.dataSources.users.getUserById('any-id');
-// mockUser will be { id: 'any-id', name: 'Mock User', role: 'admin' }
+// Add authentication middleware
+component.context.use('auth', async (context) => {
+  const user = await authenticate(context.req?.headers?.authorization);
+  return { ...context, user };
+});
+
+// Add logging middleware  
+component.context.use('logging', async (context) => {
+  console.log('Building context for request', context.requestId);
+  return context;
+});
+
+// Use the context (middleware runs automatically)
+const context = await component.context({ req, requestId: '123' });
+// Context now includes user and logs the request
 ```
+
+Middleware runs in the order it's added and each middleware receives the transformed context from the previous middleware.
 
 ## Examples
 
-The repository includes example implementations:
+The repository includes working example implementations demonstrating different use cases:
 
 ### Local Schema Composition
 ```bash
 npm run start-composition
 ```
+This example shows how to compose multiple GraphQL components into a single schema using schema stitching.
 
 ### Federation Example
 ```bash
 npm run start-federation
 ```
+This example demonstrates building Apollo Federation subgraphs using GraphQL components.
 
-Both examples are accessible at `http://localhost:4000/graphql`
+Both examples are accessible at `http://localhost:4000/graphql` when running.
+
+You can find the complete example code in the [`examples/`](./examples/) directory.
 
 ## Debugging
 

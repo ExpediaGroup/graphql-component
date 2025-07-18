@@ -1,0 +1,98 @@
+---
+alwaysApply: true
+---
+
+# Project Overview
+
+`graphql-component` is a TypeScript library for building modular and composable GraphQL schemas through a component-based architecture. It enables developers to create large-scale GraphQL APIs by composing smaller, focused components that each encapsulate their own schema definitions, resolvers, and data sources.
+
+The library supports both traditional schema stitching for monolithic applications and Apollo Federation for microservice architectures, making it versatile for different deployment patterns.
+
+# Key Concepts
+
+## Component Architecture
+- **GraphQLComponent**: Core class that encapsulates schema, resolvers, and data sources
+- **Schema Composition**: Components can import other components to build larger schemas
+- **Isolation**: Each component manages its own concerns independently
+
+## Data Source Management  
+- **Proxy-based Injection**: Automatic context injection into data source methods
+- **Override Support**: Ability to replace data sources for testing or different environments
+- **Type Safety**: TypeScript interfaces ensure proper data source implementation
+
+## Schema Construction
+- **With Imports**: Creates aggregate schemas by combining imported components
+- **Without Imports**: Uses makeExecutableSchema for standalone components
+- **Federation Support**: Builds Apollo Federation subgraphs when enabled
+
+## Context & Middleware
+- **Context Middleware**: Chainable middleware for authentication, logging, etc.
+- **Namespace Support**: Organized context with component namespaces
+- **Global Context**: Shared context across all imported components
+
+# Tech Stack
+
+## Core Dependencies
+- **TypeScript** - Primary language for type safety and modern JavaScript features
+- **GraphQL** - Core GraphQL implementation (peer dependency ^16.0.0)
+- **@graphql-tools ecosystem** - Schema manipulation and utilities
+  - `@graphql-tools/schema` - Schema creation
+  - `@graphql-tools/stitch` - Schema stitching
+  - `@graphql-tools/merge` - Type definition merging
+  - `@graphql-tools/utils` - Common utilities and types
+  - `@graphql-tools/delegate` - Schema delegation
+  - `@graphql-tools/mock` - Schema mocking
+- **@apollo/federation** - Apollo Federation support for microservices
+
+## Development Tools
+- **tape** - Testing framework for unit tests
+- **eslint** - Code linting with TypeScript support
+- **prettier** - Code formatting
+- **debug** - Runtime debugging utilities
+- **ts-node** - TypeScript execution for examples and development
+
+## Example Dependencies
+- **apollo-server** - GraphQL server for examples
+- **@apollo/gateway** - Federation gateway for examples
+
+# Primary Goals
+
+## Modularity & Composition
+- Enable building large GraphQL schemas from smaller, manageable components
+- Support both horizontal (feature-based) and vertical (layer-based) composition patterns
+- Maintain clear separation of concerns between components
+
+## Developer Experience
+- Provide type-safe APIs with comprehensive TypeScript support
+- Offer intuitive patterns for common GraphQL use cases
+- Minimize boilerplate while maintaining flexibility
+
+## Architecture Flexibility
+- Support both monolithic and microservice deployment patterns
+- Enable gradual migration between architectural approaches
+- Provide escape hatches for advanced use cases
+
+## Production Readiness
+- Ensure performance through schema optimization and caching
+- Support debugging and monitoring through middleware and logging
+- Maintain backward compatibility and clear migration paths
+
+# Coding Standards
+
+- 2 spaces for indenting
+- space between statements and parenthesis, example: `if (condition)` and `function ()` and `switch ()`
+- `else` and `if else` always on new lines
+- prefer early returns in if/else rather than many `if else` and `else` conditions
+- assign functions to constants instead of just defining functions
+
+# Contributions
+
+- Always write tests when introducing new code
+- Always keep a changelog
+- Update documentation according to changes
+- Warn about breaking changes
+- Always make the minimal change possible to achieve the requested outcome
+- Avoid introducing new dependencies, and ask before you do
+- Optimize for code readability and keep comments to a minimum
+- Create examples under `/examples` directory to demonstrate complex ideas
+- Call out potential performance, security, and resilience issues when you encounter them
