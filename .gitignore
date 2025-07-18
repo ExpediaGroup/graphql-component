@@ -87,3 +87,6 @@ Thumbs.db
 
 # Package lock
 package-lock.json
+
+# Build output
+dist/

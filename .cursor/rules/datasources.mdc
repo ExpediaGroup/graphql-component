@@ -1,0 +1,166 @@
+# Data Source Patterns
+
+## Two Data Access Patterns
+
+### Pattern 1: Injected Data Sources (Recommended)
+- Pass via constructor `dataSources` option
+- Access via `context.dataSources.name`
+- Automatic context injection via proxy
+- Easy testing with `dataSourceOverrides`
+
+### Pattern 2: Private Data Sources (Alternative)
+- Create as component instance properties
+- Access via `this.dataSourceName` in resolvers
+- Resolvers are bound to component instance
+- Manual context passing required
+- **Limitation**: No `dataSourceOverrides` support
+- **Limitation**: No runtime configuration flexibility
+
+## Implementation Rules
+
+### Injected Data Sources
+- Always implement `DataSourceDefinition<T>` and `IDataSource`
+- Include `name` property (string) for identification
+- Context parameter MUST be first in all methods
+
+```typescript
+class MyDataSource implements DataSourceDefinition<MyDataSource>, IDataSource {
+  name = 'MyDataSource'; // Required
+  
+  // Context MUST be first parameter
+  async getData(context: ComponentContext, id: string) {
+    return { id };
+  }
+}
+```
+
+### Private Data Sources
+- No special interfaces required
+- Store as component properties
+- Use regular functions (not arrow functions) in resolvers for `this` binding
+
+```typescript
+class MyComponent extends GraphQLComponent {
+  private myDataSource: MyDataSource;
+  
+  constructor(options = {}) {
+    super({
+      resolvers: {
+        Query: {
+          // Use regular function for 'this' binding
+          data(_, { id }, context) {
+            return this.myDataSource.getData(id, context);
+          }
+        }
+      },
+      ...options
+    });
+    
+    this.myDataSource = new MyDataSource();
+  }
+}
+```
+
+### Typing Pattern
+- Use generic self-reference: `DataSourceDefinition<MyDataSource>`
+- Import `ComponentContext` from the main library
+- Define interfaces for return types when complex
+
+```typescript
+import { DataSourceDefinition, ComponentContext, IDataSource } from 'graphql-component';
+
+interface User {
+  id: string;
+  name: string;
+}
+
+class UserDataSource implements DataSourceDefinition<UserDataSource>, IDataSource {
+  name = 'users';
+  
+  async getUser(context: ComponentContext, id: string): Promise<User> {
+    // Implementation
+  }
+}
+```
+
+## Usage in Components
+
+### Constructor Pattern
+- Use default data sources with spread operator
+- Allow override through constructor options
+
+```typescript
+export default class MyComponent extends GraphQLComponent {
+  constructor({ dataSources = [new MyDataSource()], ...options } = {}) {
+    super({ types, resolvers, dataSources, ...options });
+  }
+}
+```
+
+### Resolver Usage
+- **NEVER** pass context manually to data source methods
+- Context is automatically injected by proxy
+- Access via `context.dataSources.DataSourceName`
+
+```typescript
+const resolvers = {
+  Query: {
+    user(_, { id }, context) {
+      // ✅ Correct - context injected automatically
+      return context.dataSources.users.getUser(id);
+      
+      // ❌ Wrong - don't pass context manually
+      // return context.dataSources.users.getUser(context, id);
+    }
+  }
+};
+```
+
+## Testing Patterns
+
+### Basic Data Source Testing
+```typescript
+test('data source injection', async (t) => {
+  const component = new GraphQLComponent({
+    types: `type Query { test: String }`,
+    dataSources: [new TestDataSource()]
+  });
+
+  const context = await component.context({ testValue: 'test' });
+  const result = context.dataSources.TestDataSource.getData('arg');
+  
+  t.equal(result, 'expected', 'data source method works');
+  t.end();
+});
+```
+
+### Override Testing
+```typescript
+test('data source overrides', async (t) => {
+  const mockDataSource = new MockDataSource();
+  
+  const component = new GraphQLComponent({
+    imports: [originalComponent],
+    dataSourceOverrides: [mockDataSource]
+  });
+
+  const context = await component.context({});
+  // Original data source is replaced by mock
+});
+```
+
+## File Organization
+
+### Structure
+```
+component/
+├── datasource.ts    # Data source implementation
+├── index.ts         # Component class
+├── resolvers.ts     # Resolver functions
+├── schema.graphql   # GraphQL schema
+└── types.ts         # Schema loader
+```
+
+### Export Pattern
+- Default export the data source class
+- Keep implementation in separate file from component

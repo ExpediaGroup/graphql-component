@@ -1,0 +1,306 @@
+# Testing Patterns
+
+## Test Structure
+
+### Using Tape Framework
+- Use `tape` for all tests (import as `test`)
+- Use nested tests with `t.test()`
+- Always call `t.plan()` or `t.end()`
+- Use descriptive test names
+
+```typescript
+import test from 'tape';
+import GraphQLComponent from '../src';
+
+test('component feature tests', (t) => {
+  t.test('should create basic component', (t) => {
+    t.plan(1);
+    
+    const component = new GraphQLComponent({ types, resolvers });
+    t.ok(component.schema, 'schema was created');
+  });
+
+  t.test('should handle data sources', async (t) => {
+    // async tests use t.end() instead of plan
+    const context = await component.context({});
+    t.ok(context.dataSources, 'data sources injected');
+    t.end();
+  });
+
+  t.end(); // End parent test
+});
+```
+
+## Component Testing
+
+### Basic Component Creation
+```typescript
+test('component creation', (t) => {
+  t.test('should create with types and resolvers', (t) => {
+    t.plan(2);
+    
+    const component = new GraphQLComponent({
+      types: `type Query { hello: String }`,
+      resolvers: {
+        Query: {
+          hello: () => 'world'
+        }
+      }
+    });
+    
+    t.ok(component.schema, 'schema created');
+    t.ok(component.schema.getQueryType(), 'query type exists');
+  });
+});
+```
+
+### Schema Execution Testing
+```typescript
+import { graphql } from 'graphql';
+
+test('schema execution', async (t) => {
+  t.plan(1);
+
+  const component = new GraphQLComponent({
+    types: `type Query { hello: String }`,
+    resolvers: {
+      Query: {
+        hello: () => 'world'
+      }
+    }
+  });
+
+  const result = await graphql({
+    schema: component.schema,
+    source: '{ hello }',
+    contextValue: {}
+  });
+
+  t.equal(result.data?.hello, 'world', 'resolver executed correctly');
+});
+```
+
+## Data Source Testing
+
+### Context Injection Testing
+```typescript
+test('data source context injection', async (t) => {
+  t.plan(3);
+
+  class TestDataSource {
+    name = 'test';
+    
+    getData(context, arg) {
+      t.ok(context, 'context injected');
+      t.equal(context.globalValue, 'test', 'context value passed');
+      return `${arg}-result`;
+    }
+  }
+
+  const component = new GraphQLComponent({
+    types: `type Query { test: String }`,
+    dataSources: [new TestDataSource()]
+  });
+
+  const context = await component.context({ globalValue: 'test' });
+  const result = context.dataSources.test.getData('input');
+  
+  t.equal(result, 'input-result', 'data source method worked');
+});
+```
+
+### Data Source Override Testing
+```typescript
+test('data source overrides', async (t) => {
+  t.plan(1);
+
+  class OriginalDataSource {
+    name = 'test';
+    getData() { return 'original'; }
+  }
+
+  class MockDataSource {
+    name = 'test';
+    getData() { return 'mock'; }
+  }
+
+  const component = new GraphQLComponent({
+    types: `type Query { test: String }`,
+    dataSources: [new OriginalDataSource()],
+    dataSourceOverrides: [new MockDataSource()]
+  });
+
+  const context = await component.context({});
+  const result = context.dataSources.test.getData();
+  
+  t.equal(result, 'mock', 'override replaced original');
+});
+```
+
+## Context Testing
+
+### Middleware Testing
+```typescript
+test('context middleware', async (t) => {
+  t.plan(2);
+
+  const component = new GraphQLComponent({
+    types: `type Query { test: String }`
+  });
+
+  component.context.use('auth', async (ctx) => ({
+    ...ctx,
+    user: { id: '123' }
+  }));
+
+  const context = await component.context({ req: {} });
+  
+  t.ok(context.user, 'middleware applied');
+  t.equal(context.user.id, '123', 'middleware data correct');
+});
+```
+
+### Multiple Middleware Order
+```typescript
+test('middleware execution order', async (t) => {
+  t.plan(1);
+
+  const component = new GraphQLComponent({
+    types: `type Query { test: String }`
+  });
+
+  component.context.use('first', async (ctx) => ({
+    ...ctx,
+    value: 1
+  }));
+  
+  component.context.use('second', async (ctx) => ({
+    ...ctx,
+    value: (ctx.value as number) + 1
+  }));
+
+  const context = await component.context({});
+  t.equal(context.value, 2, 'middleware executed in order');
+});
+```
+
+## Integration Testing
+
+### Component Composition Testing
+```typescript
+test('component composition', async (t) => {
+  t.plan(2);
+
+  const childComponent = new GraphQLComponent({
+    types: `type Query { child: String }`,
+    resolvers: {
+      Query: {
+        child: () => 'child result'
+      }
+    }
+  });
+
+  const parentComponent = new GraphQLComponent({
+    types: `type Query { parent: String }`,
+    resolvers: {
+      Query: {
+        parent: () => 'parent result'
+      }
+    },
+    imports: [childComponent]
+  });
+
+  const result = await graphql({
+    schema: parentComponent.schema,
+    source: '{ parent child }'
+  });
+
+  t.equal(result.data?.parent, 'parent result', 'parent resolver works');
+  t.equal(result.data?.child, 'child result', 'child resolver works');
+});
+```
+
+### Federation Testing
+```typescript
+test('federation schema creation', (t) => {
+  t.plan(1);
+
+  const component = new GraphQLComponent({
+    types: `
+      type User @key(fields: "id") {
+        id: ID!
+        name: String
+      }
+    `,
+    resolvers: {
+      User: {
+        __resolveReference: (ref) => ({ id: ref.id, name: 'Test User' })
+      }
+    },
+    federation: true
+  });
+
+  t.ok(component.schema, 'federation schema created');
+});
+```
+
+## Mock Testing
+
+### Default Mocks
+```typescript
+test('default mocks', async (t) => {
+  t.plan(1);
+
+  const component = new GraphQLComponent({
+    types: `type Query { hello: String }`,
+    mocks: true
+  });
+
+  const result = await graphql({
+    schema: component.schema,
+    source: '{ hello }'
+  });
+
+  t.ok(result.data?.hello, 'default mock applied');
+});
+```
+
+### Custom Mocks
+```typescript
+test('custom mocks', async (t) => {
+  t.plan(1);
+
+  const component = new GraphQLComponent({
+    types: `type Query { hello: String }`,
+    mocks: {
+      Query: () => ({
+        hello: 'Custom mock value'
+      })
+    }
+  });
+
+  const result = await graphql({
+    schema: component.schema,
+    source: '{ hello }'
+  });
+
+  t.equal(result.data?.hello, 'Custom mock value', 'custom mock applied');
+});
+```
+
+## Test Organization
+
+### File Structure
+```
+test/
+├── test.ts          # Main component tests
+├── context.ts       # Context-specific tests
+├── datasources.ts   # Data source tests
+├── schema.ts        # Schema transformation tests
+└── validation.ts    # Validation tests
+```
+
+### Async Test Pattern
+- Use `async (t)` for async tests
+- Always call `t.end()` for async tests
+- Use `t.plan(n)` for sync tests

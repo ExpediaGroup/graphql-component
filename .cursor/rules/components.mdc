@@ -1,0 +1,179 @@
+# Component Creation Patterns
+
+## Class Structure
+
+### Extending GraphQLComponent
+- Always extend `GraphQLComponent` class
+- Implement constructor with options spread pattern
+- Use TypeScript for type safety
+
+```typescript
+import GraphQLComponent from 'graphql-component';
+import { types } from './types';
+import { resolvers } from './resolvers';
+import MyDataSource from './datasource';
+
+export default class MyComponent extends GraphQLComponent {
+  constructor({ dataSources = [new MyDataSource()], ...options } = {}) {
+    super({ types, resolvers, dataSources, ...options });
+  }
+}
+```
+
+### Constructor Pattern
+- Default empty object parameter: `= {}`
+- Default data sources with spread: `dataSources = [new MyDataSource()]`
+- Spread remaining options: `...options`
+- Pass all to super: `super({ types, resolvers, dataSources, ...options })`
+
+### Component References (for Delegation)
+- Store component instances as properties when needed for delegation
+- Initialize imported components in constructor
+
+```typescript
+export default class ListingComponent extends GraphQLComponent {
+  propertyComponent: PropertyComponent;
+  reviewsComponent: ReviewsComponent;
+  
+  constructor(options) {
+    const propertyComponent = new PropertyComponent();
+    const reviewsComponent = new ReviewsComponent();
+
+    super({
+      types,
+      resolvers,
+      imports: [propertyComponent, reviewsComponent],
+      ...options
+    });
+
+    this.propertyComponent = propertyComponent;
+    this.reviewsComponent = reviewsComponent;
+  }
+}
+```
+
+## File Organization
+
+### Standard Structure
+```
+my-component/
+├── index.ts         # Component class (default export)
+├── types.ts         # Schema loader 
+├── resolvers.ts     # Resolver map (named export)
+├── schema.graphql   # GraphQL SDL
+└── datasource.ts    # Data source class (default export)
+```
+
+### Schema Loading Pattern
+- Use fs.readFileSync for .graphql files
+- Export as named export `types`
+
+```typescript
+// types.ts
+import fs from 'fs';
+import path from 'path';
+
+export const types = fs.readFileSync(
+  path.resolve(path.join(__dirname, 'schema.graphql')), 
+  'utf-8'
+);
+```
+
+### Resolver Export Pattern
+- Export as named export `resolvers`
+- Use object literal format
+
+```typescript
+// resolvers.ts
+export const resolvers = {
+  Query: {
+    myField(_, args, context) {
+      return context.dataSources.MyDataSource.getData(args.id);
+    }
+  }
+};
+```
+
+## Federation vs Composition
+
+### Composition Components
+- Use `imports` to include other components
+- Use `delegateToSchema` for cross-component calls
+- No federation flag needed
+
+```typescript
+const component = new GraphQLComponent({
+  types,
+  resolvers,
+  imports: [childComponent1, childComponent2]
+});
+```
+
+### Federation Components  
+- Set `federation: true`
+- Include federation directives in schema
+- Implement `__resolveReference` resolvers
+
+```typescript
+const component = new GraphQLComponent({
+  types,
+  resolvers,
+  dataSources: [new MyDataSource()],
+  federation: true  // Enable federation
+});
+```
+
+## Resolver Delegation
+
+### Cross-Component Calls
+- Use `delegateToSchema` from `@graphql-tools/delegate`
+- Reference component schema via `this.componentName.schema`
+- Pass through context and info
+
+```typescript
+import { delegateToSchema } from '@graphql-tools/delegate';
+
+export const resolvers = {
+  Listing: {
+    property(root, args, context, info) {
+      return delegateToSchema({
+        schema: this.propertyComponent.schema,
+        fieldName: 'propertyById',
+        args: { id: root.id },
+        context,
+        info
+      });
+    }
+  }
+};
+```
+
+## Context Usage
+
+### Accessing Data Sources
+- Use destructuring: `{ dataSources }` from context
+- Access by class name: `dataSources.MyDataSource`
+
+```typescript
+const resolvers = {
+  Query: {
+    user(_, { id }, { dataSources }) {
+      return dataSources.UserDataSource.getUser(id);
+    }
+  }
+};
+```
+
+### Federation Resolvers
+- Include `__resolveReference` for entity resolution
+- Use typed parameters for clarity
+
+```typescript
+const resolvers = {
+  Property: {
+    __resolveReference(ref: { id: string }, { dataSources }: ComponentContext) {
+      return dataSources.PropertyDataSource.getPropertyById(ref.id);
+    }
+  }
+};
+```
