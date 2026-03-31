@@ -192,7 +192,17 @@ test('federation', (t) => {
 
   t.test('imported federated components will merge correctly', (t) => {
 
-    t.plan(1);
+    t.plan(2);
+
+    const innerComponent = new GraphQLComponent({
+      types: `
+        type Inner {
+          id: ID!
+        }
+      `,
+      federation: true,
+      pruneSchema: false
+    });
 
     const component = new GraphQLComponent({
       types: `
@@ -202,19 +212,11 @@ test('federation', (t) => {
       `,
       federation: true,
       pruneSchema: false,
-      imports: [
-        new GraphQLComponent({
-          types: `
-            type Inner {
-              id: ID!
-            }
-          `,
-          pruneSchema: false
-        })
-      ]
+      imports: [innerComponent]
     });
 
-    t.ok(component.imports[0].component.federation, 'imported federated component types are merged');
+    t.ok(innerComponent.federation, 'imported component has its own federation flag set');
+    t.notOk(component.imports[0].component.federation !== innerComponent.federation, 'federation flag is not mutated by parent');
 
   });
 
@@ -630,4 +632,43 @@ test('mocks', async (t) => {
     t.equal(result.data?.hello, 'Custom hello world!', 'custom mocks are used');
   });
 
+});
+
+test('mutation resolvers are not memoized', async (t) => {
+  let callCount = 0;
+
+  const component = new GraphQLComponent({
+    types: `
+      type Query {
+        hello: String
+      }
+      type Mutation {
+        increment: Int
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello: () => 'world'
+      },
+      Mutation: {
+        increment: () => {
+          callCount++;
+          return callCount;
+        }
+      }
+    }
+  });
+
+  const schema = component.schema;
+  const contextValue = { dataSources: {} };
+
+  const mutation = `mutation { increment }`;
+
+  const result1 = await graphql({ schema, source: mutation, contextValue });
+  const result2 = await graphql({ schema, source: mutation, contextValue });
+
+  t.equal(result1.data?.increment, 1, 'first mutation call returns 1');
+  t.equal(result2.data?.increment, 2, 'second mutation call returns 2 (not memoized)');
+  t.equal(callCount, 2, 'mutation resolver was called twice');
+  t.end();
 });

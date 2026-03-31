@@ -84,7 +84,7 @@ test('GraphQLComponent Import Handling', (t) => {
       },
       get context() {
         const fn = async (ctx: Record<string, unknown>) => ctx;
-        fn.use = () => fn;
+        fn.use = () => () => {};
         return fn;
       },
       get types() {
@@ -147,84 +147,45 @@ test('GraphQLComponent Import Handling', (t) => {
     assert.end();
   });
 
-  t.test('should set federation flag on imported components when parent has federation', (assert) => {
+  t.test('should not mutate federation flag on imported components when parent has federation', (assert) => {
     const childComponent = new GraphQLComponent({
       types: ['type Query { child: String }']
     });
-    
+
     assert.notOk(childComponent.federation, 'child component federation is false initially');
-    
+
     const parentComponent = new GraphQLComponent({
       types: ['type Query { parent: String }'],
       imports: [childComponent],
       federation: true
     });
 
-    assert.ok(childComponent.federation, 'child component federation is set to true');
+    assert.notOk(childComponent.federation, 'child component federation is not mutated by parent');
+    assert.ok(parentComponent.federation, 'parent federation is true');
     assert.end();
   });
 
-  t.test('should set federation flag on custom IGraphQLComponent when parent has federation', (assert) => {
-    let federationFlag = false;
-    
-    const customComponent: IGraphQLComponent = {
-      get name() {
-        return 'CustomComponent';
-      },
-      get schema() {
-        return new GraphQLSchema({
-          query: new GraphQLObjectType({
-            name: 'Query',
-            fields: {
-              custom: {
-                type: GraphQLString,
-                resolve: () => 'custom value'
-              }
-            }
-          })
-        });
-      },
-      get context() {
-        const fn = async (ctx: Record<string, unknown>) => ctx;
-        fn.use = () => fn;
-        return fn;
-      },
-      get types() {
-        return ['type Query { custom: String }'];
-      },
-      get resolvers() {
-        return {
-          Query: {
-            custom: () => 'custom value'
-          }
-        };
-      },
-      get imports() {
-        return undefined;
-      },
-      get dataSources() {
-        return [];
-      },
-      get dataSourceOverrides() {
-        return [];
-      },
-      get federation() {
-        return federationFlag;
-      },
-      set federation(value: boolean) {
-        federationFlag = value;
-      }
-    };
-    
-    assert.notOk(customComponent.federation, 'custom component federation is false initially');
-    
-    const parentComponent = new GraphQLComponent({
-      types: ['type Query { parent: String }'],
-      imports: [customComponent],
+  t.test('should not mutate federation flag on shared component imported by multiple parents', (assert) => {
+    const sharedComponent = new GraphQLComponent({
+      types: ['type Query { shared: String }']
+    });
+
+    assert.notOk(sharedComponent.federation, 'shared component federation is false initially');
+
+    const federatedParent = new GraphQLComponent({
+      types: ['type Query { fedParent: String }'],
+      imports: [sharedComponent],
       federation: true
     });
 
-    assert.ok(customComponent.federation, 'custom component federation is set to true');
+    const nonFederatedParent = new GraphQLComponent({
+      types: ['type Query { nonFedParent: String }'],
+      imports: [sharedComponent]
+    });
+
+    assert.notOk(sharedComponent.federation, 'shared component federation is still false');
+    assert.ok(federatedParent.federation, 'federated parent is true');
+    assert.notOk(nonFederatedParent.federation, 'non-federated parent is false');
     assert.end();
   });
 

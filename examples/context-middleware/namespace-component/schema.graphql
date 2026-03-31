@@ -1,0 +1,61 @@
+type UserPreferences {
+  theme: Theme!
+  language: String!
+  timezone: String!
+  notifications: NotificationPreferences!
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+type NotificationPreferences {
+  email: Boolean!
+  push: Boolean!
+  sms: Boolean!
+}
+
+type BusinessInfo {
+  tenantId: String!
+  organizationId: String!
+  environment: Environment!
+  features: [String!]!
+  quotas: ResourceQuotas!
+}
+
+enum Environment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+type ResourceQuotas {
+  maxUsers: Int!
+  maxProjects: Int!
+  storageLimit: Int!
+}
+
+type AnalyticsInfo {
+  sessionId: String!
+  userId: String
+  deviceId: String!
+  userAgent: String!
+  country: String
+  city: String
+  trackingEnabled: Boolean!
+}
+
+type Query {
+  # Access user preferences from namespace context
+  myPreferences: UserPreferences
+  
+  # Access business context information
+  businessInfo: BusinessInfo
+  
+  # Access analytics context
+  analyticsInfo: AnalyticsInfo
+  
+  # Demonstrate using multiple namespace contexts in a single resolver
+  contextSummary: String!
+} 

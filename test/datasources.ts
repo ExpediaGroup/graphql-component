@@ -7,7 +7,7 @@ test('GraphQLComponent DataSource Tests', (t) => {
   t.test('should inject context into data source methods', async (assert) => {
     class TestDataSource {
       name = 'test';
-      getData(context, arg) {
+      getData(context: Record<string, unknown>, arg: string) {
         return `${context.value}-${arg}`;
       }
     }
@@ -56,7 +56,7 @@ test('GraphQLComponent DataSource Tests', (t) => {
     class TestDataSource {
       name = 'test';
       staticValue = 'static value';
-      getData(context) {
+      getData(context: Record<string, unknown>) {
         return this.staticValue;
       }
     }

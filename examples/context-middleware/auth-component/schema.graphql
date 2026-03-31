@@ -1,0 +1,29 @@
+type User {
+  id: ID!
+  username: String!
+  email: String!
+  roles: [String!]!
+  createdAt: String!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+type Query {
+  me: User
+  users: [User!]!
+  protectedData: String!
+  adminOnlyData: String!
+}
+
+type Mutation {
+  login(input: LoginInput!): AuthPayload!
+  logout: Boolean!
+} 

@@ -1,6 +1,6 @@
 {
   "name": "graphql-component",
-  "version": "6.0.3",
+  "version": "6.1.0",
   "description": "Build, customize and compose GraphQL schemas in a componentized fashion",
   "keywords": [
     "graphql",
@@ -10,16 +10,24 @@
     "component"
   ],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
-    "prepublish": "npm run build",
-    "test": "tape -r ts-node/register \"test/**/*.ts\"",
+    "prepublishOnly": "npm run build",
+    "test": "TS_NODE_PROJECT=tsconfig.test.json tape -r ts-node/register \"test/**/*.ts\"",
     "start-composition": "ts-node examples/composition/server/index.ts",
     "start-federation": "ts-node examples/federation/run-federation-example.ts",
-    "lint": "npx eslint src/index.ts",
+    "lint": "npx eslint 'src/**/*.ts'",
     "cover": "nyc npm test",
     "update-deps": "ncu -u && npm install",
-    "format": "prettier --write \"src/**/*.ts\"",
     "precommit": "npm run lint && npm run test",
     "prepare": "husky install"
   },
@@ -40,7 +48,6 @@
   },
   "devDependencies": {
     "@apollo/gateway": "^2.9.3",
-    "@types/graphql": "^14.5.0",
     "@types/node": "^22.9.1",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
@@ -50,15 +57,14 @@
     "globals": "^15.14.0",
     "graphql": "^16.9.0",
     "graphql-tag": "^2.12.6",
+    "husky": "^8.0.0",
     "npm-check-updates": "^17.1.11",
     "nyc": "^17.1.0",
     "sinon": "^19.0.2",
     "tape": "^5.9.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.22.0",
-    "husky": "^8.0.0",
-    "prettier": "^2.8.8"
+    "typescript-eslint": "^8.22.0"
   },
   "nyc": {
     "include": [

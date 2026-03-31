@@ -15,7 +15,6 @@ coverage/
 tsconfig.json
 eslint.config.mjs
 .eslintrc*
-.prettier*
 jest.config.*
 .babelrc*
 webpack.config.*

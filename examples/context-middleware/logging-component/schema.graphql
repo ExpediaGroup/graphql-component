@@ -1,0 +1,41 @@
+type LogEntry {
+  level: LogLevel!
+  message: String!
+  requestId: String!
+  timestamp: String!
+  duration: Int
+  userId: String
+  operation: String
+  metadata: String # JSON string of metadata
+}
+
+enum LogLevel {
+  INFO
+  WARN
+  ERROR
+  DEBUG
+}
+
+type RequestInfo {
+  requestId: String!
+  startTime: String!
+  userAgent: String
+  ip: String
+  operation: String
+  variables: String # JSON string of variables
+  duration: Int
+}
+
+type Query {
+  # Get recent log entries (requires admin role)
+  recentLogs(limit: Int = 100): [LogEntry!]!
+  
+  # Get logs for a specific request
+  logsByRequestId(requestId: String!): [LogEntry!]!
+  
+  # Get logs by level (requires admin role)
+  logsByLevel(level: LogLevel!): [LogEntry!]!
+  
+  # Get current request info
+  currentRequest: RequestInfo
+} 

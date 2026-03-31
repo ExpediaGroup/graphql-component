@@ -4,7 +4,7 @@
     "module": "commonjs",
     "target": "esnext",
     "lib": ["esnext"],
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "inlineSourceMap": true,
